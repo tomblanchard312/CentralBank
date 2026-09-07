@@ -1,14 +1,5 @@
 /**
  * Guards the gateway/contract interface boundary.
- *
- * The gateway's ABI fragments are hand-maintained, and a mismatch is silent:
- * a wrong argument count produces an unknown selector at call time, a
- * reordered tuple decodes to plausible-looking garbage, and a shifted enum
- * maps one wallet class onto another. None of that shows up in a unit test of
- * either side alone.
- *
- * This parses contracts/src directly and asserts that everything the gateway
- * declares actually exists on-chain with the same shape.
  */
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -17,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { ethers } from 'ethers';
 import {
   WalletRegistryABI,
-  TokenizedEuroABI,
+  DigitalTokenABI,
   ConditionalPaymentsABI,
   PermissioningABI,
   WalletType,
@@ -43,21 +34,13 @@ function readContractSources(): string {
 
 const sources = readContractSources();
 
-/** Solidity type as written in source -> canonical ABI type. */
 function canonicalType(solidityType: string): string {
   const base = solidityType.replace(/\s+/g, '');
-  // Enums are uint8 in the ABI; structs and dynamic types are compared by name
-  // elsewhere, so only the enum mapping matters here.
   if (['WalletType', 'ConditionType', 'PaymentStatus'].includes(base)) return 'uint8';
   if (base === 'uint') return 'uint256';
   return base;
 }
 
-/**
- * Collects `name(type,type)` for every external/public function declared
- * anywhere in the contract sources, plus the implicit getters generated for
- * public state variables.
- */
 function collectContractSignatures(): Set<string> {
   const signatures = new Set<string>();
 
@@ -73,8 +56,6 @@ function collectContractSignatures(): Set<string> {
     signatures.add(`${name}(${types.join(',')})`);
   }
 
-  // Public state variables get an auto-generated getter. Mappings take their
-  // key type as the argument; plain variables take none.
   const mappingPattern = /mapping\s*\(\s*(\w+)\s*=>\s*[^)]+\)\s+public\s+(\w+)/g;
   for (const match of sources.matchAll(mappingPattern)) {
     signatures.add(`${match[2]}(${canonicalType(match[1]!)})`);
@@ -87,7 +68,6 @@ function collectContractSignatures(): Set<string> {
   return signatures;
 }
 
-/** Collects `EventName(type,type)` for every event in the contract sources. */
 function collectContractEvents(): Set<string> {
   const events = new Set<string>();
   const pattern = /event\s+(\w+)\s*\(([\s\S]*?)\)\s*;/g;
@@ -108,7 +88,7 @@ const contractEvents = collectContractEvents();
 
 const abis: Array<[string, readonly string[]]> = [
   ['WalletRegistry', WalletRegistryABI],
-  ['TokenizedEuro', TokenizedEuroABI],
+  ['DigitalToken', DigitalTokenABI],
   ['ConditionalPayments', ConditionalPaymentsABI],
   ['Permissioning', PermissioningABI],
 ];
@@ -125,7 +105,6 @@ describe('gateway ABI parity with contracts/src', () => {
     it('declares only functions that exist on-chain with matching arity and types', () => {
       const missing: string[] = [];
       iface.forEachFunction(fn => {
-        // `fn.format('sighash')` yields name(type,type) with canonical types.
         const signature = fn.format('sighash');
         if (!contractSignatures.has(signature)) missing.push(signature);
       });
@@ -144,12 +123,9 @@ describe('gateway ABI parity with contracts/src', () => {
 });
 
 describe('gateway enums mirror contract ordinals', () => {
-  /** Reads `enum Name { A, B, C }` from the interface sources. */
   function contractEnum(name: string): string[] {
     const match = sources.match(new RegExp(`enum\\s+${name}\\s*\\{([^}]*)\\}`));
     expect(match, `enum ${name} not found in contracts/src`).toBeTruthy();
-    // Comments must be stripped before splitting: the trailing `//` comments in
-    // these enums contain commas of their own.
     return match![1]!
       .replace(/\/\/[^\n]*/g, '')
       .split(',')
@@ -169,7 +145,6 @@ describe('gateway enums mirror contract ordinals', () => {
         `${name}.${member} must be ${ordinal} to match the contract`,
       ).toBe(ordinal);
     }
-    // No extra members: every gateway ordinal must be a real contract member.
     const numericKeys = Object.values(gatewayEnum).filter(v => typeof v === 'number') as number[];
     expect(numericKeys.length).toBe(members.length);
   });
