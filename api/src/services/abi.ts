@@ -16,7 +16,6 @@ export const WalletRegistryABI = [
   'function reactivateWallet(address wallet) external',
   'function setCustomLimit(address wallet, uint256 limit) external',
   'function updateLinkedBankAccount(address wallet, address newBank) external',
-  // IWalletRegistry.WalletInfo — field order is load-bearing.
   'function getWalletInfo(address wallet) external view returns (tuple(uint8 walletType, address linkedBankAccount, uint256 customLimit, uint256 registrationTime, bool isActive, bytes32 kycHash))',
   'function getHoldingLimit(address wallet) external view returns (uint256)',
   'function getDefaultHoldingLimit(uint8 walletType) external view returns (uint256)',
@@ -31,7 +30,7 @@ export const WalletRegistryABI = [
   'event CustomLimitSet(address indexed wallet, uint256 limit)',
 ] as const;
 
-export const TokenizedEuroABI = [
+export const DigitalTokenABI = [
   'function name() external view returns (string)',
   'function symbol() external view returns (string)',
   'function totalSupply() external view returns (uint256)',
@@ -53,9 +52,6 @@ export const TokenizedEuroABI = [
   'function executeWaterfall(address wallet) external',
   'function executeReverseWaterfall(address wallet, uint256 amount, bytes32 idempotencyKey) external',
   'function frozenAccounts(address account) external view returns (bool)',
-  // EscrowRecord { uint256 amount; string legalBasis; uint256 expiry; }
-  // Solidity's auto-generated getter for a struct mapping returns the members
-  // as separate values, not a tuple.
   'function escrowedBalances(address account) external view returns (uint256 amount, string legalBasis, uint256 expiry)',
   'function escrowTotals(address account) external view returns (uint256)',
   'function wouldExceedLimit(address to, uint256 amount) external view returns (bool)',
@@ -85,7 +81,6 @@ export const ConditionalPaymentsABI = [
   'function disputePayment(bytes32 paymentId, string reason) external',
   'function resolveDispute(bytes32 paymentId, bool releaseToPayee) external',
   'function claimExpiredPayment(bytes32 paymentId) external',
-  // IConditionalPayments.ConditionalPayment — field order is load-bearing.
   'function getPayment(bytes32 paymentId) external view returns (tuple(bytes32 paymentId, address payer, address payee, uint256 amount, uint8 conditionType, bytes32 conditionData, uint256 createdAt, uint256 expiresAt, uint8 status, address arbiter))',
   'function getPaymentsByPayer(address payer) external view returns (bytes32[])',
   'function getPaymentsByPayee(address payee) external view returns (bytes32[])',
@@ -118,10 +113,6 @@ export const PermissioningABI = [
   'function isWalletHolder(address account) external view returns (bool)',
 ] as const;
 
-/**
- * Mirrors IWalletRegistry.WalletType. UNREGISTERED occupies ordinal 0, so every
- * subsequent member is one higher than a naive 0-based listing would suggest.
- */
 export enum WalletType {
   UNREGISTERED = 0,
   INDIVIDUAL = 1,
@@ -131,7 +122,6 @@ export enum WalletType {
   BANK = 5,
 }
 
-/** Mirrors IConditionalPayments.ConditionType. NONE occupies ordinal 0. */
 export enum ConditionType {
   NONE = 0,
   DELIVERY = 1,
@@ -141,7 +131,6 @@ export enum ConditionType {
   ORACLE = 5,
 }
 
-/** Mirrors IConditionalPayments.PaymentStatus. */
 export enum PaymentStatus {
   PENDING = 0,
   RELEASED = 1,
