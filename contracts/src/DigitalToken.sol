@@ -76,6 +76,11 @@ contract DigitalToken is IDigitalToken {
         _;
     }
 
+    modifier onlyBurner() {
+        if (!permissioning.isBurner(msg.sender)) revert Unauthorized();
+        _;
+    }
+
     modifier onlyEmergencyController() {
         if (!permissioning.isEmergencyController(msg.sender)) revert Unauthorized();
         _;
@@ -144,7 +149,7 @@ contract DigitalToken is IDigitalToken {
     }
 
     function mint(address to, uint256 amount, bytes32 idempotencyKey)
-        external onlyECB whenNotPaused idempotent(idempotencyKey)
+        external onlyMinter whenNotPaused idempotent(idempotencyKey)
     {
         if (to == address(0)) revert ZeroAddress();
         if (amount == 0) revert InvalidAmount();
@@ -155,7 +160,7 @@ contract DigitalToken is IDigitalToken {
     }
 
     function burn(address from, uint256 amount, bytes32 idempotencyKey)
-        external onlyECB whenNotPaused idempotent(idempotencyKey)
+        external onlyBurner whenNotPaused idempotent(idempotencyKey)
     {
         if (from == address(0)) revert ZeroAddress();
         if (amount == 0) revert InvalidAmount();
