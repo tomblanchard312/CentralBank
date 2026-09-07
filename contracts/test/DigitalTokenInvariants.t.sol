@@ -8,12 +8,12 @@ import "../src/DigitalToken.sol";
 
 contract TokenHandler is Test {
     DigitalToken public token;
-    address public ecb;
+    address public authority;
     address[3] public actors;
 
-    constructor(DigitalToken _token, address _ecb, address[3] memory _actors) {
+    constructor(DigitalToken _token, address _authority, address[3] memory _actors) {
         token = _token;
-        ecb = _ecb;
+        authority = _authority;
         actors = _actors;
     }
 
@@ -21,7 +21,7 @@ contract TokenHandler is Test {
         address actor = actors[actorSeed % actors.length];
         amount = bound(amount, 1, 1_000_000);
         bytes32 scopedKey = keccak256(abi.encode("mint", key, actor, amount));
-        vm.prank(ecb);
+        vm.prank(authority);
         try token.mint(actor, amount, scopedKey) {} catch {}
     }
 
@@ -31,7 +31,7 @@ contract TokenHandler is Test {
         if (balance == 0) return;
         amount = bound(amount, 1, balance);
         bytes32 scopedKey = keccak256(abi.encode("burn", key, actor, amount));
-        vm.prank(ecb);
+        vm.prank(authority);
         try token.burn(actor, amount, scopedKey) {} catch {}
     }
 
@@ -40,7 +40,7 @@ contract TokenHandler is Test {
         uint256 balance = token.balanceOf(actor);
         if (balance == 0 || token.escrowTotals(actor) != 0) return;
         amount = bound(amount, 1, balance);
-        vm.prank(ecb);
+        vm.prank(authority);
         try token.escrowFunds(actor, amount, "case-ref", 0) {} catch {}
     }
 
@@ -48,14 +48,14 @@ contract TokenHandler is Test {
         address actor = actors[actorSeed % actors.length];
         address recipient = actors[recipientSeed % actors.length];
         if (token.escrowTotals(actor) == 0) return;
-        vm.prank(ecb);
+        vm.prank(authority);
         try token.releaseEscrowedFunds(actor, recipient) {} catch {}
     }
 
     function burnEscrow(uint256 actorSeed) external {
         address actor = actors[actorSeed % actors.length];
         if (token.escrowTotals(actor) == 0) return;
-        vm.prank(ecb);
+        vm.prank(authority);
         try token.burnEscrowedFunds(actor) {} catch {}
     }
 }
@@ -65,16 +65,19 @@ contract DigitalTokenInvariantTest is StdInvariant, Test {
     DigitalToken internal token;
     TokenHandler internal handler;
     address internal admin = makeAddr("admin");
-    address internal ecb = makeAddr("ecb");
+    address internal authority = makeAddr("authority");
     address[3] internal actors;
 
     function setUp() public {
         actors = [makeAddr("alice"), makeAddr("bob"), makeAddr("merchant")];
         permissioning = new Permissioning(admin);
-        vm.prank(admin);
-        permissioning.grantRole(permissioning.ECB_ROLE(), ecb);
+        vm.startPrank(admin);
+        permissioning.grantRole(permissioning.ECB_ROLE(), authority);
+        permissioning.grantRole(permissioning.MINTER_ROLE(), authority);
+        permissioning.grantRole(permissioning.BURNER_ROLE(), authority);
+        vm.stopPrank();
         token = new DigitalToken(address(permissioning));
-        handler = new TokenHandler(token, ecb, actors);
+        handler = new TokenHandler(token, authority, actors);
         targetContract(address(handler));
     }
 
