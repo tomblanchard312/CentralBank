@@ -8,14 +8,14 @@ import { describe, it, expect, beforeAll } from 'vitest';
 import { ethers } from 'ethers';
 import {
   WalletRegistryABI,
-  TokenizedEuroABI,
+  DigitalTokenABI,
   WalletType,
 } from '../src/services/abi.js';
 
-const rpcUrl = process.env['TEUR_INTEGRATION_RPC_URL'];
+const rpcUrl = process.env['CENTRALBANK_INTEGRATION_RPC_URL'];
 const registryAddress = process.env['CONTRACT_WALLET_REGISTRY'];
-const tokenAddress = process.env['CONTRACT_TOKENIZED_EURO'];
-const deployerKey = process.env['TEUR_INTEGRATION_DEPLOYER_KEY'];
+const tokenAddress = process.env['CONTRACT_DIGITAL_TOKEN'];
+const deployerKey = process.env['CENTRALBANK_INTEGRATION_DEPLOYER_KEY'];
 
 const configured = Boolean(rpcUrl && registryAddress && tokenAddress && deployerKey);
 
@@ -40,7 +40,7 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
     operator = new ethers.NonceManager(deployerWallet);
     operatorAddress = await operator.getAddress();
     registry = new ethers.Contract(registryAddress!, [...WalletRegistryABI], operator);
-    token = new ethers.Contract(tokenAddress!, [...TokenizedEuroABI], operator);
+    token = new ethers.Contract(tokenAddress!, [...DigitalTokenABI], operator);
 
     holder = ethers.Wallet.createRandom().connect(provider);
     await (await operator.sendTransaction({
@@ -64,8 +64,6 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
       keyFor('kyc-individual'),
     )).wait();
 
-    // Mint and delegated-transfer tests use holder as a real payer, so it must
-    // satisfy the same registration policy as any other end-user wallet.
     await (await registry.registerWallet(
       holder.address,
       WalletType.INDIVIDUAL,
