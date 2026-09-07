@@ -6,7 +6,7 @@ import { logger, logAuditEvent } from '../utils/logger.js';
 import { BlockchainError } from '../middleware/errors.js';
 import {
   WalletRegistryABI,
-  TokenizedEuroABI,
+  DigitalTokenABI,
   ConditionalPaymentsABI,
   PermissioningABI,
   WalletType,
@@ -34,14 +34,8 @@ export const ROLES = {
   WALLET_HOLDER_ROLE: ethers.keccak256(ethers.toUtf8Bytes('WALLET_HOLDER_ROLE')),
 } as const;
 
-// Lightweight numeric wrapper for returned big values
 type EBig = { toString(): string; toNumber?: () => number };
 
-/**
- * Mirrors IWalletRegistry.WalletInfo. Field order matches the struct exactly;
- * ethers decodes tuples positionally, so a reordering here silently yields
- * wrong values rather than an error.
- */
 type WalletInfo = {
   walletType: number | EBig;
   linkedBankAccount: string;
@@ -51,7 +45,6 @@ type WalletInfo = {
   kycHash: string;
 };
 
-/** Mirrors IConditionalPayments.ConditionalPayment. */
 type PaymentInfo = {
   paymentId: string;
   payer: string;
@@ -66,16 +59,13 @@ type PaymentInfo = {
 };
 
 /**
- * BlockchainService: Orchestrates interactions with the tEUR smart contracts.
- * 
+ * BlockchainService: Orchestrates interactions with the CentralBank smart contracts.
+ *
  * FINANCIAL SYSTEM SAFETY REQUIREMENTS:
- * 1. No Fail-Open: If a security or policy check (e.g., holding limits, intermediary verification) 
- *    cannot be completed due to technical failure, the transaction MUST be blocked.
- * 2. Explicit Failure: All errors must be caught, logged with structured context, and 
- *    rethrown as explicit BlockchainError types to prevent silent degradation.
- * 3. Integrity Protection: Transaction receipts must be verified for success (status === 1).
- * 4. Schema Enforcement: Contract return data must be validated against expected types 
- *    to prevent issues from unexpected contract upgrades or schema evolution.
+ * 1. No Fail-Open: If a security or policy check cannot be completed, block the transaction.
+ * 2. Explicit Failure: Catch, log, and rethrow explicit BlockchainError values.
+ * 3. Integrity Protection: Verify transaction receipts for success.
+ * 4. Schema Enforcement: Validate contract return data against expected types.
  */
 class BlockchainService {
   private provider: JsonRpcProvider;
@@ -83,7 +73,7 @@ class BlockchainService {
   private operatorAddress = '';
   private contracts?: {
     walletRegistry: Contract;
-    tokenizedEuro: Contract;
+    digitalToken: Contract;
     conditionalPayments: Contract;
     permissioning: Contract;
   };
@@ -93,10 +83,6 @@ class BlockchainService {
     this.provider = new JsonRpcProvider(config.blockchain.rpcUrl);
   }
 
-  /**
-   * Contracts are bound during initialize() rather than in the constructor
-   * because signer creation is asynchronous under the KMS backend.
-   */
   private bound() {
     if (!this.contracts) {
       throw new BlockchainError('Blockchain service has not been initialized');
@@ -105,7 +91,7 @@ class BlockchainService {
   }
 
   private get _walletRegistry(): Contract { return this.bound().walletRegistry; }
-  private get _tokenizedEuro(): Contract { return this.bound().tokenizedEuro; }
+  private get _digitalToken(): Contract { return this.bound().digitalToken; }
   private get _conditionalPayments(): Contract { return this.bound().conditionalPayments; }
   private get _permissioning(): Contract { return this.bound().permissioning; }
 
@@ -124,7 +110,7 @@ class BlockchainService {
       const signer = this.managedSigner.signer;
       this.contracts = {
         walletRegistry: new Contract(config.contracts.walletRegistry, WalletRegistryABI, signer),
-        tokenizedEuro: new Contract(config.contracts.tokenizedEuro, TokenizedEuroABI, signer),
+        digitalToken: new Contract(config.contracts.digitalToken, DigitalTokenABI, signer),
         conditionalPayments: new Contract(config.contracts.conditionalPayments, ConditionalPaymentsABI, signer),
         permissioning: new Contract(config.contracts.permissioning, PermissioningABI, signer),
       };
@@ -138,11 +124,9 @@ class BlockchainService {
         );
       }
 
-      // OWASP: Security Logging and Monitoring - Log service startup
       logger.info('BLOCKCHAIN_SERVICE', 'RESOURCE_CREATED', {
         chainId: network.chainId.toString(),
         blockNumber,
-        // Sanitized: only log address, never key material
         resourceId: this.operatorAddress,
       });
 
@@ -157,7 +141,6 @@ class BlockchainService {
     }
   }
 
-  // --- Typed wrapper helpers for contract calls ---
   private async _callWalletRegistryGetWalletInfo(wallet: string): Promise<WalletInfo> {
     const func = this._walletRegistry.getFunction('getWalletInfo');
     if (!func) throw new BlockchainError('Contract method getWalletInfo not available');
@@ -179,21 +162,21 @@ class BlockchainService {
   }
 
   private async _callTokenBalanceOf(address: string): Promise<EBig> {
-    const func = this._tokenizedEuro.getFunction('balanceOf');
+    const func = this._digitalToken.getFunction('balanceOf');
     if (!func) throw new BlockchainError('Contract method balanceOf not available');
     const bal = await func(address);
     return bal as unknown as EBig;
   }
 
   private async _callTokenTotalSupply(): Promise<EBig> {
-    const func = this._tokenizedEuro.getFunction('totalSupply');
+    const func = this._digitalToken.getFunction('totalSupply');
     if (!func) throw new BlockchainError('Contract method totalSupply not available');
     const s = await func();
     return s as unknown as EBig;
   }
 
   private async _callTokenPaused(): Promise<boolean> {
-    const func = this._tokenizedEuro.getFunction('paused');
+    const func = this._digitalToken.getFunction('paused');
     if (!func) throw new BlockchainError('Contract method paused not available');
     return await func() as boolean;
   }
@@ -211,12 +194,6 @@ class BlockchainService {
     return await func(role, account) as boolean;
   }
 
-  /**
-   * Contract idempotency parameters are bytes32, but the API accepts UUIDs.
-   * A UUID is not valid bytes32 and ethers rejects it at encode time, so it is
-   * hashed. Values already in bytes32 form are passed through unchanged, which
-   * keeps the mapping stable and collision-free for both input shapes.
-   */
   private _toBytes32Key(key: string): string {
     if (/^0x[a-fA-F0-9]{64}$/.test(key)) return key;
     return ethers.keccak256(ethers.toUtf8Bytes(key));
@@ -238,7 +215,6 @@ class BlockchainService {
     const correlationId = options.correlationId || crypto.randomUUID();
 
     try {
-      // Pre-transaction audit log
       await logAuditEvent({
         action: 'TRANSACTION_INITIATED',
         actor: options.userId || 'system',
@@ -259,13 +235,9 @@ class BlockchainService {
         throw new BlockchainError(`Contract method ${method} not found`);
       }
 
-      // Only pass valid ethers transaction overrides
       const overrides: { gasLimit?: bigint } = {};
       if (options.gasLimit) overrides.gasLimit = options.gasLimit;
 
-      // Serialise submission so concurrent requests cannot claim the same
-      // operator nonce. On failure the local nonce is re-synced from the chain,
-      // otherwise one rejected send would strand every later transaction.
       const signer = this.managedSigner;
       if (!signer) throw new BlockchainError('Blockchain service has not been initialized');
 
@@ -283,15 +255,12 @@ class BlockchainService {
         throw new BlockchainError('Transaction receipt is null');
       }
 
-      // Financial System Safety: Explicitly check for transaction revert.
-      // status === 0 indicates the transaction was mined but reverted on-chain.
       if (receipt.status === 0) {
         throw new BlockchainError('Transaction reverted on-chain', { txHash: receipt.hash });
       }
 
       const duration = Date.now() - startTime;
 
-      // Post-transaction audit log
       await logAuditEvent({
         action: 'TRANSACTION_COMPLETED',
         actor: options.userId || 'system',
@@ -320,7 +289,6 @@ class BlockchainService {
       const duration = Date.now() - startTime;
       const err = error as Error & { reason?: string; code?: string };
 
-      // Error audit log
       await logAuditEvent({
         action: 'TRANSACTION_FAILED',
         actor: options.userId || 'system',
@@ -341,16 +309,13 @@ class BlockchainService {
         errorMessage: err.message,
       });
 
-      // OWASP: Security Logging and Monitoring - Log blockchain transaction failures
       logger.error('BLOCKCHAIN_SERVICE', 'TRANSACTION_SUBMITTED', {
         correlationId,
         method,
         errorCode: err.code,
-        // Sanitized: log reason but not full error message which might contain raw data
         reason: err.reason,
       });
 
-      // Parse common error messages
       if (err.reason?.includes('insufficient funds')) {
         throw new BlockchainError('Insufficient funds for transaction');
       }
@@ -371,8 +336,6 @@ class BlockchainService {
     }
   }
 
-  // ============ Wallet Operations ============
-
   async registerWallet(
     wallet: string,
     walletType: WalletType,
@@ -381,15 +344,11 @@ class BlockchainService {
     correlationId?: string,
     userId?: string
   ) {
-    // ECB Alignment: Intermediated model enforcement.
-    // All wallets (except PSPs/Banks themselves) must be linked to a supervised intermediary.
     if (walletType !== WalletType.PSP && walletType !== WalletType.BANK) {
       const isIntermediary = await this.isIntermediary(linkedBank);
       if (!isIntermediary) {
-        // Fail explicitly with documented rationale
         throw new BlockchainError(
-          'ECB Alignment Violation: All end-user wallets must be linked to a supervised intermediary (PSP or Bank). ' +
-          'Direct end-user settlement without an intermediary is prohibited by the Digital Euro scheme.'
+          'Eurosystem reference-profile violation: all end-user wallets must be linked to a supervised intermediary (PSP or Bank).'
         );
       }
     }
@@ -448,9 +407,7 @@ class BlockchainService {
   async getWalletInfo(wallet: string) {
     try {
       const info = await this._callWalletRegistryGetWalletInfo(wallet);
-      
-      // Financial System Safety: Validate schema of contract return data.
-      // Prevents "Unexpected schema evolution" from causing silent data corruption.
+
       if (!info || typeof info.isActive !== 'boolean' || !info.linkedBankAccount || !info.kycHash) {
         throw new Error('Invalid wallet info returned from contract');
       }
@@ -486,10 +443,6 @@ class BlockchainService {
     }
   }
 
-  /**
-   * ECB Alignment: Intermediated model verification.
-   * Checks if a wallet belongs to a supervised intermediary (PSP or Bank).
-   */
   async isIntermediary(wallet: string): Promise<boolean> {
     try {
       const info = await this._callWalletRegistryGetWalletInfo(wallet);
@@ -500,14 +453,7 @@ class BlockchainService {
     }
   }
 
-  // ============ Token Operations ============
-
-  /**
-   * `justification` is recorded in the audit trail only. The on-chain mint
-   * takes no justification argument, so it must not be passed to the contract.
-   */
   async mint(to: string, amount: bigint, justification: string, idempotencyKey: string, correlationId?: string, userId?: string) {
-    // ECB Alignment: Holding limits enforcement at gateway
     await this.validateHoldingLimit(to, amount);
 
     await logAuditEvent({
@@ -520,7 +466,7 @@ class BlockchainService {
     });
 
     return this.executeTransaction(
-      this._tokenizedEuro,
+      this._digitalToken,
       'mint',
       [to, amount, this._toBytes32Key(idempotencyKey)],
       {
@@ -533,7 +479,7 @@ class BlockchainService {
 
   async burn(from: string, amount: bigint, idempotencyKey: string, correlationId?: string, userId?: string) {
     return this.executeTransaction(
-      this._tokenizedEuro,
+      this._digitalToken,
       'burn',
       [from, amount, this._toBytes32Key(idempotencyKey)],
       {
@@ -544,21 +490,11 @@ class BlockchainService {
     );
   }
 
-  /**
-   * Moves tokens between two wallets on behalf of the payer.
-   *
-   * This uses transferFrom, not transfer. The operator is not the owner of the
-   * funds, so it must spend against an allowance the payer has granted it.
-   * Using transfer here would debit the operator's own balance while the audit
-   * record claimed a payer-to-payee movement, so an unfunded allowance must
-   * fail loudly rather than silently spending gateway funds.
-   */
   async transfer(from: string, to: string, amount: bigint, correlationId?: string, userId?: string) {
-    // ECB Alignment: Holding limits enforcement at gateway
     await this.validateHoldingLimit(to, amount);
 
     return this.executeTransaction(
-      this._tokenizedEuro,
+      this._digitalToken,
       'transferFrom',
       [from, to, amount],
       {
@@ -569,19 +505,16 @@ class BlockchainService {
     );
   }
 
-  /** Allowance the payer has granted the gateway operator. */
   async allowanceForOperator(owner: string): Promise<bigint> {
-    const func = this._tokenizedEuro.getFunction('allowance');
+    const func = this._digitalToken.getFunction('allowance');
     if (!func) throw new BlockchainError('Contract method allowance not available');
     const result = await func(owner, this.operatorAddress);
     return BigInt(result.toString());
   }
 
-  // ============ Sovereign Monetary Controls ============
-
   async freezeAccount(account: string, reason: string, correlationId?: string, userId?: string) {
     return this.executeTransaction(
-      this._tokenizedEuro,
+      this._digitalToken,
       'freezeAccount',
       [account, reason],
       {
@@ -594,7 +527,7 @@ class BlockchainService {
 
   async unfreezeAccount(account: string, correlationId?: string, userId?: string) {
     return this.executeTransaction(
-      this._tokenizedEuro,
+      this._digitalToken,
       'unfreezeAccount',
       [account],
       {
@@ -607,7 +540,7 @@ class BlockchainService {
 
   async escrowFunds(account: string, amount: bigint, legalBasis: string, expiry: bigint, correlationId?: string, userId?: string) {
     return this.executeTransaction(
-      this._tokenizedEuro,
+      this._digitalToken,
       'escrowFunds',
       [account, amount, legalBasis, expiry],
       {
@@ -620,7 +553,7 @@ class BlockchainService {
 
   async releaseEscrowedFunds(account: string, to: string, correlationId?: string, userId?: string) {
     return this.executeTransaction(
-      this._tokenizedEuro,
+      this._digitalToken,
       'releaseEscrowedFunds',
       [account, to],
       {
@@ -633,7 +566,7 @@ class BlockchainService {
 
   async burnEscrowedFunds(account: string, correlationId?: string, userId?: string) {
     return this.executeTransaction(
-      this._tokenizedEuro,
+      this._digitalToken,
       'burnEscrowedFunds',
       [account],
       {
@@ -645,13 +578,13 @@ class BlockchainService {
   }
 
   async isAccountFrozen(account: string): Promise<boolean> {
-    const func = this._tokenizedEuro.getFunction('frozenAccounts');
+    const func = this._digitalToken.getFunction('frozenAccounts');
     if (!func) throw new BlockchainError('Contract method frozenAccounts not available');
     return await func(account) as boolean;
   }
 
   async getEscrowedBalance(account: string): Promise<{ amount: bigint; legalBasis: string; expiry: bigint }> {
-    const func = this._tokenizedEuro.getFunction('escrowedBalances');
+    const func = this._digitalToken.getFunction('escrowedBalances');
     if (!func) throw new BlockchainError('Contract method escrowedBalances not available');
     const result = await func(account);
     return {
@@ -662,13 +595,11 @@ class BlockchainService {
   }
 
   async getEscrowTotal(account: string): Promise<bigint> {
-    const func = this._tokenizedEuro.getFunction('escrowTotals');
+    const func = this._digitalToken.getFunction('escrowTotals');
     if (!func) throw new BlockchainError('Contract method escrowTotals not available');
     const result = await func(account);
     return BigInt(result.toString());
   }
-
-  // ============ Role Checks ============
 
   async isECB(account: string): Promise<boolean> {
     const func = this._permissioning.getFunction('isECB');
@@ -706,19 +637,14 @@ class BlockchainService {
     return await func(account) as boolean;
   }
 
-  /**
-   * Validate if a transfer would exceed the recipient's holding limit
-   */
   private async validateHoldingLimit(address: string, additionalAmount: bigint): Promise<void> {
     try {
       const info = await this._callWalletRegistryGetWalletInfo(address);
       const currentBalance = await this._callTokenBalanceOf(address);
       const newBalance = BigInt(currentBalance.toString()) + additionalAmount;
 
-      // Get limit from contract (custom limit)
       let limit = BigInt((await this._callWalletRegistryGetHoldingLimit(address)).toString());
 
-      // If no custom limit, use default based on wallet type
       if (limit === BigInt(0)) {
         const walletType = Number(info.walletType);
         switch (walletType) {
@@ -731,27 +657,20 @@ class BlockchainService {
           case WalletType.PSP:
           case WalletType.NCB:
           case WalletType.BANK:
-            // Supervised intermediaries hold balances on behalf of others and
-            // are not subject to the scheme's per-holder cap.
             return;
           default:
-            // UNREGISTERED, or an ordinal this build does not know about.
-            // Deny rather than fall through to an unbounded limit.
             throw new BlockchainError(
-              `Recipient wallet is not registered for holding tEUR (wallet type ${walletType})`,
+              `Recipient wallet is not registered for holding CBDT (wallet type ${walletType})`,
             );
         }
       }
 
       if (newBalance > limit) {
-        throw new BlockchainError(`ECB Alignment Violation: Recipient holding limit exceeded. Limit: ${limit}, Resulting Balance: ${newBalance}`);
+        throw new BlockchainError(`Eurosystem reference-profile violation: recipient holding limit exceeded. Limit: ${limit}, Resulting Balance: ${newBalance}`);
       }
     } catch (error) {
       if (error instanceof BlockchainError) throw error;
-      
-      // Financial System Safety: No fail-open behavior. 
-      // If we cannot verify the holding limit (e.g. RPC failure, contract error), 
-      // we MUST block the transaction to prevent potential breach of Digital Euro scheme rules.
+
       const msg = `Failed to verify holding limit for ${address}. Transaction blocked to preserve system integrity.`;
       logger.error('BLOCKCHAIN_SERVICE', 'HOLDING_LIMIT_CHECK_FAILED', { address, error: String(error) });
       throw new BlockchainError(msg, error);
@@ -778,7 +697,7 @@ class BlockchainService {
 
   async executeWaterfall(wallet: string, correlationId?: string, userId?: string) {
     return this.executeTransaction(
-      this._tokenizedEuro,
+      this._digitalToken,
       'executeWaterfall',
       [wallet],
       {
@@ -791,7 +710,7 @@ class BlockchainService {
 
   async executeReverseWaterfall(wallet: string, amount: bigint, idempotencyKey: string, correlationId?: string, userId?: string) {
     return this.executeTransaction(
-      this._tokenizedEuro,
+      this._digitalToken,
       'executeReverseWaterfall',
       [wallet, amount, this._toBytes32Key(idempotencyKey)],
       {
@@ -811,7 +730,7 @@ class BlockchainService {
   }
 
   async pause(correlationId?: string, userId?: string) {
-    return this.executeTransaction(this._tokenizedEuro, 'pause', [], {
+    return this.executeTransaction(this._digitalToken, 'pause', [], {
       ...(correlationId && { correlationId }),
       ...(userId && { userId }),
       operation: 'PAUSE_CONTRACT'
@@ -819,14 +738,12 @@ class BlockchainService {
   }
 
   async unpause(correlationId?: string, userId?: string) {
-    return this.executeTransaction(this._tokenizedEuro, 'unpause', [], {
+    return this.executeTransaction(this._digitalToken, 'unpause', [], {
       ...(correlationId && { correlationId }),
       ...(userId && { userId }),
       operation: 'UNPAUSE_CONTRACT'
     });
   }
-
-  // ============ Conditional Payments ============
 
   async createConditionalPayment(
     payee: string,
@@ -850,7 +767,6 @@ class BlockchainService {
       }
     );
 
-    // Extract payment ID from the ConditionalPaymentCreated event
     const event = receipt.logs
       .map(log => {
         try {
@@ -900,10 +816,6 @@ class BlockchainService {
     );
   }
 
-  /**
-   * The contract exposes refundPayment, not cancelPayment. Both take a reason
-   * string that is emitted with PaymentRefunded for the audit trail.
-   */
   async refundPayment(paymentId: string, reason: string, correlationId?: string, userId?: string) {
     return this.executeTransaction(
       this._conditionalPayments,
@@ -977,8 +889,6 @@ class BlockchainService {
     }
   }
 
-  // ============ Role Management ============
-
   async hasRole(role: string, account: string): Promise<boolean> {
     try {
       return await this._callHasRole(role, account);
@@ -1013,8 +923,6 @@ class BlockchainService {
     );
   }
 
-  // ============ Utility ============
-
   getOperatorAddress(): string {
     return this.operatorAddress;
   }
@@ -1029,5 +937,4 @@ class BlockchainService {
   }
 }
 
-// Export singleton instance
 export const blockchainService = new BlockchainService();
