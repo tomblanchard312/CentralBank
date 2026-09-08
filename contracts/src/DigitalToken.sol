@@ -86,8 +86,8 @@ contract DigitalToken is IDigitalToken {
         _;
     }
 
-    modifier onlyECB() {
-        if (!permissioning.isECB(msg.sender)) revert Unauthorized();
+    modifier onlyCentralBank() {
+        if (!permissioning.isCentralBank(msg.sender)) revert Unauthorized();
         _;
     }
 
@@ -194,19 +194,22 @@ contract DigitalToken is IDigitalToken {
         emit Unpaused(msg.sender);
     }
 
-    function freezeAccount(address account, string calldata reason) external onlyECB {
+    function freezeAccount(address account, string calldata reason) external onlyCentralBank {
         if (account == address(0)) revert ZeroAddress();
         frozenAccounts[account] = true;
         emit AccountFrozen(account, msg.sender, reason);
     }
 
-    function unfreezeAccount(address account) external onlyECB {
+    function unfreezeAccount(address account) external onlyCentralBank {
         if (account == address(0)) revert ZeroAddress();
         frozenAccounts[account] = false;
         emit AccountUnfrozen(account, msg.sender);
     }
 
-    function escrowFunds(address account, uint256 amount, string calldata legalBasis, uint256 expiry) external onlyECB {
+    function escrowFunds(address account, uint256 amount, string calldata legalBasis, uint256 expiry)
+        external
+        onlyCentralBank
+    {
         if (account == address(0)) revert ZeroAddress();
         if (amount == 0) revert InvalidAmount();
         if (expiry != 0 && expiry <= block.timestamp) revert EscrowExpired();
@@ -219,7 +222,7 @@ contract DigitalToken is IDigitalToken {
         emit FundsEscrowed(account, amount, legalBasis, expiry);
     }
 
-    function releaseEscrowedFunds(address account, address to) external onlyECB {
+    function releaseEscrowedFunds(address account, address to) external onlyCentralBank {
         if (account == address(0) || to == address(0)) revert ZeroAddress();
         EscrowRecord memory record = escrowedBalances[account];
         if (record.amount == 0) revert InsufficientEscrowBalance();
@@ -231,7 +234,7 @@ contract DigitalToken is IDigitalToken {
         emit FundsReleased(account, record.amount, to);
     }
 
-    function burnEscrowedFunds(address account) external onlyECB {
+    function burnEscrowedFunds(address account) external onlyCentralBank {
         if (account == address(0)) revert ZeroAddress();
         EscrowRecord memory record = escrowedBalances[account];
         if (record.amount == 0) revert InsufficientEscrowBalance();
