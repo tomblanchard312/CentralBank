@@ -56,9 +56,9 @@ app.use(cors({
     config.auth.apiKeyHeader,
     'X-Request-Id',
     'X-Idempotency-Key',
-    'X-tEUR-Timestamp',
-    'X-tEUR-Nonce',
-    'X-tEUR-Signature',
+    'X-CentralBank-Timestamp',
+    'X-CentralBank-Nonce',
+    'X-CentralBank-Signature',
   ],
 }));
 
@@ -96,10 +96,10 @@ app.use(standardRateLimiter);
 const openApiSpec = {
   openapi: '3.0.3',
   info: {
-    title: 'tEUR API Gateway',
+    title: 'CentralBank API Gateway',
     version: '1.0.0',
-    description: 'REST API Gateway for the Tokenized Euro research implementation',
-    contact: { name: 'tEUR Project' },
+    description: 'REST API Gateway for the CentralBank Digital Token Protocol reference implementation',
+    contact: { name: 'CentralBank Project' },
     license: { name: 'MIT' },
   },
   servers: [{ url: '/api/v1', description: 'API v1' }],
@@ -122,19 +122,19 @@ const openApiSpec = {
       hmacTimestamp: {
         type: 'apiKey',
         in: 'header',
-        name: 'X-tEUR-Timestamp',
+        name: 'X-CentralBank-Timestamp',
         description: 'Unix timestamp in milliseconds used in the HMAC canonical request',
       },
       hmacNonce: {
         type: 'apiKey',
         in: 'header',
-        name: 'X-tEUR-Nonce',
+        name: 'X-CentralBank-Nonce',
         description: 'Unique 16-128 character nonce used once within the signature window',
       },
       hmacSignature: {
         type: 'apiKey',
         in: 'header',
-        name: 'X-tEUR-Signature',
+        name: 'X-CentralBank-Signature',
         description: 'v1=<hex HMAC-SHA256 signature>',
       },
       bearerAuth: {
@@ -176,7 +176,7 @@ const openApiSpec = {
         properties: {
           from: { type: 'string', pattern: '^0x[a-fA-F0-9]{40}$' },
           to: { type: 'string', pattern: '^0x[a-fA-F0-9]{40}$' },
-          amount: { type: 'integer', minimum: 1, description: 'Amount in euro cents' },
+          amount: { type: 'integer', minimum: 1, description: 'Amount in deployment-profile minor units' },
           idempotencyKey: { type: 'string', format: 'uuid' },
         },
       },
@@ -185,7 +185,7 @@ const openApiSpec = {
         required: ['payee', 'amount', 'conditionType', 'conditionData', 'expiresAt', 'idempotencyKey'],
         properties: {
           payee: { type: 'string', pattern: '^0x[a-fA-F0-9]{40}$' },
-          amount: { type: 'integer', minimum: 1, description: 'Amount in euro cents' },
+          amount: { type: 'integer', minimum: 1, description: 'Amount in deployment-profile minor units' },
           conditionType: { type: 'string', enum: ['DELIVERY', 'TIME_LOCK', 'MILESTONE', 'ORACLE', 'MULTI_SIG'] },
           conditionData: { type: 'string', pattern: '^0x[a-fA-F0-9]{64}$' },
           expiresAt: { type: 'integer', description: 'Unix timestamp' },
@@ -203,7 +203,7 @@ const openApiSpec = {
 
 if (config.enableApiDocs) {
   app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, {
-    customSiteTitle: 'tEUR API Documentation',
+    customSiteTitle: 'CentralBank API Documentation',
     customCss: '.swagger-ui .topbar { display: none }',
   }));
 }
@@ -224,7 +224,7 @@ app.use('/api/v1', apiRouter);
 
 app.get('/', (_req, res) => {
   res.json({
-    service: 'tEUR API Gateway',
+    service: 'CentralBank API Gateway',
     version: '1.0.0',
     status: 'available',
     documentation: config.enableApiDocs ? '/api/docs' : undefined,
