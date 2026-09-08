@@ -1,75 +1,79 @@
-# Tokenized Euro (tEUR) Project
+# CentralBank
 
-## 1. Project Overview
+**CentralBank** is an open-source reference platform for issuing, governing, transferring, settling, and auditing central-bank digital tokens.
 
-This repository contains a technical reference implementation for exploring the operational, governance, and resilience aspects of a tokenized euro system. The implementation is designed as a research tool to examine distributed ledger technology in the context of financial settlement systems.
+The core protocol is currency-agnostic. Its generic reference asset is the **Central Bank Digital Token (CBDT)**. Currency denomination, jurisdictional parameters, and scheme-specific policy are supplied through deployment profiles rather than encoded into the token's identity.
 
-## 2. What This Project Is
+## Architecture
 
-This project provides:
+The CentralBank Digital Token Protocol separates accounting from policy and operational authority:
 
-- A simulated distributed ledger environment for studying settlement mechanics
-- Reference implementations of smart contracts for token management
-- Infrastructure components for multi-zone deployment scenarios
-- Documentation of governance and compliance frameworks
-- Test environments for resilience and security analysis
+- **DigitalToken / TokenLedgerV2** - token accounting and ledger capabilities
+- **Mint/Burn controllers** - controlled issuance and redemption
+- **Escrow controllers** - case-based holds and lifecycle management
+- **Waterfall controllers** - holding-limit and linked-settlement flows
+- **Transfer policies** - sanctions, emergency controls, holding limits, and future compliance modules
+- **Institutional gateway** - API authorization, payer custody, mTLS, request signing, and transaction relay
+- **Governance** - governed permissioning and authority rotation
+- **Reconciliation and audit** - operational evidence and integrity tooling
+- **Migration** - snapshot-based protocol migration and reconciliation
 
-## 3. What This Project Is Not
+## Reference profiles
 
-This project does not:
+The first profile is `profiles/eurosystem-reference.json`.
 
-- Constitute a currency or payment system
-- Provide production-ready financial infrastructure
-- Represent endorsement by any regulatory authority
-- Include live monetary value or real settlement capabilities
-- Serve as a basis for commercial deployment
+It uses:
 
-## 4. Governance and Authority Model
+- denomination: **EUR**
+- minor unit: **cent**
+- token identity: **CBDT**
+- holding-limit and waterfall controls
+- sanctions and emergency policy controls
+- conditional-payment support
 
-The implementation simulates a hierarchical governance structure with the following roles:
+The profile is intended to explore concepts relevant to a Eurosystem-style deployment while keeping the core protocol reusable for other central-bank and currency models.
 
-- Central authority simulation for settlement coordination
-- National node simulations for regional operations
-- Participant simulations for commercial entities
-- Governance mechanisms for policy enforcement
+## Naming
 
-All roles are simulated for research purposes only and do not confer actual authority.
+| Layer | Name |
+| --- | --- |
+| Platform | CentralBank |
+| Protocol | CentralBank Digital Token Protocol |
+| Generic token | Central Bank Digital Token |
+| Symbol | CBDT |
+| Core token contract | `DigitalToken` |
+| Initial policy profile | `eurosystem-reference` |
+| Initial denomination | EUR |
 
-## 5. Risk and Compliance Alignment
+The naming decision is recorded in `docs/architecture/adr-004-centralbank-cbdt-naming.md`.
 
-The project incorporates:
+## Security model
 
-- Multi-zone isolation for operational resilience
-- Cryptographic controls for data integrity
-- Audit logging for transaction traceability
-- Compliance frameworks for regulatory alignment
-- Risk mitigation strategies for system stability
+The reference platform includes controls for:
 
-## 6. Security and Safety Posture
+- payer-signed custody-preserving transfers
+- institutional mTLS for privileged API routes
+- request authentication and authorization
+- replay and idempotency protection
+- governed role management
+- emergency pause and account controls
+- invariant and integration testing
+- fail-closed production configuration
 
-Security measures include:
+This repository is still **pre-MVP**. Production gaps such as production KMS/HSM signing, durable distributed idempotency and rate-limit state, append-only audit persistence, deployment hardening, and independent security assessment remain explicit release blockers.
 
-- Cryptographic key management
-- Network segmentation
-- Access control mechanisms
-- Secure communication protocols
-- Incident response procedures
+## What this project is not
 
-All security implementations are for research and testing purposes.
+CentralBank does not constitute a currency or live payment system. CBDT has no monetary value and is a generic technical reference token. The repository is not production financial infrastructure and does not provide authority to issue sovereign money.
 
-## 7. Intended Audience
+## Eurosystem / ECB disclaimer
 
-This project is intended for:
+The Eurosystem reference profile is informed by published concepts and requirements relevant to digital central-bank money. **CentralBank and CBDT are not issued, endorsed, sponsored, or operated by the European Central Bank, the Eurosystem, or any national central bank.** This repository is an independent open-source technical reference implementation.
 
-- Researchers studying distributed ledger technology
-- Regulatory authorities examining financial system design
-- Academic institutions exploring digital asset frameworks
-- Technical professionals analyzing system resilience
+## Intended audience
 
-## 8. Licensing and Attribution
+CentralBank is intended for engineers, researchers, financial institutions, public-sector technology teams, regulators, and academic users studying central-bank digital-token architecture, settlement, governance, security, and operational resilience.
 
-This project is licensed under the MIT License. See LICENSE file for details.
+## License
 
-## 9. Disclaimer
-
-This implementation is for research and educational purposes only. It does not represent a functional financial system and should not be used for any commercial or operational purposes. The maintainers make no warranties regarding the suitability, reliability, or security of this code for any purpose. Users assume all responsibility for their use of this material.
+This project is licensed under the MIT License. See `LICENSE` for details.
