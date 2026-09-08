@@ -92,9 +92,10 @@ contract TokenLedgerV2Test is Test {
     }
 
     function test_OnlyGovernanceCanAssignCapabilities() public {
+        uint8 mintCapability = ledger.CAPABILITY_MINT();
         vm.prank(alice);
         vm.expectRevert(TokenLedgerV2.Unauthorized.selector);
-        ledger.setControllerCapabilities(alice, ledger.CAPABILITY_MINT());
+        ledger.setControllerCapabilities(alice, mintCapability);
     }
 
     function test_TransferAndTransferFromPreserveSupply() public {
