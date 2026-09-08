@@ -10,15 +10,18 @@ contract GovernedPermissioningTest is Test {
     address internal admin2 = makeAddr("admin2");
     address internal admin3 = makeAddr("admin3");
     address internal centralBank = makeAddr("central-bank");
+    bytes32 internal adminRole;
+    bytes32 internal centralBankRole;
 
     function setUp() public {
         permissioning = new GovernedPermissioning(admin1, admin2);
+        adminRole = permissioning.ADMIN_ROLE();
+        centralBankRole = permissioning.CENTRAL_BANK_ROLE();
     }
 
     function test_RoleGrantRequiresDistinctSecondAdmin() public {
         vm.prank(admin1);
-        bytes32 proposalId =
-            permissioning.proposeRoleChange(permissioning.CENTRAL_BANK_ROLE(), centralBank, true, 1 days);
+        bytes32 proposalId = permissioning.proposeRoleChange(centralBankRole, centralBank, true, 1 days);
 
         vm.prank(admin1);
         vm.expectRevert(GovernedPermissioning.SelfApproval.selector);
@@ -31,8 +34,7 @@ contract GovernedPermissioningTest is Test {
 
     function test_ExpiredProposalCannotExecute() public {
         vm.prank(admin1);
-        bytes32 proposalId =
-            permissioning.proposeRoleChange(permissioning.CENTRAL_BANK_ROLE(), centralBank, true, 1 hours);
+        bytes32 proposalId = permissioning.proposeRoleChange(centralBankRole, centralBank, true, 1 hours);
         vm.warp(block.timestamp + 1 hours + 1);
 
         vm.prank(admin2);
@@ -42,8 +44,7 @@ contract GovernedPermissioningTest is Test {
 
     function test_ProposerCanCancel() public {
         vm.prank(admin1);
-        bytes32 proposalId =
-            permissioning.proposeRoleChange(permissioning.CENTRAL_BANK_ROLE(), centralBank, true, 1 days);
+        bytes32 proposalId = permissioning.proposeRoleChange(centralBankRole, centralBank, true, 1 days);
         vm.prank(admin1);
         permissioning.cancelProposal(proposalId);
 
@@ -54,30 +55,29 @@ contract GovernedPermissioningTest is Test {
 
     function test_AdminSetCannotFallBelowTwo() public {
         vm.prank(admin1);
-        bytes32 addId = permissioning.proposeRoleChange(permissioning.ADMIN_ROLE(), admin3, true, 1 days);
+        bytes32 addId = permissioning.proposeRoleChange(adminRole, admin3, true, 1 days);
         vm.prank(admin2);
         permissioning.approveAndExecute(addId);
         assertEq(permissioning.adminCount(), 3);
 
         vm.prank(admin1);
-        bytes32 revokeId = permissioning.proposeRoleChange(permissioning.ADMIN_ROLE(), admin3, false, 1 days);
+        bytes32 revokeId = permissioning.proposeRoleChange(adminRole, admin3, false, 1 days);
         vm.prank(admin2);
         permissioning.approveAndExecute(revokeId);
         assertEq(permissioning.adminCount(), 2);
 
         vm.prank(admin1);
         vm.expectRevert(GovernedPermissioning.LastAdmin.selector);
-        permissioning.proposeRoleChange(permissioning.ADMIN_ROLE(), admin2, false, 1 days);
+        permissioning.proposeRoleChange(adminRole, admin2, false, 1 days);
     }
 
     function test_NonAdminCannotProposeOrApprove() public {
         vm.prank(centralBank);
         vm.expectRevert(GovernedPermissioning.Unauthorized.selector);
-        permissioning.proposeRoleChange(permissioning.CENTRAL_BANK_ROLE(), centralBank, true, 1 days);
+        permissioning.proposeRoleChange(centralBankRole, centralBank, true, 1 days);
 
         vm.prank(admin1);
-        bytes32 proposalId =
-            permissioning.proposeRoleChange(permissioning.CENTRAL_BANK_ROLE(), centralBank, true, 1 days);
+        bytes32 proposalId = permissioning.proposeRoleChange(centralBankRole, centralBank, true, 1 days);
         vm.prank(centralBank);
         vm.expectRevert(GovernedPermissioning.Unauthorized.selector);
         permissioning.approveAndExecute(proposalId);
