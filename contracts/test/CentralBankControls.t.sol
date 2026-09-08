@@ -46,7 +46,7 @@ contract CentralBankControlsTest is Test {
 
     function test_FrozenAccountCannotTransfer() public {
         vm.prank(issuer);
-        token.mint(user, 1_000, keccak256("fund"));
+        token.mint(user, 1000, keccak256("fund"));
         vm.prank(centralBank);
         token.freezeAccount(user, "case");
 
@@ -57,7 +57,7 @@ contract CentralBankControlsTest is Test {
 
     function test_CentralBankEscrowConservesSupply() public {
         vm.prank(issuer);
-        token.mint(user, 1_000, keccak256("fund-escrow"));
+        token.mint(user, 1000, keccak256("fund-escrow"));
         uint256 supply = token.totalSupply();
 
         vm.prank(centralBank);
@@ -76,7 +76,7 @@ contract CentralBankControlsTest is Test {
 
     function test_BurnEscrowReducesSupply() public {
         vm.prank(issuer);
-        token.mint(user, 1_000, keccak256("fund-burn-escrow"));
+        token.mint(user, 1000, keccak256("fund-burn-escrow"));
         vm.prank(centralBank);
         token.escrowFunds(user, 400, "confiscation-reference", 0);
         vm.prank(centralBank);

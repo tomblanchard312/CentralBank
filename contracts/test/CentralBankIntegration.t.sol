@@ -53,16 +53,16 @@ contract CentralBankIntegrationTest is Test {
 
     function test_P2PAndMerchantPayment() public {
         vm.prank(issuer);
-        token.mint(alice, 200_00, keccak256("mint-alice"));
+        token.mint(alice, 20_000, keccak256("mint-alice"));
 
         vm.prank(alice);
-        token.transfer(bob, 50_00);
+        token.transfer(bob, 5000);
         vm.prank(alice);
-        token.transfer(merchant, 25_00);
+        token.transfer(merchant, 2500);
 
-        assertEq(token.balanceOf(alice), 125_00);
-        assertEq(token.balanceOf(bob), 50_00);
-        assertEq(token.balanceOf(merchant), 25_00);
+        assertEq(token.balanceOf(alice), 12_500);
+        assertEq(token.balanceOf(bob), 5000);
+        assertEq(token.balanceOf(merchant), 2500);
     }
 
     function test_WaterfallAndReverseWaterfall() public {
@@ -85,15 +85,15 @@ contract CentralBankIntegrationTest is Test {
 
     function test_ConditionalDeliveryPaymentPreservesPayerCustody() public {
         vm.prank(issuer);
-        token.mint(alice, 100_00, keccak256("conditional-funding"));
+        token.mint(alice, 10_000, keccak256("conditional-funding"));
 
         vm.prank(alice);
-        token.approve(address(payments), 40_00);
+        token.approve(address(payments), 4000);
 
         vm.prank(alice);
         bytes32 paymentId = payments.createConditionalPayment(
             merchant,
-            40_00,
+            4000,
             IConditionalPayments.ConditionType.DELIVERY,
             bytes32(0),
             block.timestamp + 1 days,
@@ -101,29 +101,29 @@ contract CentralBankIntegrationTest is Test {
             keccak256("conditional-1")
         );
 
-        assertEq(token.balanceOf(alice), 60_00);
-        assertEq(token.balanceOf(address(payments)), 40_00);
+        assertEq(token.balanceOf(alice), 6000);
+        assertEq(token.balanceOf(address(payments)), 4000);
 
         vm.prank(alice);
         payments.confirmDelivery(paymentId, keccak256("proof"));
 
-        assertEq(token.balanceOf(merchant), 40_00);
+        assertEq(token.balanceOf(merchant), 4000);
         assertEq(token.balanceOf(address(payments)), 0);
     }
 
     function test_EmergencyPauseStopsTransfersAndMinting() public {
         vm.prank(issuer);
-        token.mint(alice, 100_00, keccak256("emergency-funding"));
+        token.mint(alice, 10_000, keccak256("emergency-funding"));
 
         vm.prank(emergency);
         token.pause();
 
         vm.prank(alice);
         vm.expectRevert(DigitalToken.ContractPaused.selector);
-        token.transfer(bob, 1_00);
+        token.transfer(bob, 100);
 
         vm.prank(issuer);
         vm.expectRevert(DigitalToken.ContractPaused.selector);
-        token.mint(bob, 1_00, keccak256("paused-mint"));
+        token.mint(bob, 100, keccak256("paused-mint"));
     }
 }

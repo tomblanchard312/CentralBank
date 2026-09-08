@@ -121,8 +121,13 @@ contract DigitalToken is IDigitalToken {
         emit WaterfallToggled(enabled);
     }
 
-    function totalSupply() external view returns (uint256) { return _totalSupply; }
-    function balanceOf(address account) external view returns (uint256) { return _balances[account]; }
+    function totalSupply() external view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function balanceOf(address account) external view returns (uint256) {
+        return _balances[account];
+    }
 
     function transfer(address to, uint256 amount) external whenNotPaused returns (bool) {
         _transfer(msg.sender, to, amount);
@@ -142,14 +147,19 @@ contract DigitalToken is IDigitalToken {
         uint256 currentAllowance = _allowances[from][msg.sender];
         if (currentAllowance != type(uint256).max) {
             if (currentAllowance < amount) revert InsufficientAllowance();
-            unchecked { _approve(from, msg.sender, currentAllowance - amount); }
+            unchecked {
+                _approve(from, msg.sender, currentAllowance - amount);
+            }
         }
         _transfer(from, to, amount);
         return true;
     }
 
     function mint(address to, uint256 amount, bytes32 idempotencyKey)
-        external onlyMinter whenNotPaused idempotent(idempotencyKey)
+        external
+        onlyMinter
+        whenNotPaused
+        idempotent(idempotencyKey)
     {
         if (to == address(0)) revert ZeroAddress();
         if (amount == 0) revert InvalidAmount();
@@ -160,7 +170,10 @@ contract DigitalToken is IDigitalToken {
     }
 
     function burn(address from, uint256 amount, bytes32 idempotencyKey)
-        external onlyBurner whenNotPaused idempotent(idempotencyKey)
+        external
+        onlyBurner
+        whenNotPaused
+        idempotent(idempotencyKey)
     {
         if (from == address(0)) revert ZeroAddress();
         if (amount == 0) revert InvalidAmount();
@@ -171,8 +184,15 @@ contract DigitalToken is IDigitalToken {
         emit Transfer(from, address(0), amount);
     }
 
-    function pause() external onlyEmergencyController { paused = true; emit Paused(msg.sender); }
-    function unpause() external onlyEmergencyController { paused = false; emit Unpaused(msg.sender); }
+    function pause() external onlyEmergencyController {
+        paused = true;
+        emit Paused(msg.sender);
+    }
+
+    function unpause() external onlyEmergencyController {
+        paused = false;
+        emit Unpaused(msg.sender);
+    }
 
     function freezeAccount(address account, string calldata reason) external onlyECB {
         if (account == address(0)) revert ZeroAddress();
@@ -229,7 +249,10 @@ contract DigitalToken is IDigitalToken {
     }
 
     function executeReverseWaterfall(address wallet, uint256 amount, bytes32 idempotencyKey)
-        external whenNotPaused onlyMinter idempotent(idempotencyKey)
+        external
+        whenNotPaused
+        onlyMinter
+        idempotent(idempotencyKey)
     {
         if (amount == 0) revert InvalidAmount();
         if (address(walletRegistry) == address(0)) revert WalletNotRegistered();

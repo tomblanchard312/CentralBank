@@ -52,14 +52,14 @@ contract DigitalTokenTest is Test {
 
     function test_MintAndBurnUseDedicatedAuthorities() public {
         vm.prank(issuer);
-        token.mint(alice, 100_00, keccak256("mint-1"));
-        assertEq(token.balanceOf(alice), 100_00);
-        assertEq(token.totalSupply(), 100_00);
+        token.mint(alice, 10_000, keccak256("mint-1"));
+        assertEq(token.balanceOf(alice), 10_000);
+        assertEq(token.totalSupply(), 10_000);
 
         vm.prank(issuer);
-        token.burn(alice, 25_00, keccak256("burn-1"));
-        assertEq(token.balanceOf(alice), 75_00);
-        assertEq(token.totalSupply(), 75_00);
+        token.burn(alice, 2500, keccak256("burn-1"));
+        assertEq(token.balanceOf(alice), 7500);
+        assertEq(token.totalSupply(), 7500);
     }
 
     function test_MintRejectsNonMinter() public {
@@ -89,17 +89,17 @@ contract DigitalTokenTest is Test {
 
     function test_TransferAndAllowance() public {
         vm.prank(issuer);
-        token.mint(alice, 100_00, keccak256("fund-alice"));
+        token.mint(alice, 10_000, keccak256("fund-alice"));
 
         vm.prank(alice);
-        token.transfer(bob, 10_00);
-        assertEq(token.balanceOf(bob), 10_00);
+        token.transfer(bob, 1000);
+        assertEq(token.balanceOf(bob), 1000);
 
         vm.prank(alice);
-        token.approve(bob, 5_00);
+        token.approve(bob, 500);
         vm.prank(bob);
-        token.transferFrom(alice, bob, 5_00);
-        assertEq(token.balanceOf(bob), 15_00);
+        token.transferFrom(alice, bob, 500);
+        assertEq(token.balanceOf(bob), 1500);
         assertEq(token.allowance(alice, bob), 0);
     }
 
@@ -123,7 +123,7 @@ contract DigitalTokenTest is Test {
 
     function test_CentralBankCanFreezeAndEscrow() public {
         vm.prank(issuer);
-        token.mint(alice, 1_000, keccak256("escrow-funding"));
+        token.mint(alice, 1000, keccak256("escrow-funding"));
 
         vm.prank(centralBank);
         token.freezeAccount(alice, "case-ref");

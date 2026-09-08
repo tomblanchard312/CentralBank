@@ -55,8 +55,13 @@ contract ConditionalPaymentsGenericTest is Test {
     function test_DeliveryCanBeConfirmedByPayer() public {
         vm.prank(payer);
         bytes32 id = payments.createConditionalPayment(
-            payee, 50_000, IConditionalPayments.ConditionType.DELIVERY,
-            bytes32(0), block.timestamp + 30 days, arbiter, keccak256("delivery")
+            payee,
+            50_000,
+            IConditionalPayments.ConditionType.DELIVERY,
+            bytes32(0),
+            block.timestamp + 30 days,
+            arbiter,
+            keccak256("delivery")
         );
 
         vm.prank(payer);
@@ -67,8 +72,13 @@ contract ConditionalPaymentsGenericTest is Test {
     function test_DeliveryCanBeConfirmedByOracle() public {
         vm.prank(payer);
         bytes32 id = payments.createConditionalPayment(
-            payee, 50_000, IConditionalPayments.ConditionType.DELIVERY,
-            bytes32(0), block.timestamp + 30 days, arbiter, keccak256("oracle-delivery")
+            payee,
+            50_000,
+            IConditionalPayments.ConditionType.DELIVERY,
+            bytes32(0),
+            block.timestamp + 30 days,
+            arbiter,
+            keccak256("oracle-delivery")
         );
 
         vm.prank(oracle);
@@ -79,8 +89,13 @@ contract ConditionalPaymentsGenericTest is Test {
     function test_UnauthorizedDeliveryConfirmationReverts() public {
         vm.prank(payer);
         bytes32 id = payments.createConditionalPayment(
-            payee, 50_000, IConditionalPayments.ConditionType.DELIVERY,
-            bytes32(0), block.timestamp + 30 days, arbiter, keccak256("unauth-delivery")
+            payee,
+            50_000,
+            IConditionalPayments.ConditionType.DELIVERY,
+            bytes32(0),
+            block.timestamp + 30 days,
+            arbiter,
+            keccak256("unauth-delivery")
         );
 
         vm.prank(payee);
@@ -92,8 +107,13 @@ contract ConditionalPaymentsGenericTest is Test {
         uint256 unlock = block.timestamp + 7 days;
         vm.prank(payer);
         bytes32 id = payments.createConditionalPayment(
-            payee, 50_000, IConditionalPayments.ConditionType.TIME_LOCK,
-            bytes32(unlock), block.timestamp + 30 days, address(0), keccak256("time-lock")
+            payee,
+            50_000,
+            IConditionalPayments.ConditionType.TIME_LOCK,
+            bytes32(unlock),
+            block.timestamp + 30 days,
+            address(0),
+            keccak256("time-lock")
         );
 
         vm.expectRevert(ConditionalPayments.ConditionNotMet.selector);
@@ -107,8 +127,13 @@ contract ConditionalPaymentsGenericTest is Test {
     function test_PayerAndPayeeCanDisputeButOnlyArbiterResolves() public {
         vm.prank(payer);
         bytes32 id = payments.createConditionalPayment(
-            payee, 50_000, IConditionalPayments.ConditionType.DELIVERY,
-            bytes32(0), block.timestamp + 30 days, arbiter, keccak256("dispute")
+            payee,
+            50_000,
+            IConditionalPayments.ConditionType.DELIVERY,
+            bytes32(0),
+            block.timestamp + 30 days,
+            arbiter,
+            keccak256("dispute")
         );
 
         vm.prank(payee);
@@ -127,15 +152,25 @@ contract ConditionalPaymentsGenericTest is Test {
         bytes32 key = keccak256("duplicate");
         vm.prank(payer);
         payments.createConditionalPayment(
-            payee, 10_000, IConditionalPayments.ConditionType.DELIVERY,
-            bytes32(0), block.timestamp + 30 days, arbiter, key
+            payee,
+            10_000,
+            IConditionalPayments.ConditionType.DELIVERY,
+            bytes32(0),
+            block.timestamp + 30 days,
+            arbiter,
+            key
         );
 
         vm.prank(payer);
         vm.expectRevert(ConditionalPayments.IdempotencyKeyUsed.selector);
         payments.createConditionalPayment(
-            payee, 10_000, IConditionalPayments.ConditionType.DELIVERY,
-            bytes32(0), block.timestamp + 30 days, arbiter, key
+            payee,
+            10_000,
+            IConditionalPayments.ConditionType.DELIVERY,
+            bytes32(0),
+            block.timestamp + 30 days,
+            arbiter,
+            key
         );
     }
 }

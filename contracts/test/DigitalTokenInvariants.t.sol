@@ -22,7 +22,7 @@ contract TokenHandler is Test {
         amount = bound(amount, 1, 1_000_000);
         bytes32 scopedKey = keccak256(abi.encode("mint", key, actor, amount));
         vm.prank(authority);
-        try token.mint(actor, amount, scopedKey) {} catch {}
+        try token.mint(actor, amount, scopedKey) { } catch { }
     }
 
     function burn(uint256 actorSeed, uint256 amount, bytes32 key) external {
@@ -32,7 +32,7 @@ contract TokenHandler is Test {
         amount = bound(amount, 1, balance);
         bytes32 scopedKey = keccak256(abi.encode("burn", key, actor, amount));
         vm.prank(authority);
-        try token.burn(actor, amount, scopedKey) {} catch {}
+        try token.burn(actor, amount, scopedKey) { } catch { }
     }
 
     function escrow(uint256 actorSeed, uint256 amount) external {
@@ -41,7 +41,7 @@ contract TokenHandler is Test {
         if (balance == 0 || token.escrowTotals(actor) != 0) return;
         amount = bound(amount, 1, balance);
         vm.prank(authority);
-        try token.escrowFunds(actor, amount, "case-ref", 0) {} catch {}
+        try token.escrowFunds(actor, amount, "case-ref", 0) { } catch { }
     }
 
     function release(uint256 actorSeed, uint256 recipientSeed) external {
@@ -49,14 +49,14 @@ contract TokenHandler is Test {
         address recipient = actors[recipientSeed % actors.length];
         if (token.escrowTotals(actor) == 0) return;
         vm.prank(authority);
-        try token.releaseEscrowedFunds(actor, recipient) {} catch {}
+        try token.releaseEscrowedFunds(actor, recipient) { } catch { }
     }
 
     function burnEscrow(uint256 actorSeed) external {
         address actor = actors[actorSeed % actors.length];
         if (token.escrowTotals(actor) == 0) return;
         vm.prank(authority);
-        try token.burnEscrowedFunds(actor) {} catch {}
+        try token.burnEscrowedFunds(actor) { } catch { }
     }
 }
 

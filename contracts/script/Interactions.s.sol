@@ -8,7 +8,9 @@ import "../src/ConditionalPayments.sol";
 import "../src/interfaces/IWalletRegistry.sol";
 import "../src/interfaces/IConditionalPayments.sol";
 
-/** Register a participant wallet. */
+/**
+ *  Register a participant wallet.
+ */
 contract RegisterWallet is Script {
     function run() external {
         uint256 privateKey = vm.envUint("REGISTRAR_PRIVATE_KEY");
@@ -19,17 +21,15 @@ contract RegisterWallet is Script {
         bytes32 kycHash = vm.envBytes32("KYC_HASH");
 
         vm.startBroadcast(privateKey);
-        WalletRegistry(walletRegistry).registerWallet(
-            wallet,
-            IWalletRegistry.WalletType(walletType),
-            linkedBank,
-            kycHash
-        );
+        WalletRegistry(walletRegistry)
+            .registerWallet(wallet, IWalletRegistry.WalletType(walletType), linkedBank, kycHash);
         vm.stopBroadcast();
     }
 }
 
-/** Mint generic CBDT through an authorized issuer key. */
+/**
+ *  Mint generic CBDT through an authorized issuer key.
+ */
 contract MintCBDT is Script {
     function run() external {
         uint256 privateKey = vm.envUint("ISSUER_PRIVATE_KEY");
@@ -44,7 +44,9 @@ contract MintCBDT is Script {
     }
 }
 
-/** Create a payer-authorized conditional payment. */
+/**
+ *  Create a payer-authorized conditional payment.
+ */
 contract CreateConditionalPayment is Script {
     function run() external {
         uint256 privateKey = vm.envUint("PAYER_PRIVATE_KEY");
@@ -53,21 +55,22 @@ contract CreateConditionalPayment is Script {
         address payee = vm.envAddress("PAYEE");
         uint256 amount = vm.envUint("AMOUNT");
         uint8 conditionType = uint8(vm.envOr("CONDITION_TYPE", uint256(1)));
-        uint256 expiresIn = vm.envOr("EXPIRES_IN", uint256(86400));
+        uint256 expiresIn = vm.envOr("EXPIRES_IN", uint256(86_400));
         address arbiter = vm.envOr("ARBITER", address(0));
         bytes32 idempotencyKey = keccak256(abi.encodePacked(block.timestamp, payee, amount, "conditional"));
 
         vm.startBroadcast(privateKey);
         DigitalToken(digitalToken).approve(conditionalPayments, amount);
-        ConditionalPayments(conditionalPayments).createConditionalPayment(
-            payee,
-            amount,
-            IConditionalPayments.ConditionType(conditionType),
-            bytes32(0),
-            block.timestamp + expiresIn,
-            arbiter,
-            idempotencyKey
-        );
+        ConditionalPayments(conditionalPayments)
+            .createConditionalPayment(
+                payee,
+                amount,
+                IConditionalPayments.ConditionType(conditionType),
+                bytes32(0),
+                block.timestamp + expiresIn,
+                arbiter,
+                idempotencyKey
+            );
         vm.stopBroadcast();
     }
 }

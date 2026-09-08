@@ -94,13 +94,7 @@ contract ConditionalPayments is IConditionalPayments {
 
         uint256 actualExpiry = expiresAt == 0 ? block.timestamp + DEFAULT_EXPIRY : expiresAt;
 
-        paymentId = keccak256(abi.encodePacked(
-            msg.sender,
-            payee,
-            amount,
-            idempotencyKey,
-            block.timestamp
-        ));
+        paymentId = keccak256(abi.encodePacked(msg.sender, payee, amount, idempotencyKey, block.timestamp));
 
         bool success = token.transferFrom(msg.sender, address(this), amount);
         if (!success) revert InsufficientBalance();
@@ -121,20 +115,14 @@ contract ConditionalPayments is IConditionalPayments {
         _payerPayments[msg.sender].push(paymentId);
         _payeePayments[payee].push(paymentId);
 
-        emit ConditionalPaymentCreated(
-            paymentId,
-            msg.sender,
-            payee,
-            amount,
-            conditionType,
-            actualExpiry
-        );
+        emit ConditionalPaymentCreated(paymentId, msg.sender, payee, amount, conditionType, actualExpiry);
     }
 
-    function confirmDelivery(
-        bytes32 paymentId,
-        bytes32 deliveryProof
-    ) external paymentExists(paymentId) paymentPending(paymentId) {
+    function confirmDelivery(bytes32 paymentId, bytes32 deliveryProof)
+        external
+        paymentExists(paymentId)
+        paymentPending(paymentId)
+    {
         ConditionalPayment storage payment = _payments[paymentId];
 
         if (payment.conditionType != ConditionType.DELIVERY) revert ConditionNotMet();
@@ -146,10 +134,11 @@ contract ConditionalPayments is IConditionalPayments {
         _releasePayment(paymentId, deliveryProof);
     }
 
-    function confirmMilestone(
-        bytes32 paymentId,
-        uint256 milestoneIndex
-    ) external paymentExists(paymentId) paymentPending(paymentId) {
+    function confirmMilestone(bytes32 paymentId, uint256 milestoneIndex)
+        external
+        paymentExists(paymentId)
+        paymentPending(paymentId)
+    {
         ConditionalPayment storage payment = _payments[paymentId];
 
         if (payment.conditionType != ConditionType.MILESTONE) revert ConditionNotMet();
@@ -174,10 +163,11 @@ contract ConditionalPayments is IConditionalPayments {
         }
     }
 
-    function releasePayment(
-        bytes32 paymentId,
-        bytes32 proofOfCondition
-    ) external paymentExists(paymentId) paymentPending(paymentId) {
+    function releasePayment(bytes32 paymentId, bytes32 proofOfCondition)
+        external
+        paymentExists(paymentId)
+        paymentPending(paymentId)
+    {
         ConditionalPayment storage payment = _payments[paymentId];
 
         if (payment.conditionType == ConditionType.TIME_LOCK) {
@@ -192,17 +182,20 @@ contract ConditionalPayments is IConditionalPayments {
         _releasePayment(paymentId, proofOfCondition);
     }
 
-    function refundPayment(
-        bytes32 paymentId,
-        string calldata reason
-    ) external paymentExists(paymentId) paymentPending(paymentId) onlyPayer(paymentId) {
+    function refundPayment(bytes32 paymentId, string calldata reason)
+        external
+        paymentExists(paymentId)
+        paymentPending(paymentId)
+        onlyPayer(paymentId)
+    {
         _refundPayment(paymentId, reason);
     }
 
-    function disputePayment(
-        bytes32 paymentId,
-        string calldata reason
-    ) external paymentExists(paymentId) paymentPending(paymentId) {
+    function disputePayment(bytes32 paymentId, string calldata reason)
+        external
+        paymentExists(paymentId)
+        paymentPending(paymentId)
+    {
         ConditionalPayment storage payment = _payments[paymentId];
 
         if (msg.sender != payment.payer && msg.sender != payment.payee) {
@@ -215,10 +208,11 @@ contract ConditionalPayments is IConditionalPayments {
         emit PaymentDisputed(paymentId, msg.sender, reason);
     }
 
-    function resolveDispute(
-        bytes32 paymentId,
-        bool releaseToPayee
-    ) external paymentExists(paymentId) onlyArbiter(paymentId) {
+    function resolveDispute(bytes32 paymentId, bool releaseToPayee)
+        external
+        paymentExists(paymentId)
+        onlyArbiter(paymentId)
+    {
         ConditionalPayment storage payment = _payments[paymentId];
 
         if (payment.status != PaymentStatus.DISPUTED) revert NotDisputed();
