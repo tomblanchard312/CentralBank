@@ -72,7 +72,7 @@ contract DigitalTokenInvariantTest is StdInvariant, Test {
         actors = [makeAddr("alice"), makeAddr("bob"), makeAddr("merchant")];
         permissioning = new Permissioning(admin);
         vm.startPrank(admin);
-        permissioning.grantRole(permissioning.ECB_ROLE(), authority);
+        permissioning.grantRole(permissioning.CENTRAL_BANK_ROLE(), authority);
         permissioning.grantRole(permissioning.MINTER_ROLE(), authority);
         permissioning.grantRole(permissioning.BURNER_ROLE(), authority);
         vm.stopPrank();
