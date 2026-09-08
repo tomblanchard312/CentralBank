@@ -43,11 +43,11 @@ contract MintBurnControllerV2Test is Test {
     function test_UnauthorizedAuthoritiesCannotMintOrBurn() public {
         vm.prank(outsider);
         vm.expectRevert(MintBurnControllerV2.Unauthorized.selector);
-        controller.mint(alice, 1_000, keccak256("ref"), keccak256("key"));
+        controller.mint(alice, 1000, keccak256("ref"), keccak256("key"));
 
         vm.prank(outsider);
         vm.expectRevert(MintBurnControllerV2.Unauthorized.selector);
-        controller.burn(alice, 1_000, keccak256("ref"), keccak256("key"));
+        controller.burn(alice, 1000, keccak256("ref"), keccak256("key"));
     }
 
     function test_MintSupplyCapAndOperationLimitAreEnforced() public {
@@ -78,7 +78,7 @@ contract MintBurnControllerV2Test is Test {
 
         vm.prank(mintAuthority);
         vm.expectRevert(MintBurnControllerV2.MintingPaused.selector);
-        controller.mint(alice, 1_000, keccak256("paused-mint"), keccak256("paused-mint-key"));
+        controller.mint(alice, 1000, keccak256("paused-mint"), keccak256("paused-mint-key"));
 
         vm.prank(governance);
         controller.setMintingPaused(false);
@@ -91,7 +91,7 @@ contract MintBurnControllerV2Test is Test {
 
         vm.prank(burnAuthority);
         vm.expectRevert(MintBurnControllerV2.BurningPaused.selector);
-        controller.burn(alice, 1_000, keccak256("paused-burn"), keccak256("paused-burn-key"));
+        controller.burn(alice, 1000, keccak256("paused-burn"), keccak256("paused-burn-key"));
     }
 
     function test_GovernanceCanRotateAuthorities() public {
@@ -107,9 +107,9 @@ contract MintBurnControllerV2Test is Test {
         controller.mint(alice, 10_000, keccak256("rotated-mint"), keccak256("rotated-mint-key"));
 
         vm.prank(newBurnAuthority);
-        controller.burn(alice, 5_000, keccak256("rotated-burn"), keccak256("rotated-burn-key"));
+        controller.burn(alice, 5000, keccak256("rotated-burn"), keccak256("rotated-burn-key"));
 
-        assertEq(ledger.balanceOf(alice), 5_000);
+        assertEq(ledger.balanceOf(alice), 5000);
     }
 
     function test_DuplicateOperationDigestIsRejected() public {
@@ -130,9 +130,9 @@ contract MintBurnControllerV2Test is Test {
         controller.mint(alice, 10_000, keccak256("mint"), sharedKey);
 
         vm.prank(burnAuthority);
-        controller.burn(alice, 5_000, keccak256("burn"), sharedKey);
+        controller.burn(alice, 5000, keccak256("burn"), sharedKey);
 
-        assertEq(ledger.balanceOf(alice), 5_000);
+        assertEq(ledger.balanceOf(alice), 5000);
     }
 
     function test_CannotSetSupplyCapBelowCurrentSupply() public {
@@ -141,7 +141,7 @@ contract MintBurnControllerV2Test is Test {
 
         vm.prank(governance);
         vm.expectRevert(MintBurnControllerV2.SupplyCapExceeded.selector);
-        controller.setLimits(9_999, 100_000, 75_000);
+        controller.setLimits(9999, 100_000, 75_000);
     }
 
     function testFuzz_MintThenBurnPreservesExpectedSupply(uint96 rawMint, uint96 rawBurn) public {

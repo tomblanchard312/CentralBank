@@ -54,41 +54,41 @@ contract TokenLedgerV2Test is Test {
         bytes32 key = keccak256("mint-key");
 
         vm.prank(mintController);
-        ledger.controllerMint(bob, 5_000, key);
+        ledger.controllerMint(bob, 5000, key);
 
-        assertEq(ledger.balanceOf(bob), 5_000);
+        assertEq(ledger.balanceOf(bob), 5000);
         assertEq(ledger.totalSupply(), 105_000);
 
         vm.prank(mintController);
         vm.expectRevert(TokenLedgerV2.OperationAlreadyUsed.selector);
-        ledger.controllerMint(bob, 5_000, key);
+        ledger.controllerMint(bob, 5000, key);
     }
 
     function test_SameClientKeyCanBeUsedForDifferentOperation() public {
         bytes32 sharedKey = keccak256("shared-key");
 
         vm.prank(mintController);
-        ledger.controllerMint(bob, 2_000, sharedKey);
+        ledger.controllerMint(bob, 2000, sharedKey);
 
         vm.prank(burnController);
-        ledger.controllerBurn(alice, 2_000, sharedKey);
+        ledger.controllerBurn(alice, 2000, sharedKey);
 
-        assertEq(ledger.balanceOf(bob), 2_000);
+        assertEq(ledger.balanceOf(bob), 2000);
         assertEq(ledger.balanceOf(alice), 98_000);
         assertEq(ledger.totalSupply(), 100_000);
     }
 
     function test_ControllerCapabilitiesAreLeastPrivilege() public {
         vm.prank(moveController);
-        ledger.controllerMove(alice, bob, 1_000);
+        ledger.controllerMove(alice, bob, 1000);
 
         vm.prank(moveController);
         vm.expectRevert(TokenLedgerV2.Unauthorized.selector);
-        ledger.controllerMint(bob, 1_000, keccak256("unauthorized-mint"));
+        ledger.controllerMint(bob, 1000, keccak256("unauthorized-mint"));
 
         vm.prank(moveController);
         vm.expectRevert(TokenLedgerV2.Unauthorized.selector);
-        ledger.controllerBurn(bob, 1_000, keccak256("unauthorized-burn"));
+        ledger.controllerBurn(bob, 1000, keccak256("unauthorized-burn"));
     }
 
     function test_OnlyGovernanceCanAssignCapabilities() public {
@@ -105,10 +105,10 @@ contract TokenLedgerV2Test is Test {
         ledger.transfer(bob, 10_000);
 
         vm.prank(alice);
-        ledger.approve(spender, 7_500);
+        ledger.approve(spender, 7500);
 
         vm.prank(spender);
-        ledger.transferFrom(alice, bob, 7_500);
+        ledger.transferFrom(alice, bob, 7500);
 
         assertEq(ledger.balanceOf(alice), 82_500);
         assertEq(ledger.balanceOf(bob), 17_500);
@@ -121,11 +121,11 @@ contract TokenLedgerV2Test is Test {
 
         vm.prank(alice);
         vm.expectRevert(MockTransferPolicyV2.TransferBlocked.selector);
-        ledger.transfer(bob, 1_000);
+        ledger.transfer(bob, 1000);
 
         vm.prank(moveController);
         vm.expectRevert(MockTransferPolicyV2.TransferBlocked.selector);
-        ledger.controllerMove(alice, bob, 1_000);
+        ledger.controllerMove(alice, bob, 1000);
     }
 
     function test_BurnReducesSupplyAndBalance() public {
@@ -139,7 +139,7 @@ contract TokenLedgerV2Test is Test {
     function test_InvalidInputsAreRejected() public {
         vm.prank(mintController);
         vm.expectRevert(TokenLedgerV2.ZeroAddress.selector);
-        ledger.controllerMint(address(0), 1_000, keccak256("zero-address"));
+        ledger.controllerMint(address(0), 1000, keccak256("zero-address"));
 
         vm.prank(mintController);
         vm.expectRevert(TokenLedgerV2.InvalidAmount.selector);

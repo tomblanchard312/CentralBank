@@ -145,7 +145,10 @@ contract TokenLedgerV2 is ITokenLedgerV2 {
         emit Transfer(from, to, amount);
     }
 
-    function _consumeOperation(address controller, bytes4 selector, bytes32 clientKey) internal returns (bytes32 digest) {
+    function _consumeOperation(address controller, bytes4 selector, bytes32 clientKey)
+        internal
+        returns (bytes32 digest)
+    {
         digest = keccak256(abi.encode(block.chainid, address(this), controller, selector, clientKey));
         if (usedOperationDigests[digest]) revert OperationAlreadyUsed();
         usedOperationDigests[digest] = true;
