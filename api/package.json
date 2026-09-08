@@ -1,7 +1,7 @@
 {
-  "name": "@teur/api-gateway",
-  "version": "1.0.0",
-  "description": "REST API Gateway for Digital Euro (tEUR) Bank Integration",
+  "name": "@centralbank/api-gateway",
+  "version": "0.1.0",
+  "description": "Institutional API gateway for the CentralBank Digital Token Protocol",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
