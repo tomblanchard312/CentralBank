@@ -1,4 +1,4 @@
-name: ECB Emergency Monetary Simulations
+name: CentralBank Emergency Simulations
 
 on:
   pull_request:
@@ -7,12 +7,12 @@ on:
 
 jobs:
   emergency-simulations:
-    name: Sovereign Control Simulations
+    name: CentralBank Control Simulations
     runs-on: ubuntu-latest
-    
+
     env:
-      TEUR_ENV: test
-      TEUR_ROLE: central-bank
+      CENTRALBANK_ENV: test
+      CENTRALBANK_ROLE: central-bank
       NODE_ENV: test
       BLOCKCHAIN_RPC_URL: http://localhost:8545
       BLOCKCHAIN_CHAIN_ID: 31337
@@ -29,7 +29,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: api/package.json
+          cache-dependency-path: api/package-lock.json
 
       - name: Install API Dependencies
         working-directory: api
@@ -38,20 +38,15 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: v1.7.1
 
       - name: Start Isolated Test Node (Anvil)
         run: anvil --gas-limit 30000000 --port 8545 &
-        # Anvil runs in background
 
-      - name: Deploy Sovereign Contracts
+      - name: Deploy CentralBank Contracts
         working-directory: contracts
         run: |
-          forge script script/DeployDigitalEuro.s.sol:DeployDigitalEuro --rpc-url http://localhost:8545 --broadcast --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
-          # Extract contract addresses for API tests
-          # In a real scenario, we'd parse the broadcast JSON, but for CI we use fixed Anvil addresses if deterministic
-          # Or we can set them as env vars if the script outputs them.
-          # For this simulation, we assume the addresses match the ones in emergency.test.ts or we set them here.
+          forge script script/DeployCentralBank.s.sol:DeployLabEnvironment --rpc-url http://localhost:8545 --broadcast --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
       - name: Run Emergency Action Simulations
         working-directory: api
@@ -59,7 +54,7 @@ jobs:
         env:
           CONTRACT_PERMISSIONING: 0x5FbDB2315678afecb367f032d93F642f64180aa3
           CONTRACT_WALLET_REGISTRY: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-          CONTRACT_TOKENIZED_EURO: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+          CONTRACT_DIGITAL_TOKEN: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
           CONTRACT_CONDITIONAL_PAYMENTS: 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
 
       - name: Run Unauthorized Access Simulations
@@ -68,28 +63,22 @@ jobs:
         env:
           CONTRACT_PERMISSIONING: 0x5FbDB2315678afecb367f032d93F642f64180aa3
           CONTRACT_WALLET_REGISTRY: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-          CONTRACT_TOKENIZED_EURO: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+          CONTRACT_DIGITAL_TOKEN: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
           CONTRACT_CONDITIONAL_PAYMENTS: 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
 
       - name: Validate System Availability Post-Emergency
         working-directory: api
-        run: |
-          # Simple check to ensure the API is still responsive and read-only queries work
-          # This simulates the "system remains available" requirement
-          npm run test test/availability.test.ts
+        run: npm test test/availability.test.ts
         env:
           CONTRACT_PERMISSIONING: 0x5FbDB2315678afecb367f032d93F642f64180aa3
           CONTRACT_WALLET_REGISTRY: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-          CONTRACT_TOKENIZED_EURO: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+          CONTRACT_DIGITAL_TOKEN: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
           CONTRACT_CONDITIONAL_PAYMENTS: 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
 
       - name: Safety Check Audit Log Verification
         if: always()
-        run: |
-          # In a real CI, we would grep the output or check a log file
-          # For this simulation, the Vitest assertions in the previous steps already cover this.
-          echo "Audit log verification completed via test assertions."
+        run: echo "Audit log verification completed via test assertions."
 
       - name: Finalize Simulation
         if: success()
-        run: echo "All ECB emergency simulations passed successfully."
+        run: echo "All CentralBank emergency simulations passed successfully."
