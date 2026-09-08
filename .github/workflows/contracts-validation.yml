@@ -12,7 +12,7 @@ on:
       - '.github/workflows/contracts-validation.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: contracts-${{ github.workflow }}-${{ github.ref }}
@@ -31,13 +31,15 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
+          ref: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
 
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
           version: v1.7.1
 
-      - name: Check formatting of changed Solidity files
+      - name: Determine changed Solidity files
+        id: changed-solidity
         shell: bash
         run: |
           set -euo pipefail
@@ -47,14 +49,39 @@ jobs:
           else
             files=$(git diff --name-only --diff-filter=ACMR HEAD^ HEAD -- '*.sol' | sed 's#^contracts/##' | grep -v '^lib/' || true)
           fi
+          {
+            echo 'files<<EOF'
+            echo "$files"
+            echo 'EOF'
+          } >> "$GITHUB_OUTPUT"
 
+      - name: Apply Foundry formatting to PR branch
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && steps.changed-solidity.outputs.files != ''
+        shell: bash
+        run: |
+          set -euo pipefail
+          files="${{ steps.changed-solidity.outputs.files }}"
+          # shellcheck disable=SC2086
+          forge fmt $files
+          if git diff --quiet; then
+            echo "Changed Solidity files are already formatted."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add $files
+          git commit -m "style: apply Foundry formatting"
+          git push origin HEAD:${{ github.head_ref }}
+
+      - name: Check formatting of changed Solidity files
+        shell: bash
+        run: |
+          set -euo pipefail
+          files="${{ steps.changed-solidity.outputs.files }}"
           if [[ -z "$files" ]]; then
             echo "No changed Solidity files to format-check."
             exit 0
           fi
-
-          echo "Checking Foundry formatting for:"
-          echo "$files"
           # shellcheck disable=SC2086
           forge fmt --check $files
 
