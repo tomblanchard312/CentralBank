@@ -10,22 +10,25 @@ contract EscrowAccountingHardeningTest is Test {
     DigitalToken private token;
 
     address private admin = makeAddr("admin");
-    address private ecb = makeAddr("ecb");
+    address private centralBank = makeAddr("central-bank");
     address private user = makeAddr("user");
 
     function setUp() public {
         permissioning = new Permissioning(admin);
         token = new DigitalToken(address(permissioning));
 
-        vm.prank(admin);
-        permissioning.grantRole(permissioning.ECB_ROLE(), ecb);
+        vm.startPrank(admin);
+        permissioning.grantRole(permissioning.CENTRAL_BANK_ROLE(), centralBank);
+        permissioning.grantRole(permissioning.MINTER_ROLE(), centralBank);
+        permissioning.grantRole(permissioning.BURNER_ROLE(), centralBank);
+        vm.stopPrank();
 
-        vm.prank(ecb);
+        vm.prank(centralBank);
         token.mint(user, 10_000, keccak256("initial-funding"));
     }
 
     function test_SecondActiveEscrowIsRejectedWithoutCorruptingAccounting() public {
-        vm.startPrank(ecb);
+        vm.startPrank(centralBank);
         token.escrowFunds(user, 4000, "case-a", 0);
 
         vm.expectRevert(DigitalToken.ActiveEscrowExists.selector);
@@ -41,7 +44,7 @@ contract EscrowAccountingHardeningTest is Test {
     }
 
     function test_ReleaseClearsRecordAndTotalBeforeNewEscrow() public {
-        vm.startPrank(ecb);
+        vm.startPrank(centralBank);
         token.escrowFunds(user, 4000, "case-a", 0);
         token.releaseEscrowedFunds(user, user);
 
@@ -59,7 +62,7 @@ contract EscrowAccountingHardeningTest is Test {
     }
 
     function test_BurnEscrowClearsAccountingAndSupply() public {
-        vm.startPrank(ecb);
+        vm.startPrank(centralBank);
         token.escrowFunds(user, 4000, "confiscation", 0);
         token.burnEscrowedFunds(user);
         vm.stopPrank();
@@ -71,19 +74,19 @@ contract EscrowAccountingHardeningTest is Test {
     }
 
     function test_EscrowRejectsAlreadyExpiredRecord() public {
-        vm.prank(ecb);
+        vm.prank(centralBank);
         vm.expectRevert(DigitalToken.EscrowExpired.selector);
         token.escrowFunds(user, 1000, "expired", block.timestamp);
     }
 
     function test_BurnRejectsZeroAddress() public {
-        vm.prank(ecb);
+        vm.prank(centralBank);
         vm.expectRevert(DigitalToken.ZeroAddress.selector);
         token.burn(address(0), 1, keccak256("zero-address-burn"));
     }
 
     function test_BurnRejectsZeroAmount() public {
-        vm.prank(ecb);
+        vm.prank(centralBank);
         vm.expectRevert(DigitalToken.InvalidAmount.selector);
         token.burn(user, 0, keccak256("zero-amount-burn"));
     }
