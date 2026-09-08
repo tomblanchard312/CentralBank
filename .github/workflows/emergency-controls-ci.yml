@@ -8,7 +8,7 @@ on:
 
 jobs:
   contract-tests:
-    name: Sovereign Monetary Controls (Foundry)
+    name: CentralBank Controls (Foundry)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,11 +18,11 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: nightly
+          version: v1.7.1
 
       - name: Run Foundry Tests
         working-directory: contracts
-        run: forge test --match-path test/SovereignMonetaryControls.t.sol -vvv
+        run: forge test --match-path test/CentralBankControls.t.sol -vvv
 
   api-integration-tests:
     name: Emergency Actions Integration (API)
@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'npm'
-          cache-dependency-path: api/package.json
+          cache-dependency-path: api/package-lock.json
 
       - name: Install Dependencies
         working-directory: api
@@ -51,6 +51,6 @@ jobs:
           BLOCKCHAIN_CHAIN_ID: 31337
           CONTRACT_PERMISSIONING: 0x5FbDB2315678afecb367f032d93F642f64180aa3
           CONTRACT_WALLET_REGISTRY: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-          CONTRACT_TOKENIZED_EURO: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+          CONTRACT_DIGITAL_TOKEN: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
           CONTRACT_CONDITIONAL_PAYMENTS: 0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9
           JWT_SECRET: ci-test-secret-key-min-32-characters-long
