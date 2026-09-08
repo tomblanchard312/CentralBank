@@ -5,9 +5,9 @@ import { AuthenticationError } from './errors.js';
 import { institutionalMtlsGate } from './mtls.js';
 import { logger } from '../utils/logger.js';
 
-const TIMESTAMP_HEADER = 'x-teur-timestamp';
-const NONCE_HEADER = 'x-teur-nonce';
-const SIGNATURE_HEADER = 'x-teur-signature';
+const TIMESTAMP_HEADER = 'x-centralbank-timestamp';
+const NONCE_HEADER = 'x-centralbank-nonce';
+const SIGNATURE_HEADER = 'x-centralbank-signature';
 const MAX_NONCES = 10_000;
 const usedNonces = new Map<string, number>();
 
