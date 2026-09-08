@@ -15,9 +15,8 @@ import {
 const rpcUrl = process.env['CENTRALBANK_INTEGRATION_RPC_URL'];
 const registryAddress = process.env['CONTRACT_WALLET_REGISTRY'];
 const tokenAddress = process.env['CONTRACT_DIGITAL_TOKEN'];
-const deployerKey = process.env['CENTRALBANK_INTEGRATION_DEPLOYER_KEY'];
 
-const configured = Boolean(rpcUrl && registryAddress && tokenAddress && deployerKey);
+const configured = Boolean(rpcUrl && registryAddress && tokenAddress);
 
 describe.skipIf(!configured)('gateway calldata against deployed contracts', () => {
   let provider: ethers.JsonRpcProvider;
@@ -36,8 +35,7 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
 
   beforeAll(async () => {
     provider = new ethers.JsonRpcProvider(rpcUrl);
-    const deployerWallet = new ethers.Wallet(deployerKey!, provider);
-    operator = new ethers.NonceManager(deployerWallet);
+    operator = new ethers.NonceManager(await provider.getSigner(0));
     operatorAddress = await operator.getAddress();
     registry = new ethers.Contract(registryAddress!, [...WalletRegistryABI], operator);
     token = new ethers.Contract(tokenAddress!, [...DigitalTokenABI], operator);
