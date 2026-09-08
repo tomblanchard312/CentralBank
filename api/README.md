@@ -1,15 +1,15 @@
-# tEUR API Gateway
+# CentralBank API Gateway
 
-REST API Gateway for the Tokenized Euro (tEUR) Digital Currency - enabling European banks to integrate with the Digital Euro infrastructure.
+REST API gateway for the CentralBank Digital Token Protocol. The gateway integrates institutions with the generic DigitalToken contract and associated wallet, policy, and conditional-payment services. Jurisdictional denomination and policy belong to the selected deployment profile.
 
 ## Features
 
 - **Wallet Management**: Register, activate/deactivate wallets with KYC compliance
-- **Token Operations**: Mint, burn, transfer tEUR with holding limits enforcement
-- **Waterfall/Reverse-Waterfall**: Automatic excess sweeping to linked bank accounts
+- **Token Operations**: Mint, burn, and transfer CBDT with configured holding-limit enforcement
+- **Waterfall/Reverse-Waterfall**: Automatic excess sweeping to linked settlement accounts
 - **Conditional Payments**: Escrow with delivery confirmation, time-locks, disputes
-- **Role-Based Access Control**: ECB, NCB, Bank, PSP permission tiers
-- **Audit Logging**: Full regulatory compliance audit trail
+- **Role-Based Access Control**: Central-bank, registrar, issuer, PSP, bank, and merchant permissions
+- **Audit Logging**: Regulatory and operational audit events
 - **Rate Limiting**: Per-institution rate limiting
 - **Idempotency**: Duplicate request handling for financial safety
 
@@ -17,53 +17,42 @@ REST API Gateway for the Tokenized Euro (tEUR) Digital Currency - enabling Europ
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or yarn
+- Node.js 20+
+- npm
 - Running Besu node (or use Docker Compose)
-- Deployed smart contracts
+- Deployed CentralBank smart contracts
 
 ### Installation
 
 ```bash
-# Install dependencies
-npm install
-
-# Copy environment file
+npm ci
 cp .env.example .env
-
 # Edit .env with your contract addresses and configuration
 ```
 
 ### Development
 
 ```bash
-# Start in development mode with hot reload
 npm run dev
 ```
 
 ### Production
 
 ```bash
-# Build TypeScript
 npm run build
-
-# Start production server
 npm start
 ```
 
 ### Docker
 
 ```bash
-# Build and run with Docker Compose (includes Besu)
 docker-compose up -d
-
-# View logs
 docker-compose logs -f api
 ```
 
 ## API Documentation
 
-Interactive API documentation available at: `http://localhost:3000/api/docs`
+Interactive API documentation is available at `http://localhost:3000/api/docs`.
 
 ## API Endpoints
 
@@ -80,13 +69,13 @@ Interactive API documentation available at: `http://localhost:3000/api/docs`
 - `GET /api/v1/wallets/:address/balance` - Get balance
 - `POST /api/v1/wallets/:address/deactivate` - Deactivate wallet
 - `POST /api/v1/wallets/:address/reactivate` - Reactivate wallet
-- `PUT /api/v1/wallets/:address/linked-bank` - Update linked bank
+- `PUT /api/v1/wallets/:address/linked-bank` - Update linked settlement account
 
 ### Transfers
 
-- `POST /api/v1/transfers` - Transfer tEUR
-- `POST /api/v1/transfers/mint` - Mint tEUR (NCB/ECB only)
-- `POST /api/v1/transfers/burn` - Burn tEUR (NCB/ECB only)
+- `POST /api/v1/transfers` - Transfer CBDT using payer-signed authorization
+- `POST /api/v1/transfers/mint` - Request authorized CBDT issuance
+- `POST /api/v1/transfers/burn` - Request authorized CBDT redemption/burn
 - `POST /api/v1/transfers/waterfall` - Execute waterfall
 - `POST /api/v1/transfers/reverse-waterfall` - Execute reverse waterfall
 - `GET /api/v1/transfers/balance/:address` - Get balance
@@ -102,7 +91,7 @@ Interactive API documentation available at: `http://localhost:3000/api/docs`
 - `POST /api/v1/payments/:paymentId/dispute` - Dispute payment
 - `POST /api/v1/payments/:paymentId/resolve` - Resolve dispute
 
-### Admin (ECB/NCB only)
+### Admin
 
 - `GET /api/v1/admin/system/status` - System status
 - `POST /api/v1/admin/system/pause` - Pause operations
@@ -114,7 +103,7 @@ Interactive API documentation available at: `http://localhost:3000/api/docs`
 
 ## Authentication
 
-### API Key (Recommended for Production)
+### API Key
 
 ```bash
 curl -X GET "http://localhost:3000/api/v1/wallets/0x..." \
@@ -130,14 +119,7 @@ curl -X GET "http://localhost:3000/api/v1/wallets/0x..." \
 
 ## Demo API Keys
 
-For development, the following API keys are pre-configured:
-
-| Key               | Institution         | Permissions                         |
-| ----------------- | ------------------- | ----------------------------------- |
-| `demo-ecb-key`    | ECB                 | Full access                         |
-| `demo-ncb-de-key` | Deutsche Bundesbank | Mint, burn, waterfall, read         |
-| `demo-bank-key`   | Deutsche Bank       | Transfer, waterfall, payments, read |
-| `demo-psp-key`    | Payment Services    | Register wallet, read               |
+Development fixtures include representative institutional keys. They are test-only credentials and must not be used in production.
 
 ## Environment Variables
 
@@ -147,28 +129,26 @@ For development, the following API keys are pre-configured:
 | `NODE_ENV`                        | Environment                          | development           |
 | `BLOCKCHAIN_RPC_URL`              | Besu RPC endpoint                    | http://localhost:8545 |
 | `BLOCKCHAIN_CHAIN_ID`             | Chain ID                             | 31337                 |
-| `BLOCKCHAIN_OPERATOR_PRIVATE_KEY` | Operator signing key                 | -                     |
+| `BLOCKCHAIN_OPERATOR_PRIVATE_KEY` | Development/test operator signing key | -                    |
 | `CONTRACT_PERMISSIONING`          | Permissioning contract address       | -                     |
 | `CONTRACT_WALLET_REGISTRY`        | WalletRegistry contract address      | -                     |
-| `CONTRACT_TOKENIZED_EURO`         | TokenizedEuro contract address       | -                     |
+| `CONTRACT_DIGITAL_TOKEN`          | DigitalToken contract address        | -                     |
 | `CONTRACT_CONDITIONAL_PAYMENTS`   | ConditionalPayments contract address | -                     |
 | `JWT_SECRET`                      | JWT signing secret                   | -                     |
 | `RATE_LIMIT_WINDOW_MS`            | Rate limit window                    | 60000                 |
 | `RATE_LIMIT_MAX`                  | Max requests per window              | 100                   |
-| `CORS_ORIGIN`                     | Allowed CORS origins                 | \*                    |
+| `CORS_ORIGIN`                     | Allowed CORS origins                 | `*`                   |
 | `LOG_LEVEL`                       | Logging level                        | info                  |
 
 ## Amounts
 
-All amounts are in **euro cents** (integer). Examples:
+Amounts use the token's configured minor-unit precision. For the `eurosystem-reference` profile, CBDT is denominated in EUR with two decimal places, so `100` represents EUR 1.00.
 
-- `100` = €1.00
-- `300000` = €3,000.00 (individual holding limit)
-- `3000000` = €30,000.00 (merchant holding limit)
+Holding limits and other numeric monetary-policy values are profile/policy configuration, not properties of the generic CBDT identity.
 
 ## Idempotency
 
-All write operations (POST/PUT/PATCH) support idempotency keys:
+Write operations support idempotency keys where defined by the route and contract operation.
 
 ```json
 {
@@ -178,8 +158,6 @@ All write operations (POST/PUT/PATCH) support idempotency keys:
 }
 ```
 
-Duplicate requests with the same idempotency key return cached responses with header `X-Idempotency-Replayed: true`.
-
 ## Error Responses
 
 ```json
@@ -187,7 +165,7 @@ Duplicate requests with the same idempotency key return cached responses with he
   "error": {
     "code": "VALIDATION_ERROR",
     "message": "Request validation failed",
-    "details": [...],
+    "details": [],
     "requestId": "abc-123"
   }
 }
@@ -206,24 +184,20 @@ Duplicate requests with the same idempotency key return cached responses with he
 
 ## Audit Logging
 
-All operations are logged to `logs/audit.log` with:
-
-- Actor (institution ID)
-- Action
-- Resource type/ID
-- Timestamp
-- Result (success/failure)
-- Request details
+Operations are recorded with actor/institution identity, action, resource, timestamp, outcome, and relevant request metadata. Production-grade durable append-only audit persistence remains a separate hardening requirement.
 
 ## Security
 
-- All endpoints require authentication (API key or JWT)
-- Rate limiting per institution
-- Request validation with Zod schemas
-- Helmet.js security headers
+- Authenticated protected endpoints
+- Per-institution authorization
+- Rate limiting
+- Zod request validation
+- Helmet security headers
 - CORS configuration
 - Non-root Docker user
+- Payer-signed transaction relay for economic-custody operations
+- Production local-key signing is rejected pending KMS/HSM integration
 
-## License
+## Positioning
 
-Proprietary - European Central Bank Digital Euro Initiative
+CentralBank is an independent open-source reference implementation. The `eurosystem-reference` profile is informed by published Eurosystem concepts; the project is not issued, endorsed, sponsored, or operated by the ECB, Eurosystem, or any national central bank.
