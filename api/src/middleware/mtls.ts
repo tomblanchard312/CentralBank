@@ -6,12 +6,12 @@ import { AuthenticationError, AuthorizationError } from './errors.js';
 import { authenticate } from './auth.js';
 import { logger } from '../utils/logger.js';
 
-const HEADER_VERIFIED = 'x-teur-mtls-verified';
-const HEADER_INSTITUTION = 'x-teur-mtls-institution-id';
-const HEADER_FINGERPRINT = 'x-teur-mtls-fingerprint';
-const HEADER_ISSUER = 'x-teur-mtls-issuer';
-const HEADER_INGRESS_TOKEN = 'x-teur-ingress-token';
-const SPIFFE_PREFIX = 'spiffe://teur.example/institution/';
+const HEADER_VERIFIED = 'x-centralbank-mtls-verified';
+const HEADER_INSTITUTION = 'x-centralbank-mtls-institution-id';
+const HEADER_FINGERPRINT = 'x-centralbank-mtls-fingerprint';
+const HEADER_ISSUER = 'x-centralbank-mtls-issuer';
+const HEADER_INGRESS_TOKEN = 'x-centralbank-ingress-token';
+const SPIFFE_PREFIX = 'spiffe://centralbank.example/institution/';
 const MTLS_HEADERS = [
   HEADER_VERIFIED,
   HEADER_INSTITUTION,
