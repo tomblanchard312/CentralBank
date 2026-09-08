@@ -24,7 +24,7 @@ contract CentralBankControlsTest is Test {
         permissioning.grantRole(permissioning.MINTER_ROLE(), issuer);
         permissioning.grantRole(permissioning.BURNER_ROLE(), issuer);
         permissioning.grantRole(permissioning.EMERGENCY_ROLE(), emergency);
-        permissioning.grantRole(permissioning.ECB_ROLE(), centralBank);
+        permissioning.grantRole(permissioning.CENTRAL_BANK_ROLE(), centralBank);
         vm.stopPrank();
     }
 
