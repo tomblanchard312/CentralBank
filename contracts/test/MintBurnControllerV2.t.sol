@@ -21,10 +21,9 @@ contract MintBurnControllerV2Test is Test {
             address(ledger), governance, mintAuthority, burnAuthority, 1_000_000, 100_000, 75_000
         );
 
+        uint8 capabilities = ledger.CAPABILITY_MINT() | ledger.CAPABILITY_BURN();
         vm.prank(governance);
-        ledger.setControllerCapabilities(
-            address(controller), ledger.CAPABILITY_MINT() | ledger.CAPABILITY_BURN()
-        );
+        ledger.setControllerCapabilities(address(controller), capabilities);
     }
 
     function test_MintAndBurnUpdateSupply() public {
