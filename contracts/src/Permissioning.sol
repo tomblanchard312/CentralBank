@@ -3,9 +3,9 @@ pragma solidity ^0.8.20;
 
 /**
  * @title Permissioning
- * @notice Role-based access control for tEUR infrastructure
- * @dev Manages all roles for Digital Euro ecosystem
- * 
+ * @notice Role-based access control for the CentralBank reference platform.
+ * @dev Manages protocol and participant roles independently of any deployment profile.
+ *
  * Security considerations:
  * - Multi-sig required for role changes in production
  * - All role changes are logged for audit
@@ -18,12 +18,12 @@ contract Permissioning {
     bytes32 public constant BURNER_ROLE = keccak256("BURNER_ROLE");
     bytes32 public constant EMERGENCY_ROLE = keccak256("EMERGENCY_ROLE");
     bytes32 public constant VALIDATOR_ROLE = keccak256("VALIDATOR_ROLE");
-    bytes32 public constant REGISTRAR_ROLE = keccak256("REGISTRAR_ROLE");   // Can register wallets
-    bytes32 public constant ORACLE_ROLE = keccak256("ORACLE_ROLE");         // Can confirm conditions
-    bytes32 public constant WATERFALL_ROLE = keccak256("WATERFALL_ROLE");   // Can execute waterfall sweeps
+    bytes32 public constant REGISTRAR_ROLE = keccak256("REGISTRAR_ROLE"); // Can register wallets
+    bytes32 public constant ORACLE_ROLE = keccak256("ORACLE_ROLE"); // Can confirm conditions
+    bytes32 public constant WATERFALL_ROLE = keccak256("WATERFALL_ROLE"); // Can execute waterfall sweeps
 
     // Sovereign monetary control roles
-    bytes32 public constant ECB_ROLE = keccak256("ECB_ROLE");
+    bytes32 public constant CENTRAL_BANK_ROLE = keccak256("CENTRAL_BANK_ROLE");
     bytes32 public constant STATE_BANK_ROLE = keccak256("STATE_BANK_ROLE");
     bytes32 public constant LOCAL_BANK_ROLE = keccak256("LOCAL_BANK_ROLE");
     bytes32 public constant PSP_ROLE = keccak256("PSP_ROLE");
@@ -59,14 +59,14 @@ contract Permissioning {
     function grantRole(bytes32 role, address account) external onlyAdmin {
         if (account == address(0)) revert ZeroAddress();
         if (_roles[role][account]) revert RoleAlreadyGranted();
-        
+
         _roles[role][account] = true;
         emit RoleGranted(role, account, msg.sender);
     }
 
     function revokeRole(bytes32 role, address account) external onlyAdmin {
         if (!_roles[role][account]) revert RoleNotGranted();
-        
+
         _roles[role][account] = false;
         emit RoleRevoked(role, account, msg.sender);
     }
@@ -109,8 +109,8 @@ contract Permissioning {
         return _roles[WATERFALL_ROLE][account];
     }
 
-    function isECB(address account) external view returns (bool) {
-        return _roles[ECB_ROLE][account];
+    function isCentralBank(address account) external view returns (bool) {
+        return _roles[CENTRAL_BANK_ROLE][account];
     }
 
     function isStateBank(address account) external view returns (bool) {
