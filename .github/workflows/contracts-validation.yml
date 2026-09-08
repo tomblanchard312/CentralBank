@@ -34,7 +34,7 @@ jobs:
       - name: Install Foundry
         uses: foundry-rs/foundry-toolchain@v1
         with:
-          version: stable
+          version: v1.7.1
 
       - name: Check formatting
         run: forge fmt --check
@@ -46,6 +46,6 @@ jobs:
         run: forge test -vvv
 
       - name: Run invariant suite
-        run: forge test --match-contract TokenizedEuroInvariantTest -vvv
+        run: forge test --match-contract DigitalTokenInvariantTest -vvv
         env:
           FOUNDRY_PROFILE: ci
