@@ -67,7 +67,7 @@ contract DeployCentralBank is Script {
     function _grantRoles(DeploymentConfig memory config, address deployer) internal {
         if (config.admin != deployer) permissioning.grantRole(permissioning.ADMIN_ROLE(), config.admin);
         permissioning.grantRole(permissioning.EMERGENCY_ROLE(), config.centralBankController);
-        permissioning.grantRole(permissioning.ECB_ROLE(), config.centralBankController);
+        permissioning.grantRole(permissioning.CENTRAL_BANK_ROLE(), config.centralBankController);
         permissioning.grantRole(permissioning.MINTER_ROLE(), config.issuer);
         permissioning.grantRole(permissioning.BURNER_ROLE(), config.issuer);
         permissioning.grantRole(permissioning.REGISTRAR_ROLE(), config.participantRegistrar);
@@ -108,7 +108,7 @@ contract DeployLabEnvironment is Script {
         permissioning.grantRole(permissioning.MINTER_ROLE(), deployer);
         permissioning.grantRole(permissioning.BURNER_ROLE(), deployer);
         permissioning.grantRole(permissioning.EMERGENCY_ROLE(), deployer);
-        permissioning.grantRole(permissioning.ECB_ROLE(), deployer);
+        permissioning.grantRole(permissioning.CENTRAL_BANK_ROLE(), deployer);
         permissioning.grantRole(permissioning.REGISTRAR_ROLE(), deployer);
         permissioning.grantRole(permissioning.ORACLE_ROLE(), deployer);
         permissioning.grantRole(permissioning.WATERFALL_ROLE(), deployer);
