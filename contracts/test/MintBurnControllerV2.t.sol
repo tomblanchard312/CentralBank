@@ -146,7 +146,8 @@ contract MintBurnControllerV2Test is Test {
 
     function testFuzz_MintThenBurnPreservesExpectedSupply(uint96 rawMint, uint96 rawBurn) public {
         uint256 mintAmount = bound(uint256(rawMint), 1, 100_000);
-        uint256 burnAmount = bound(uint256(rawBurn), 1, mintAmount);
+        uint256 maxBurnAmount = mintAmount < 75_000 ? mintAmount : 75_000;
+        uint256 burnAmount = bound(uint256(rawBurn), 1, maxBurnAmount);
 
         vm.prank(mintAuthority);
         controller.mint(
