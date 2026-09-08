@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: teur-api
+    container_name: centralbank-api
     ports:
       - "3000:3000"
     environment:
@@ -16,7 +16,7 @@ services:
       - BLOCKCHAIN_OPERATOR_PRIVATE_KEY=${OPERATOR_PRIVATE_KEY:-0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80}
       - CONTRACT_PERMISSIONING=${CONTRACT_PERMISSIONING}
       - CONTRACT_WALLET_REGISTRY=${CONTRACT_WALLET_REGISTRY}
-      - CONTRACT_TOKENIZED_EURO=${CONTRACT_TOKENIZED_EURO}
+      - CONTRACT_DIGITAL_TOKEN=${CONTRACT_DIGITAL_TOKEN}
       - CONTRACT_CONDITIONAL_PAYMENTS=${CONTRACT_CONDITIONAL_PAYMENTS}
       - JWT_SECRET=${JWT_SECRET:-dev-secret-change-in-production}
       - LOG_LEVEL=debug
@@ -27,7 +27,7 @@ services:
       besu:
         condition: service_healthy
     networks:
-      - teur-network
+      - centralbank-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/v1/health/live"]
@@ -38,7 +38,7 @@ services:
 
   besu:
     image: hyperledger/besu:24.1.0
-    container_name: teur-besu
+    container_name: centralbank-besu
     ports:
       - "8545:8545"
       - "8546:8546"
@@ -61,7 +61,7 @@ services:
       --miner-enabled
       --miner-coinbase=0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
     networks:
-      - teur-network
+      - centralbank-network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8545"]
       interval: 10s
@@ -70,7 +70,7 @@ services:
       start_period: 30s
 
 networks:
-  teur-network:
+  centralbank-network:
     driver: bridge
 
 volumes:
