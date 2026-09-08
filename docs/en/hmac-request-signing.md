@@ -19,9 +19,9 @@ The shared secret must be stored in a secret manager and must never be committed
 Signed requests use:
 
 - `X-API-Key` (or the configured API key header)
-- `X-tEUR-Timestamp`: Unix time in milliseconds
-- `X-tEUR-Nonce`: unique 16-128 character value
-- `X-tEUR-Signature`: `v1=` followed by a hexadecimal HMAC-SHA256 digest
+- `X-CentralBank-Timestamp`: Unix time in milliseconds
+- `X-CentralBank-Nonce`: unique 16-128 character value
+- `X-CentralBank-Signature`: `v1=` followed by a hexadecimal HMAC-SHA256 digest
 
 GET, HEAD, OPTIONS, and bearer-token requests are not HMAC-signed by this middleware.
 
@@ -48,7 +48,7 @@ HMAC-SHA256(HMAC_SHARED_SECRET, canonical-request)
 Send the hexadecimal digest as:
 
 ```text
-X-tEUR-Signature: v1=<digest>
+X-CentralBank-Signature: v1=<digest>
 ```
 
 The server rejects stale timestamps, malformed signatures, invalid signatures, and reused nonces. Nonces are scoped to the API-key identifier and retained for the configured timestamp window.
