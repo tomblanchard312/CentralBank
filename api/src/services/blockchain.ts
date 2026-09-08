@@ -26,7 +26,7 @@ export const ROLES = {
   WATERFALL_OPERATOR_ROLE: ethers.keccak256(ethers.toUtf8Bytes('WATERFALL_OPERATOR_ROLE')),
   EMERGENCY_ROLE: ethers.keccak256(ethers.toUtf8Bytes('EMERGENCY_ROLE')),
   ARBITER_ROLE: ethers.keccak256(ethers.toUtf8Bytes('ARBITER_ROLE')),
-  ECB_ROLE: ethers.keccak256(ethers.toUtf8Bytes('ECB_ROLE')),
+  CENTRAL_BANK_ROLE: ethers.keccak256(ethers.toUtf8Bytes('CENTRAL_BANK_ROLE')),
   STATE_BANK_ROLE: ethers.keccak256(ethers.toUtf8Bytes('STATE_BANK_ROLE')),
   LOCAL_BANK_ROLE: ethers.keccak256(ethers.toUtf8Bytes('LOCAL_BANK_ROLE')),
   PSP_ROLE: ethers.keccak256(ethers.toUtf8Bytes('PSP_ROLE')),
@@ -457,7 +457,7 @@ class BlockchainService {
     await this.validateHoldingLimit(to, amount);
 
     await logAuditEvent({
-      action: 'TOKENS_MINTED',
+      action: 'TOKENS_MINT_REQUESTED',
       actor: userId || 'system',
       resource: 'token',
       resourceId: to,
@@ -465,7 +465,7 @@ class BlockchainService {
       result: 'success',
     });
 
-    return this.executeTransaction(
+    const result = await this.executeTransaction(
       this._digitalToken,
       'mint',
       [to, amount, this._toBytes32Key(idempotencyKey)],
@@ -475,6 +475,23 @@ class BlockchainService {
         operation: 'MINT_TOKENS'
       }
     );
+
+    await logAuditEvent({
+      action: 'TOKENS_MINTED',
+      actor: userId || 'system',
+      resource: 'token',
+      resourceId: to,
+      details: {
+        justification,
+        amount: amount.toString(),
+        idempotencyKey,
+        txHash: result.txHash,
+        blockNumber: result.blockNumber,
+      },
+      result: 'success',
+    });
+
+    return result;
   }
 
   async burn(from: string, amount: bigint, idempotencyKey: string, correlationId?: string, userId?: string) {
@@ -601,9 +618,9 @@ class BlockchainService {
     return BigInt(result.toString());
   }
 
-  async isECB(account: string): Promise<boolean> {
-    const func = this._permissioning.getFunction('isECB');
-    if (!func) throw new BlockchainError('Contract method isECB not available');
+  async isCentralBank(account: string): Promise<boolean> {
+    const func = this._permissioning.getFunction('isCentralBank');
+    if (!func) throw new BlockchainError('Contract method isCentralBank not available');
     return await func(account) as boolean;
   }
 
