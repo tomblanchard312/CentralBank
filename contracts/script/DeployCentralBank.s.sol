@@ -67,6 +67,7 @@ contract DeployCentralBank is Script {
     function _grantRoles(DeploymentConfig memory config, address deployer) internal {
         if (config.admin != deployer) permissioning.grantRole(permissioning.ADMIN_ROLE(), config.admin);
         permissioning.grantRole(permissioning.EMERGENCY_ROLE(), config.centralBankController);
+        permissioning.grantRole(permissioning.ECB_ROLE(), config.centralBankController);
         permissioning.grantRole(permissioning.MINTER_ROLE(), config.issuer);
         permissioning.grantRole(permissioning.BURNER_ROLE(), config.issuer);
         permissioning.grantRole(permissioning.REGISTRAR_ROLE(), config.participantRegistrar);
@@ -99,10 +100,7 @@ contract DeployLabEnvironment is Script {
         Permissioning permissioning = new Permissioning(deployer);
         WalletRegistry walletRegistry = new WalletRegistry(address(permissioning));
         DigitalToken digitalToken = new DigitalToken(address(permissioning));
-        ConditionalPayments conditionalPayments = new ConditionalPayments(
-            address(digitalToken),
-            address(permissioning)
-        );
+        ConditionalPayments conditionalPayments = new ConditionalPayments(address(digitalToken), address(permissioning));
 
         digitalToken.setWalletRegistry(address(walletRegistry));
         digitalToken.setWaterfallEnabled(true);
