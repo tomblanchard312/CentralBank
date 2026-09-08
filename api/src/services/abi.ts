@@ -105,7 +105,7 @@ export const PermissioningABI = [
   'function isEmergencyController(address account) external view returns (bool)',
   'function isRegistrar(address account) external view returns (bool)',
   'function isWaterfallOperator(address account) external view returns (bool)',
-  'function isECB(address account) external view returns (bool)',
+  'function isCentralBank(address account) external view returns (bool)',
   'function isStateBank(address account) external view returns (bool)',
   'function isLocalBank(address account) external view returns (bool)',
   'function isPSP(address account) external view returns (bool)',
