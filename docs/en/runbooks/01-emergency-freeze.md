@@ -2,72 +2,79 @@
 
 ## Objective
 
-To immediately halt all outgoing transfer operations from a specific wallet address or entity account to prevent unauthorized movement of funds, ensure regulatory compliance, or respond to a security incident.
+Immediately halt outgoing transfer operations from a specific wallet or participant account when required by an authorized legal, sanctions, fraud, or security process.
+
+This runbook describes the CentralBank reference flow. Exact approving authorities and legal thresholds are deployment-profile decisions.
 
 ## Preconditions
 
-1. The operator must possess an API key or JWT with the `ECB_ADMIN` role.
-2. The key used must be registered in the Sovereign Key Hierarchy with the `ISSUING` role.
-3. The target wallet address must be a valid Ethereum-compatible address (0x...).
+1. The operator is authenticated to the institutional gateway and holds the deployment-specific emergency/legal-control permission required for account freeze operations.
+2. The target wallet is a valid address recognized by the deployment.
+3. The legal or operational basis for the action has been recorded outside the public chain where required.
+4. The operator has confirmed that the requested action applies to the selected deployment profile and jurisdiction.
 
-## Authorization Requirements
+## Authorization requirements
 
-- **Standard Freeze**: Requires single authorization from an ECB/NCB Operational Officer.
-- **High-Value Freeze (> €1,000,000)**: Requires dual-authorization (Four-Eyes Principle) as per Rulebook Section 4.2.
+CentralBank does not hard-code a jurisdictional approval hierarchy. A production profile should define who may initiate a freeze, whether dual control is required, any escalation threshold, required case references, and authority-rotation procedures.
 
-## Execution Steps
+For the `eurosystem-reference` profile, these controls may be mapped to appropriate central-bank or delegated institutional authorities, but that mapping is profile-specific.
 
-### 1. Identify Target
+## Execution steps
 
-Confirm the target address and the legal basis for the freeze (e.g., Sanctions List, Fraud Alert).
+### 1. Identify target
 
-### 2. Execute Freeze via API
+Confirm the target address and record the case/legal basis for the freeze. Use an opaque case reference or hash rather than placing confidential case material directly on-chain when possible.
 
-Submit a POST request to the Transfer Service:
+### 2. Execute freeze through the institutional gateway
 
 ```bash
 curl -X POST "https://[internal-gateway]/api/v1/transfers/freeze" \
-     -H "X-API-KEY: [ISSUING_KEY]" \
+     -H "X-API-KEY: [AUTHORIZED_KEY]" \
      -H "Content-Type: application/json" \
      -d '{
        "account": "0xTargetAddress...",
-       "reason": "Emergency Sanctions Compliance - Case ID: 2026-001"
+       "reason": "Emergency compliance action - Case ID: 2026-001"
      }'
 ```
 
-### 3. Monitor Blockchain Confirmation
+The deployment may additionally require institutional mTLS and request signing.
 
-Wait for the transaction to be mined on the Besu network. Retrieve the transaction hash from the API response.
+### 3. Monitor confirmation
 
-## Validation Checks
+Capture the transaction identifier and confirm the state transition on the configured ledger network before declaring the freeze complete.
 
-1. **On-Chain Verification**:
-   Query the contract state to confirm the `frozen` flag is set to `true`:
-   ```bash
-   # Using internal CLI tool
-   teur-cli query is-frozen 0xTargetAddress...
-   ```
-2. **Attempt Test Transfer**:
-   Attempt a small transfer from the frozen account. The transaction MUST fail with the error `AccountIsFrozen`.
+## Validation checks
 
-## Failure Handling
+1. Query the `DigitalToken` or applicable policy state and confirm the account is frozen.
+2. Validate in a safe environment that an applicable transfer from the frozen account is rejected.
+3. Confirm the audit trail identifies the acting institution and case reference.
 
-- **Transaction Reverted**: If the transaction fails, check the `GovernanceService` logs for `KEY_VALIDATION_FAILED`. Ensure the key has not been revoked.
-- **Network Partition**: If the Besu node is unreachable, switch to the secondary validator node in the Closed Settlement Plane (CSP).
+## Failure handling
 
-## Rollback / Unfreeze Procedure
+- **Authorization rejected:** verify institutional identity, role/capability assignment, and request-signature requirements.
+- **Transaction reverted:** inspect the contract revert reason and current account state before retrying.
+- **Network partition:** use only the deployment's approved secondary settlement-plane access path.
+- **Uncertain legal authority:** escalate through the deployment's governance/legal process rather than broadening the action.
 
-1. Verify the legal resolution of the freeze.
-2. Execute the unfreeze command:
+## Unfreeze procedure
+
+1. Verify that the legal or incident basis has been resolved.
+2. Obtain the required authorization for reversal.
+3. Execute the configured unfreeze operation:
 
 ```bash
 curl -X POST "https://[internal-gateway]/api/v1/transfers/unfreeze" \
-     -H "X-API-KEY: [ISSUING_KEY]" \
+     -H "X-API-KEY: [AUTHORIZED_KEY]" \
+     -H "Content-Type: application/json" \
      -d '{ "account": "0xTargetAddress..." }'
 ```
 
-## Audit Evidence Produced
+4. Verify on-chain state and audit evidence before notifying participants.
 
-- **API Logs**: `ACCOUNT_FROZEN` event in structured JSON format.
-- **Blockchain Event**: `AccountFrozen(address indexed account)` emitted by the `TokenizedEuro` contract.
-- **Governance Log**: Record of the `ISSUING` key used for the operation.
+## Audit evidence
+
+Expected evidence includes the gateway audit event, transaction receipt/ledger confirmation, `DigitalToken` account-control event where applicable, case/legal reference, and governance evidence required by the deployment.
+
+## Non-affiliation note
+
+References to Eurosystem-style controls in a deployment profile do not imply that CentralBank is operated or endorsed by the ECB, Eurosystem, or any national central bank.
