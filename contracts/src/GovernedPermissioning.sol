@@ -92,16 +92,10 @@ contract GovernedPermissioning {
         if (!grant && !_roles[role][account]) revert RoleNotGranted();
         if (!grant && role == ADMIN_ROLE && adminCount <= 2) revert LastAdmin();
 
-        proposalId = keccak256(abi.encode(block.chainid, address(this), ++proposalNonce, role, account, grant, msg.sender));
+        proposalId =
+            keccak256(abi.encode(block.chainid, address(this), ++proposalNonce, role, account, grant, msg.sender));
         proposals[proposalId] = RoleProposal(
-            role,
-            account,
-            grant,
-            msg.sender,
-            address(0),
-            uint64(block.timestamp + lifetime),
-            false,
-            false
+            role, account, grant, msg.sender, address(0), uint64(block.timestamp + lifetime), false, false
         );
         emit RoleChangeProposed(proposalId, role, account, grant, msg.sender, block.timestamp + lifetime);
     }
