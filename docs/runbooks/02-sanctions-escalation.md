@@ -2,68 +2,109 @@
 
 ## Objective
 
-To rapidly propagate sanctions-related restrictions across the entire tEUR network, ensuring that all participants (Banks, PSPs) immediately block transactions involving sanctioned entities.
+Rapidly propagate sanctions or equivalent legally mandated transfer restrictions across a CentralBank deployment so affected participant accounts are blocked consistently at both the policy/gateway layer and the ledger enforcement layer.
+
+The legal authority, sanctions source, and institutional approval chain are deployment-profile decisions. The `eurosystem-reference` profile may use EU/Eurosystem-oriented examples, but the generic protocol does not assume one jurisdiction.
 
 ## Preconditions
 
-1. Official notification from the European Council or relevant legal authority.
-2. Access to the ECB Core Management Interface within the Closed Settlement Plane (CSP).
+1. A verified instruction from the deployment's recognized legal or sanctions authority.
+2. Authenticated access to the closed institutional management plane.
+3. An approved case/change reference and the required emergency or compliance authority.
+4. A validated sanctions input set with source, timestamp, and integrity evidence.
 
-## Scope Expansion Rules
+## Scope expansion rules
 
-- **Individual**: Freeze specific wallet addresses.
-- **Entity**: Freeze all wallets associated with a Participant ID.
-- **Jurisdictional**: (If applicable) Pause all operations for a specific zone.
+A profile may define escalation at one or more levels:
 
-## Execution Steps
+- **Wallet/account:** freeze specific addresses.
+- **Participant/entity:** block all identified wallets associated with a participant.
+- **Zone or institution:** suspend a participant or trust zone when supported by governance and policy.
+- **System-wide:** invoke emergency controls only when authorized and necessary.
 
-### 1. Batch Freeze Execution
+Broader scope must not be inferred automatically from a single-account instruction.
 
-For multiple addresses, use the batch processing utility to minimize latency:
+## Execution steps
 
-```bash
-# Internal script for batch sanctions
-node api/bin/batch-freeze.js --file sanctions-list-2026-01-03.json
-```
+### 1. Validate sanctions input
 
-### 2. Update Local Sanctions Mirror
+Confirm the source, effective time, identifiers, case reference, and integrity of the sanctions data before producing ledger actions.
 
-Update the internal `ecb-mirror` service to ensure the API Gateway rejects transactions at the edge before they reach the blockchain:
+### 2. Apply policy and account controls
 
-```bash
-curl -X POST "https://[internal-gateway]/api/v1/admin/sanctions/sync" \
-     -H "X-API-KEY: [ISSUING_KEY]"
-```
+Use the deployment's approved batch or policy-update mechanism to apply the restrictions. If a batch utility is deployed, preserve an auditable mapping between every input record and resulting transaction or policy update.
 
-### 3. Broadcast Sanctions Manifest
+### 3. Update gateway-side sanctions state
 
-The system automatically generates a new `ecb-manifest` containing the updated frozen accounts. This manifest is pulled by all Participant nodes within 60 seconds.
+Where the gateway maintains a sanctions mirror or policy cache, update it so prohibited traffic can be rejected before transaction relay. The gateway copy is defense in depth; it must not be the only enforcement point for restrictions that are required on-chain.
 
-## Propagation Guarantees
+### 4. Publish signed policy state
 
-- **Blockchain State**: Once the `freeze` transaction is confirmed, the restriction is absolute and enforced by every node in the network.
-- **Latency**: Maximum propagation delay is defined as `BlockTime (2s) + SyncTime (5s) = 7s`.
+If the deployment distributes a sanctions/policy manifest to participant nodes, produce a new signed manifest with:
 
-## Visibility Guarantees for Regulators
+- manifest version
+- effective time
+- source/case reference
+- content hash
+- signer identity
+- previous-manifest linkage where supported
 
-- Regulators have read-only access to the `TokenizedEuro` contract events.
-- The `AuditService` provides a real-time stream of `ACCOUNT_FROZEN` events via the `/api/v1/audit/stream` endpoint.
+Profile-specific service names such as an ECB-oriented mirror or manifest should remain confined to the relevant deployment profile.
 
-## Legal Reference Recording
+## Propagation and enforcement
 
-Every freeze operation MUST include a `reason` field containing:
+A production deployment should define and test measurable propagation objectives rather than relying on a hard-coded latency assumption. Record at least:
 
-- Legal Instrument Reference (e.g., EU Regulation 2024/XXX).
-- Case ID.
-- Timestamp of the legal order.
+- ledger confirmation time
+- gateway/policy-cache update time
+- participant acknowledgement time
+- any failed or delayed participant update
 
-## Validation Checks
+Once an on-chain freeze or transfer-policy restriction is confirmed, all applicable transfer paths must enforce it consistently.
 
-- Verify that the `ecb-manifest` hash has been updated and signed by the `ISSUING` key.
-- Confirm that Participant nodes have acknowledged the manifest update.
+## Regulator and auditor visibility
 
-## Audit Artifacts Generated
+Authorized read-only oversight can be provided through:
 
-- Signed `ecb-manifest.json`.
-- `logAuditEvent` entries with `action: 'SANCTIONS_ESCALATION'`.
-- Blockchain transaction receipts for all frozen addresses.
+- `DigitalToken` and policy-controller events
+- append-only audit records
+- transaction receipts
+- signed policy manifests
+- reconciliation reports
+- profile-specific regulator/auditor interfaces
+
+A production audit stream must be durable and access-controlled. The current repository's production-grade append-only audit persistence remains a release-hardening requirement.
+
+## Legal reference recording
+
+Each sanctions action should retain sufficient reference data to reconstruct why the action occurred without exposing unnecessary confidential information on-chain. Typical metadata includes:
+
+- legal instrument or authority reference
+- case/change identifier
+- effective timestamp
+- source-list version or hash
+- approving institutional identity
+
+## Validation checks
+
+- confirm restricted accounts are rejected by applicable ledger/policy paths
+- confirm gateway-side policy matches the authoritative policy version
+- verify manifest or source-data hashes
+- verify participant acknowledgements where the deployment requires them
+- reconcile the number of requested restrictions with successful, failed, and pending actions
+- confirm audit evidence links each action to its source case/reference
+
+## Audit artifacts
+
+Expected artifacts may include:
+
+- signed sanctions/policy manifest
+- structured sanctions-escalation audit events
+- transaction receipts or policy-update receipts
+- source-list hash and version
+- participant acknowledgement evidence
+- reconciliation summary
+
+## Non-affiliation note
+
+Use of EU or Eurosystem examples in the `eurosystem-reference` profile does not imply that CentralBank is issued, endorsed, sponsored, approved, or operated by the ECB, Eurosystem, or any national central bank.
