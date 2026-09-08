@@ -106,8 +106,11 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
     const asHolder = token.connect(holder) as ethers.Contract;
     const operatorBefore = await token.balanceOf(operatorAddress);
 
+    // Use a read-only simulation for the expected failure. Sending an invalid
+    // transaction makes ethers poll for a receipt/revert and can exceed Vitest's
+    // default timeout even though the contract rejects it immediately.
     await expect(
-      token.transferFrom(holder.address, bank, 10_00n),
+      token.transferFrom.staticCall(holder.address, bank, 10_00n),
     ).rejects.toThrow();
 
     await (await asHolder.approve(operatorAddress, 10_00n)).wait();
