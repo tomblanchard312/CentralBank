@@ -33,25 +33,14 @@ contract DeployCentralBank is Script {
         uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
         address deployer = vm.addr(deployerPrivateKey);
 
-        console.log("=== CentralBank Deployment ===");
-        console.log("Deployer:", deployer);
-        console.log("Admin:", config.admin);
-        console.log("Central Bank Controller:", config.centralBankController);
-        console.log("Issuer:", config.issuer);
-        console.log("");
-
         vm.startBroadcast(deployerPrivateKey);
-
         permissioning = new Permissioning(deployer);
         walletRegistry = new WalletRegistry(address(permissioning));
         digitalToken = new DigitalToken(address(permissioning));
         conditionalPayments = new ConditionalPayments(address(digitalToken), address(permissioning));
 
         digitalToken.setWalletRegistry(address(walletRegistry));
-        if (config.enableWaterfall) {
-            digitalToken.setWaterfallEnabled(true);
-        }
-
+        if (config.enableWaterfall) digitalToken.setWaterfallEnabled(true);
         _grantRoles(config, deployer);
         vm.stopBroadcast();
         _printSummary(config);
@@ -76,24 +65,17 @@ contract DeployCentralBank is Script {
     }
 
     function _grantRoles(DeploymentConfig memory config, address deployer) internal {
-        if (config.admin != deployer) {
-            permissioning.grantRole(permissioning.ADMIN_ROLE(), config.admin);
-        }
-
+        if (config.admin != deployer) permissioning.grantRole(permissioning.ADMIN_ROLE(), config.admin);
         permissioning.grantRole(permissioning.EMERGENCY_ROLE(), config.centralBankController);
         permissioning.grantRole(permissioning.MINTER_ROLE(), config.issuer);
         permissioning.grantRole(permissioning.BURNER_ROLE(), config.issuer);
         permissioning.grantRole(permissioning.REGISTRAR_ROLE(), config.participantRegistrar);
         permissioning.grantRole(permissioning.WATERFALL_ROLE(), config.participantRegistrar);
         permissioning.grantRole(permissioning.ORACLE_ROLE(), config.oracleService);
-
-        if (config.admin != deployer) {
-            permissioning.revokeRole(permissioning.ADMIN_ROLE(), deployer);
-        }
+        if (config.admin != deployer) permissioning.revokeRole(permissioning.ADMIN_ROLE(), deployer);
     }
 
     function _printSummary(DeploymentConfig memory config) internal view {
-        console.log("");
         console.log("=== CentralBank Deployment Complete ===");
         console.log("  Permissioning:       ", address(permissioning));
         console.log("  WalletRegistry:      ", address(walletRegistry));
@@ -106,13 +88,13 @@ contract DeployCentralBank is Script {
 /**
  * @title DeployLabEnvironment
  * @notice Single-authority local deployment for development and integration tests only.
+ * @dev Uses the unlocked sender supplied to Foundry, so CI does not need a raw
+ *      private key in workflow configuration.
  */
 contract DeployLabEnvironment is Script {
     function run() external {
-        uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
-        address deployer = vm.addr(deployerPrivateKey);
-
-        vm.startBroadcast(deployerPrivateKey);
+        address deployer = msg.sender;
+        vm.startBroadcast();
 
         Permissioning permissioning = new Permissioning(deployer);
         WalletRegistry walletRegistry = new WalletRegistry(address(permissioning));
@@ -128,6 +110,7 @@ contract DeployLabEnvironment is Script {
         permissioning.grantRole(permissioning.MINTER_ROLE(), deployer);
         permissioning.grantRole(permissioning.BURNER_ROLE(), deployer);
         permissioning.grantRole(permissioning.EMERGENCY_ROLE(), deployer);
+        permissioning.grantRole(permissioning.ECB_ROLE(), deployer);
         permissioning.grantRole(permissioning.REGISTRAR_ROLE(), deployer);
         permissioning.grantRole(permissioning.ORACLE_ROLE(), deployer);
         permissioning.grantRole(permissioning.WATERFALL_ROLE(), deployer);
