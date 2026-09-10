@@ -1,4 +1,4 @@
-# Tokenized Euro (tEUR) Project
+# Central Bank Project
 
 ## 1. Project Overview
 
