@@ -38,8 +38,9 @@ contract MigrationControllerV2Test is Test {
             block.timestamp + 7 days
         );
 
+        uint8 mintCapability = ledger.CAPABILITY_MINT();
         vm.prank(governance);
-        ledger.setControllerCapabilities(address(migration), ledger.CAPABILITY_MINT());
+        ledger.setControllerCapabilities(address(migration), mintCapability);
     }
 
     function test_ClaimsBalancesAndReconcilesSupply() public {
@@ -152,8 +153,9 @@ contract MigrationControllerV2Test is Test {
             block.timestamp + 1 days
         );
 
+        uint8 mintCapability = fuzzLedger.CAPABILITY_MINT();
         vm.prank(governance);
-        fuzzLedger.setControllerCapabilities(address(fuzzMigration), fuzzLedger.CAPABILITY_MINT());
+        fuzzLedger.setControllerCapabilities(address(fuzzMigration), mintCapability);
 
         fuzzMigration.claimBalance(0, account, amount, new bytes32[](0));
         vm.prank(governance);

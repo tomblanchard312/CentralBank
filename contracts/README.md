@@ -1,134 +1,173 @@
-# Digital Euro (tEUR) Smart Contracts
+# CentralBank Smart Contracts
 
-Solidity smart contracts for the Digital Euro settlement infrastructure, implementing ECB requirements.
+Solidity smart contracts for the **CentralBank Digital Token Protocol**, including the current `DigitalToken` integration path and the newer modular ledger/controller architecture.
+
+CentralBank is currency-agnostic. The generic protocol asset is **CBDT (Central Bank Digital Token)**. Currency denomination and jurisdiction-specific policy belong in deployment profiles such as `eurosystem-reference`.
 
 ## Prerequisites
 
-- [Foundry](https://book.getfoundry.sh/getting-started/installation) (forge, cast, anvil)
+- [Foundry](https://book.getfoundry.sh/getting-started/installation) (`forge`, `cast`, `anvil`)
 
 ```bash
 curl -L https://foundry.paradigm.xyz | bash
 foundryup
 ```
 
-## Project Structure
+CI currently pins Foundry to the version defined in the repository workflows. Use the same version locally when reproducing formatter/build behavior.
 
-```
+## Project structure
+
+```text
 contracts/
-├── src/                    # Contract source files
-│   ├── interfaces/         # Contract interfaces
-│   │   ├── ITokenizedEuro.sol
-│   │   ├── IWalletRegistry.sol
-│   │   └── IConditionalPayments.sol
-│   ├── Permissioning.sol   # Role-based access control
-│   ├── WalletRegistry.sol  # Wallet registration & limits
-│   ├── TokenizedEuro.sol   # ERC-20 tEUR token
-│   └── ConditionalPayments.sol  # Escrow & conditions
-├── script/                 # Deployment scripts
-│   └── DeployDigitalEuro.s.sol
-├── test/                   # Unit tests
-├── foundry.toml           # Foundry configuration
-├── .env.example           # Environment template
-└── README.md              # This file
+├── src/
+│   ├── interfaces/
+│   ├── Permissioning.sol
+│   ├── WalletRegistry.sol
+│   ├── DigitalToken.sol
+│   ├── ConditionalPayments.sol
+│   └── ... modular ledger, policy and controller contracts
+├── script/
+│   ├── DeployCentralBank.s.sol
+│   └── Interactions.s.sol
+├── test/
+├── foundry.toml
+├── .env.example
+└── README.md
 ```
 
-## Contracts
+## Core contracts
 
-| Contract              | Description                                                        |
-| --------------------- | ------------------------------------------------------------------ |
-| `Permissioning`       | Role-based access control (ADMIN, MINTER, BURNER, REGISTRAR, etc.) |
-| `WalletRegistry`      | Wallet registration, KYC hash storage, holding limits              |
-| `TokenizedEuro`       | ERC-20 tEUR token with waterfall mechanism                         |
-| `ConditionalPayments` | Escrow-based conditional payments (pay-on-delivery, milestones)    |
+| Contract / component | Purpose |
+| --- | --- |
+| `Permissioning` | Role and institutional authorization |
+| `WalletRegistry` | Wallet registration, participant metadata, linked settlement references and limits |
+| `DigitalToken` | Generic CBDT token used by the current integration path |
+| `ConditionalPayments` | Escrow-based conditional payment flows |
+| `TokenLedgerV2` | Modular balance ledger with scoped controller capabilities |
+| `MintBurnControllerV2` | Dedicated issuance/redemption controller |
+| `EscrowControllerV2` | Case-based escrow lifecycle controller |
+| `WaterfallControllerV2` | Holding-limit overflow and reverse-waterfall controller |
+| `CompositeTransferPolicyV2` | Composable transfer-policy enforcement |
+| `HoldingLimitPolicyV2` | Holding-limit policy module |
 
-## Token Specification
+The architectural direction is that the ledger owns balances and controllers receive narrowly scoped capabilities. Controllers should not become independent balance stores.
 
-- **Name**: Tokenized Euro
-- **Symbol**: tEUR
-- **Decimals**: 2 (€1.00 = 100 units)
-- **Standard**: ERC-20 compatible
-- **Features**: Holding limits, waterfall, conditional payments
+## Token identity
 
-## Quick Start
+Generic protocol identity:
 
-### 1. Install Dependencies
+- **Name:** Central Bank Digital Token
+- **Symbol:** CBDT
+- **Core contract:** `DigitalToken`
+- **Denomination:** deployment/profile parameter
+- **Precision:** deployment/profile parameter where applicable
+
+For the `eurosystem-reference` profile, the denomination is EUR with two decimal places. That EUR configuration is a profile choice, not part of the generic CBDT identity.
+
+## Quick start
+
+### Install dependencies
 
 ```bash
 cd contracts
 forge install foundry-rs/forge-std --no-commit
 ```
 
-### 2. Build
+### Build
 
 ```bash
 forge build
 ```
 
-### 3. Test
+### Format changed Solidity
 
 ```bash
-forge test
+forge fmt
 ```
 
-### 4. Deploy to Local Anvil
+### Test
 
 ```bash
-# Terminal 1: Start local node
+forge test -vvv
+```
+
+### Run the invariant suite
+
+```bash
+FOUNDRY_PROFILE=ci forge test --match-contract DigitalTokenInvariantTest -vvv
+```
+
+## Local deployment
+
+Start Anvil:
+
+```bash
 anvil
+```
 
-# Terminal 2: Deploy
-cp .env.example .env
-source .env
-forge script script/DeployDigitalEuro.s.sol:DeployLabEnvironment \
+Deploy the lab environment using the CentralBank deployment script:
+
+```bash
+forge script script/DeployCentralBank.s.sol:DeployLabEnvironment \
   --rpc-url http://localhost:8545 \
   --broadcast
 ```
 
-### 5. Deploy to Lab (Besu in Kind)
+For explicit-key deployment modes, provide only the environment-specific signer inputs required by `DeployCentralBank.s.sol`. Do not commit private keys or `.env` files.
+
+## Interacting with DigitalToken
+
+Example balance query:
 
 ```bash
-# Port-forward to Besu RPC
-kubectl port-forward svc/besu-validator-rpc -n ledger-ecb-core 8545:8545 &
-
-# Deploy
-forge script script/DeployDigitalEuro.s.sol:DeployLabEnvironment \
-  --rpc-url http://localhost:8545 \
-  --broadcast
+cast call $DIGITAL_TOKEN_ADDRESS \
+  "balanceOf(address)(uint256)" \
+  $USER_ADDRESS
 ```
 
-## Holding Limits (ECB Digital Euro)
-
-| Wallet Type | Default Limit | Description               |
-| ----------- | ------------- | ------------------------- |
-| Individual  | €3,000.00     | Natural persons           |
-| Merchant    | €30,000.00    | Businesses                |
-| PSP         | Unlimited     | Payment service providers |
-| NCB         | Unlimited     | National central banks    |
-| Bank        | Unlimited     | Commercial banks          |
-
-## Interacting with Contracts
+Example wallet registration:
 
 ```bash
-# Check tEUR balance
-cast call $TEUR_ADDRESS "balanceOf(address)(uint256)" $USER_ADDRESS
-
-# Register a wallet (as registrar)
 cast send $WALLET_REGISTRY_ADDRESS \
   "registerWallet(address,uint8,address,bytes32)" \
   $USER_ADDRESS 1 $BANK_ADDRESS 0x1234...
+```
 
-# Mint tEUR (as minter) - €100.00 = 10000 cents
-cast send $TEUR_ADDRESS \
+Example CBDT issuance through the current `DigitalToken` path:
+
+```bash
+cast send $DIGITAL_TOKEN_ADDRESS \
   "mint(address,uint256,bytes32)" \
   $USER_ADDRESS 10000 $(cast keccak256 "unique-key-1")
 ```
 
-## Security
+The caller must hold the required issuance authority. In the refactored token, mint and burn authority use dedicated `MINTER_ROLE` and `BURNER_ROLE` semantics.
 
-- Never commit `.env` files
-- Multi-sig required for production admin roles
-- Contracts require security audit before mainnet
+## Profile-scoped holding limits
+
+Holding limits are policy/profile values. For example, an EUR-denominated reference profile may configure different limits for individuals, merchants, PSPs, banks, or central-bank participants.
+
+Do not treat any example EUR limit as a property of CBDT itself.
+
+## Security principles
+
+- never commit private keys or environment secrets
+- production local-key signing is not an acceptable final custody model
+- use explicit institutional authorization and least-privilege controller capabilities
+- preserve payer authorization for economic-custody operations
+- preserve replay/idempotency protections on privileged actions
+- validate role/capability wiring after deployment
+- run unit, fuzz, invariant, and integration suites before release
+- conduct independent security assessment before production use
+
+## Production status
+
+These contracts are still **pre-MVP**. Production operation additionally requires hardened signer custody, deterministic deployment and role wiring, full-system integration validation, operational rehearsal, gas/DoS analysis, durable audit/reconciliation infrastructure, and independent security review.
+
+## Non-affiliation
+
+The `eurosystem-reference` profile may be informed by publicly available digital-euro and Eurosystem concepts. CentralBank and CBDT are not issued, endorsed, sponsored, approved, or operated by the European Central Bank, the Eurosystem, or any national central bank.
 
 ## License
 
-UNLICENSED - ECB infrastructure
+See the repository root [`LICENSE`](../LICENSE).

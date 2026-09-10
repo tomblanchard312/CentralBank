@@ -5,8 +5,8 @@ import "./interfaces/ITokenLedgerV2.sol";
 import "./interfaces/ITransferPolicyV2.sol";
 
 contract TokenLedgerV2 is ITokenLedgerV2 {
-    string public constant name = "Tokenized Euro v2";
-    string public constant symbol = "tEUR";
+    string public constant name = "Central Bank Digital Token";
+    string public constant symbol = "CBDT";
     uint8 public constant decimals = 2;
 
     uint8 public constant CAPABILITY_MOVE = 1 << 0;
@@ -96,61 +96,37 @@ contract TokenLedgerV2 is ITokenLedgerV2 {
             }
             emit Approval(from, msg.sender, _allowances[from][msg.sender]);
         }
-
         _move(msg.sender, from, to, amount);
         return true;
     }
 
-    function controllerMove(address from, address to, uint256 amount)
-        external
-        onlyCapability(CAPABILITY_MOVE)
-    {
+    function controllerMove(address from, address to, uint256 amount) external onlyCapability(CAPABILITY_MOVE) {
         _move(msg.sender, from, to, amount);
     }
 
-    function controllerMint(address to, uint256 amount, bytes32 clientKey)
-        external
-        onlyCapability(CAPABILITY_MINT)
-    {
+    function controllerMint(address to, uint256 amount, bytes32 clientKey) external onlyCapability(CAPABILITY_MINT) {
         if (to == address(0)) revert ZeroAddress();
         if (amount == 0) revert InvalidAmount();
-
-        bytes32 digest = _operationDigest(keccak256("MINT"), msg.sender, to, amount, clientKey);
-        _consumeOperation(digest);
-
+        bytes32 operationDigest = _consumeOperation(msg.sender, this.controllerMint.selector, clientKey);
         _totalSupply += amount;
         _balances[to] += amount;
-
+        emit ControllerMint(msg.sender, to, amount, operationDigest);
         emit Transfer(address(0), to, amount);
-        emit ControllerMint(msg.sender, to, amount, digest);
     }
 
-    function controllerBurn(address from, uint256 amount, bytes32 clientKey)
-        external
-        onlyCapability(CAPABILITY_BURN)
-    {
+    function controllerBurn(address from, uint256 amount, bytes32 clientKey) external onlyCapability(CAPABILITY_BURN) {
         if (from == address(0)) revert ZeroAddress();
         if (amount == 0) revert InvalidAmount();
         if (_balances[from] < amount) revert InsufficientBalance();
-
-        bytes32 digest = _operationDigest(keccak256("BURN"), msg.sender, from, amount, clientKey);
-        _consumeOperation(digest);
-
+        bytes32 operationDigest = _consumeOperation(msg.sender, this.controllerBurn.selector, clientKey);
         _balances[from] -= amount;
         _totalSupply -= amount;
-
+        emit ControllerBurn(msg.sender, from, amount, operationDigest);
         emit Transfer(from, address(0), amount);
-        emit ControllerBurn(msg.sender, from, amount, digest);
     }
 
-    function operationDigest(
-        bytes32 operationType,
-        address actor,
-        address target,
-        uint256 amount,
-        bytes32 clientKey
-    ) external view returns (bytes32) {
-        return _operationDigest(operationType, actor, target, amount, clientKey);
+    function operationDigest(address controller, bytes4 selector, bytes32 clientKey) external view returns (bytes32) {
+        return keccak256(abi.encode(block.chainid, address(this), controller, selector, clientKey));
     }
 
     function _move(address operator, address from, address to, uint256 amount) internal {
@@ -162,33 +138,19 @@ contract TokenLedgerV2 is ITokenLedgerV2 {
             transferPolicy.validateTransfer(operator, from, to, amount);
         }
 
-        _balances[from] -= amount;
-        _balances[to] += amount;
+        unchecked {
+            _balances[from] -= amount;
+            _balances[to] += amount;
+        }
         emit Transfer(from, to, amount);
     }
 
-    function _consumeOperation(bytes32 digest) internal {
+    function _consumeOperation(address controller, bytes4 selector, bytes32 clientKey)
+        internal
+        returns (bytes32 digest)
+    {
+        digest = keccak256(abi.encode(block.chainid, address(this), controller, selector, clientKey));
         if (usedOperationDigests[digest]) revert OperationAlreadyUsed();
         usedOperationDigests[digest] = true;
-    }
-
-    function _operationDigest(
-        bytes32 operationType,
-        address actor,
-        address target,
-        uint256 amount,
-        bytes32 clientKey
-    ) internal view returns (bytes32) {
-        return keccak256(
-            abi.encode(
-                block.chainid,
-                address(this),
-                operationType,
-                actor,
-                target,
-                amount,
-                clientKey
-            )
-        );
     }
 }

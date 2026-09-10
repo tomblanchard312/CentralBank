@@ -1,13 +1,18 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.20;
 
-import "./interfaces/ITokenizedEuro.sol";
+import "./interfaces/IDigitalToken.sol";
 import "./interfaces/IWalletRegistry.sol";
 import "./Permissioning.sol";
 
-contract TokenizedEuro is ITokenizedEuro {
-    string public constant name = "Tokenized Euro";
-    string public constant symbol = "tEUR";
+/**
+ * @title DigitalToken
+ * @notice Generic central-bank digital token used by the CentralBank reference platform.
+ * @dev Currency denomination and jurisdictional policy are deployment-profile concerns.
+ */
+contract DigitalToken is IDigitalToken {
+    string public constant name = "Central Bank Digital Token";
+    string public constant symbol = "CBDT";
     uint8 public constant decimals = 2;
 
     uint256 private _totalSupply;
@@ -71,13 +76,18 @@ contract TokenizedEuro is ITokenizedEuro {
         _;
     }
 
+    modifier onlyBurner() {
+        if (!permissioning.isBurner(msg.sender)) revert Unauthorized();
+        _;
+    }
+
     modifier onlyEmergencyController() {
         if (!permissioning.isEmergencyController(msg.sender)) revert Unauthorized();
         _;
     }
 
-    modifier onlyECB() {
-        if (!permissioning.isECB(msg.sender)) revert Unauthorized();
+    modifier onlyCentralBank() {
+        if (!permissioning.isCentralBank(msg.sender)) revert Unauthorized();
         _;
     }
 
@@ -147,7 +157,7 @@ contract TokenizedEuro is ITokenizedEuro {
 
     function mint(address to, uint256 amount, bytes32 idempotencyKey)
         external
-        onlyECB
+        onlyMinter
         whenNotPaused
         idempotent(idempotencyKey)
     {
@@ -161,7 +171,7 @@ contract TokenizedEuro is ITokenizedEuro {
 
     function burn(address from, uint256 amount, bytes32 idempotencyKey)
         external
-        onlyECB
+        onlyBurner
         whenNotPaused
         idempotent(idempotencyKey)
     {
@@ -184,13 +194,13 @@ contract TokenizedEuro is ITokenizedEuro {
         emit Unpaused(msg.sender);
     }
 
-    function freezeAccount(address account, string calldata reason) external onlyECB {
+    function freezeAccount(address account, string calldata reason) external onlyCentralBank {
         if (account == address(0)) revert ZeroAddress();
         frozenAccounts[account] = true;
         emit AccountFrozen(account, msg.sender, reason);
     }
 
-    function unfreezeAccount(address account) external onlyECB {
+    function unfreezeAccount(address account) external onlyCentralBank {
         if (account == address(0)) revert ZeroAddress();
         frozenAccounts[account] = false;
         emit AccountUnfrozen(account, msg.sender);
@@ -198,7 +208,7 @@ contract TokenizedEuro is ITokenizedEuro {
 
     function escrowFunds(address account, uint256 amount, string calldata legalBasis, uint256 expiry)
         external
-        onlyECB
+        onlyCentralBank
     {
         if (account == address(0)) revert ZeroAddress();
         if (amount == 0) revert InvalidAmount();
@@ -212,7 +222,7 @@ contract TokenizedEuro is ITokenizedEuro {
         emit FundsEscrowed(account, amount, legalBasis, expiry);
     }
 
-    function releaseEscrowedFunds(address account, address to) external onlyECB {
+    function releaseEscrowedFunds(address account, address to) external onlyCentralBank {
         if (account == address(0) || to == address(0)) revert ZeroAddress();
         EscrowRecord memory record = escrowedBalances[account];
         if (record.amount == 0) revert InsufficientEscrowBalance();
@@ -224,7 +234,7 @@ contract TokenizedEuro is ITokenizedEuro {
         emit FundsReleased(account, record.amount, to);
     }
 
-    function burnEscrowedFunds(address account) external onlyECB {
+    function burnEscrowedFunds(address account) external onlyCentralBank {
         if (account == address(0)) revert ZeroAddress();
         EscrowRecord memory record = escrowedBalances[account];
         if (record.amount == 0) revert InsufficientEscrowBalance();

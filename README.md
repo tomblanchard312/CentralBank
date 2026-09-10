@@ -1,75 +1,208 @@
-# Central Bank Project
+# CentralBank
 
-## 1. Project Overview
+**Open-source reference infrastructure for central-bank digital tokens.**
 
-This repository contains a technical reference implementation for exploring the operational, governance, and resilience aspects of a tokenized euro system. The implementation is designed as a research tool to examine distributed ledger technology in the context of financial settlement systems.
+CentralBank is a modular reference platform for issuing, governing, transferring, settling, reconciling, and auditing sovereign digital money. The protocol is designed to keep the ledger currency-agnostic while allowing denomination, jurisdictional rules, institutional controls, and scheme-specific policy to be supplied through deployment profiles.
 
-## 2. What This Project Is
+The generic reference asset is the **Central Bank Digital Token (CBDT)**. CBDT is a technical protocol asset, not a currency, stablecoin, or claim of central-bank issuance.
 
-This project provides:
+> **Project status:** Pre-MVP research and engineering reference implementation. CentralBank is not production financial infrastructure.
 
-- A simulated distributed ledger environment for studying settlement mechanics
-- Reference implementations of smart contracts for token management
-- Infrastructure components for multi-zone deployment scenarios
-- Documentation of governance and compliance frameworks
-- Test environments for resilience and security analysis
+## Why CentralBank?
 
-## 3. What This Project Is Not
+Central-bank digital-money systems need more than a token contract. They require controlled issuance and redemption, institutional authorization, policy enforcement, settlement controls, auditability, operational resilience, migration procedures, and clear separation between monetary policy rules and ledger accounting.
 
-This project does not:
+CentralBank models those concerns as independent protocol components instead of embedding one currency or jurisdiction directly into the core token.
 
-- Constitute a currency or payment system
-- Provide production-ready financial infrastructure
-- Represent endorsement by any regulatory authority
-- Include live monetary value or real settlement capabilities
-- Serve as a basis for commercial deployment
+## Architecture
 
-## 4. Governance and Authority Model
+```text
+                         CentralBank
+                              |
+              CentralBank Digital Token Protocol
+                              |
+        +---------------------+---------------------+
+        |                     |                     |
+   Core Ledger           Policy Engine         Governance
+        |                     |                     |
+  DigitalToken          Holding limits      Role management
+  TokenLedgerV2         Sanctions           Authority rotation
+  Mint / Burn           Emergency controls  Dual control
+  Transfers             Waterfall
+        |
+        +---------------------+---------------------+
+                              |
+                         Controllers
+                              |
+              Escrow / Waterfall / Migration
+                              |
+                    Institutional Gateway
+                              |
+              mTLS / HMAC / authorization
+                              |
+                  Reconciliation & Audit
+                              |
+                     Deployment Profiles
+                              |
+                  eurosystem-reference
+                              |
+                             EUR
+```
 
-The implementation simulates a hierarchical governance structure with the following roles:
+The protocol separates accounting from policy and operational authority:
 
-- Central authority simulation for settlement coordination
-- National node simulations for regional operations
-- Participant simulations for commercial entities
-- Governance mechanisms for policy enforcement
+- **DigitalToken / TokenLedgerV2** provide token accounting and controlled ledger capabilities.
+- **Mint/Burn controllers** provide authorized issuance and redemption with limits, pause controls, replay protection, and audit references.
+- **Escrow controllers** provide case-based holds with explicit release, burn, cancellation, and expiry lifecycles.
+- **Waterfall controllers** support holding-limit overflow and reverse-waterfall settlement flows.
+- **Transfer policies** compose sanctions, emergency controls, holding limits, and future compliance modules without coupling them to ledger accounting.
+- **Institutional gateway** provides API authorization, payer-custody enforcement, mTLS identity, request signing, and transaction relay.
+- **Governance** provides governed permissioning, dual-control administration, and authority rotation.
+- **Migration** supports snapshot-based balance migration with reconciliation and controlled finalization.
+- **Reconciliation and audit** provide operational evidence, integrity checks, and release-assurance tooling.
 
-All roles are simulated for research purposes only and do not confer actual authority.
+## Reference profiles
 
-## 5. Risk and Compliance Alignment
+The core protocol does not assume that CBDT represents euros, dollars, pounds, or any other denomination. Deployment profiles supply those parameters.
 
-The project incorporates:
+The initial profile is [`profiles/eurosystem-reference.json`](profiles/eurosystem-reference.json), which currently uses:
 
-- Multi-zone isolation for operational resilience
-- Cryptographic controls for data integrity
-- Audit logging for transaction traceability
-- Compliance frameworks for regulatory alignment
-- Risk mitigation strategies for system stability
+| Parameter | Reference value |
+| --- | --- |
+| Profile | `eurosystem-reference` |
+| Denomination | EUR |
+| Minor unit | cent |
+| Protocol token | CBDT |
+| Holding limits | Enabled |
+| Waterfall controls | Enabled |
+| Sanctions / emergency policy | Enabled |
+| Conditional payments | Supported |
 
-## 6. Security and Safety Posture
+The Eurosystem profile exists to exercise the generic architecture against concepts relevant to a European central-bank digital-money deployment. Euro-specific assumptions should live in this profile or its policy modules rather than in the identity of the core protocol.
 
-Security measures include:
+Additional profiles can use the same protocol with different denominations, limits, governance models, and policy modules.
 
-- Cryptographic key management
-- Network segmentation
-- Access control mechanisms
-- Secure communication protocols
-- Incident response procedures
+## Protocol components
 
-All security implementations are for research and testing purposes.
+### Ledger and token
 
-## 7. Intended Audience
+`DigitalToken` and `TokenLedgerV2` form the accounting layer. Controller capabilities are intentionally separated from balances so operational modules can be upgraded or governed without turning each controller into a separate source of monetary truth.
 
-This project is intended for:
+### Issuance and redemption
 
-- Researchers studying distributed ledger technology
-- Regulatory authorities examining financial system design
-- Academic institutions exploring digital asset frameworks
-- Technical professionals analyzing system resilience
+The mint/burn architecture separates issuance and redemption authorities and supports supply caps, operation limits, independent pause controls, authority rotation, opaque audit-reference hashes, and replay protection.
 
-## 8. Licensing and Attribution
+### Escrow and conditional settlement
 
-This project is licensed under the MIT License. See LICENSE file for details.
+Escrow uses immutable case identifiers and explicit lifecycle states. Conditional-payment flows preserve payer custody by requiring payer-authorized transactions rather than allowing a shared API signer to become the economic payer.
 
-## 9. Disclaimer
+### Holding limits and waterfall
 
-This implementation is for research and educational purposes only. It does not represent a functional financial system and should not be used for any commercial or operational purposes. The maintainers make no warranties regarding the suitability, reliability, or security of this code for any purpose. Users assume all responsibility for their use of this material.
+Holding-limit policy can restrict wallet balances while exempting authorized accounts. Waterfall flows can atomically route excess value to linked settlement destinations, while reverse-waterfall operations remain capped by available wallet capacity.
+
+### Migration
+
+The migration framework supports Merkle-based balance migration using immutable snapshot metadata, claim deadlines, duplicate-claim protection, governance pause/resume controls, and exact migrated-total reconciliation before finalization.
+
+## Institutional security model
+
+CentralBank is designed around explicit institutional and transaction-level trust boundaries. Current reference controls include:
+
+- payer-signed custody-preserving transfers
+- institutional mTLS for privileged gateway routes
+- request authentication and authorization
+- HMAC/request-signature support
+- replay and idempotency protection
+- governed role administration and authority rotation
+- emergency pause and account controls
+- scoped controller capabilities
+- fail-closed production configuration
+- unit, fuzz, invariant, and integration testing
+- reconciliation and release-assurance checks
+
+Institutional mTLS is an additional authentication factor, not a replacement for transaction authorization, API credentials, role checks, idempotency, or audit controls.
+
+## Production-readiness status
+
+CentralBank is intentionally marked **pre-MVP**. The repository contains substantial protocol and security engineering, but a successful build does not mean the platform is ready to operate sovereign financial infrastructure.
+
+Major production blockers still include:
+
+- production KMS/HSM-backed signing
+- durable distributed idempotency, nonce, API-key, and rate-limit state
+- append-only durable audit persistence
+- deny-by-default institutional route classification
+- hardened production deployment manifests
+- complete Protocol v2 API wiring
+- deterministic capability and permissioning deployment
+- non-balance migration and reconciliation
+- full-system end-to-end and invariant validation
+- gas, contract-size, and denial-of-service analysis
+- deployment and migration rehearsals
+- independent security assessment
+
+These items should remain explicit release gates rather than being hidden behind an MVP label.
+
+## Repository direction
+
+The project is moving toward the following model:
+
+```text
+CentralBank
+├── contracts/          # Ledger, policies, controllers, governance
+├── api/                # Institutional gateway and transaction APIs
+├── profiles/           # Jurisdiction / denomination reference profiles
+├── reconciliation/     # Reconciliation and integrity tooling
+├── deploy/             # Deployment and gateway infrastructure
+├── docs/
+│   ├── architecture/   # ADRs and protocol design
+│   └── runbooks/       # Operational procedures
+└── tests / CI          # Unit, fuzz, invariant and integration assurance
+```
+
+The naming and abstraction decision is recorded in [`docs/architecture/adr-004-centralbank-cbdt-naming.md`](docs/architecture/adr-004-centralbank-cbdt-naming.md).
+
+## Naming
+
+| Layer | Name |
+| --- | --- |
+| Platform | **CentralBank** |
+| Protocol | **CentralBank Digital Token Protocol** |
+| Generic token | **Central Bank Digital Token** |
+| Symbol | **CBDT** |
+| Core token contract | `DigitalToken` |
+| Initial reference profile | `eurosystem-reference` |
+| Initial denomination | EUR |
+
+Legacy T-EUR terminology is not the identity of the new architecture. The platform is intended to remain reusable across central-bank and currency models.
+
+## What this project is not
+
+CentralBank is not itself a central bank, currency, stablecoin, live payment network, or authorization to issue sovereign money. CBDT has no inherent monetary value. Deploying the software does not create central-bank money or establish a claim against any central bank or government.
+
+## Eurosystem / ECB disclaimer
+
+The Eurosystem reference profile is an independent technical reference informed by publicly available concepts and requirements relevant to digital central-bank money.
+
+**CentralBank and CBDT are not issued, endorsed, sponsored, approved, or operated by the European Central Bank, the Eurosystem, or any national central bank.** References to the ECB, Eurosystem, EUR, or digital-euro concepts describe the technical reference profile and do not imply affiliation.
+
+## Intended audience
+
+CentralBank is intended for:
+
+- central-bank and public-sector technology research
+- financial institutions and payment-service providers
+- protocol and security engineers
+- regulators and policy researchers
+- academic CBDC and digital-money research
+- teams evaluating sovereign-cloud and institutional settlement architectures
+
+## Contributing
+
+Contributions should preserve the separation between the generic protocol and deployment-specific policy. New jurisdictional or currency-specific behavior should generally be introduced through profiles, policy modules, or clearly scoped adapters rather than hard-coded into `DigitalToken` or the core ledger.
+
+Security-sensitive changes should include appropriate unit, fuzz, invariant, integration, or migration validation for the affected trust boundary.
+
+## License
+
+CentralBank is licensed under the MIT License. See [`LICENSE`](LICENSE) for details.

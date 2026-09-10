@@ -20,11 +20,11 @@ function request(overrides: Partial<Request> = {}): Request {
     originalUrl: '/api/v1/transfers/mint',
     headers: {
       'x-api-key': 'demo-bank-key',
-      'x-teur-mtls-verified': 'true',
-      'x-teur-mtls-institution-id': 'bank-de-01',
-      'x-teur-mtls-fingerprint': validFingerprint,
-      'x-teur-mtls-issuer': 'teur-institutional-ca-01',
-      'x-teur-ingress-token': 'test-ingress-token-that-is-at-least-32-characters',
+      'x-centralbank-mtls-verified': 'true',
+      'x-centralbank-mtls-institution-id': 'bank-de-01',
+      'x-centralbank-mtls-fingerprint': validFingerprint,
+      'x-centralbank-mtls-issuer': 'centralbank-institutional-ca-01',
+      'x-centralbank-ingress-token': 'test-ingress-token-that-is-at-least-32-characters',
     },
     socket: { remoteAddress: '127.0.0.1' },
     ...overrides,
@@ -53,7 +53,7 @@ describe('institutional mTLS', () => {
     expect(req.mtls).toEqual({
       institutionId: 'bank-de-01',
       fingerprintSha256: validFingerprint,
-      issuerId: 'teur-institutional-ca-01',
+      issuerId: 'centralbank-institutional-ca-01',
       verifiedByIngress: true,
     });
   });
@@ -75,7 +75,7 @@ describe('institutional mTLS', () => {
     const req = request({
       headers: {
         ...request().headers,
-        'x-teur-mtls-fingerprint': revokedFingerprint,
+        'x-centralbank-mtls-fingerprint': revokedFingerprint,
       },
     });
 
@@ -91,7 +91,7 @@ describe('institutional mTLS', () => {
     const req = request({
       headers: {
         ...request().headers,
-        'x-teur-mtls-institution-id': 'different-bank',
+        'x-centralbank-mtls-institution-id': 'different-bank',
       },
     });
 

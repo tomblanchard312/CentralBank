@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Interface, Wallet, keccak256, toUtf8Bytes } from 'ethers';
 import { config } from '../src/config/index.js';
-import { ConditionalPaymentsABI, TokenizedEuroABI, ConditionType } from '../src/services/abi.js';
+import { ConditionalPaymentsABI, DigitalTokenABI, ConditionType } from '../src/services/abi.js';
 import {
   broadcastSignedConditionalPayment,
   broadcastSignedDeliveryConfirmation,
@@ -9,7 +9,7 @@ import {
 } from '../src/services/signedTransaction.js';
 import { confirmDeliverySchema, createConditionalPaymentSchema, transferSchema } from '../src/schemas/index.js';
 
-const token = new Interface(TokenizedEuroABI);
+const token = new Interface(DigitalTokenABI);
 const payments = new Interface(ConditionalPaymentsABI);
 
 async function sign(wallet: Wallet, to: string, data: string): Promise<string> {
@@ -41,7 +41,7 @@ describe('payer custody', () => {
     const to = Wallet.createRandom().address;
     const rawTransaction = await sign(
       attacker,
-      config.contracts.tokenizedEuro,
+      config.contracts.digitalToken,
       token.encodeFunctionData('transfer', [to, 100n]),
     );
 
@@ -50,7 +50,7 @@ describe('payer custody', () => {
       payer: payer.address,
       to,
       amount: 100n,
-    })).rejects.toThrow(/declared payer/i);
+    })).rejects.toThrow(/authorized actor/i);
   });
 
   it('rejects signed transfer calldata that changes the requested payee', async () => {
@@ -59,7 +59,7 @@ describe('payer custody', () => {
     const signedTo = Wallet.createRandom().address;
     const rawTransaction = await sign(
       payer,
-      config.contracts.tokenizedEuro,
+      config.contracts.digitalToken,
       token.encodeFunctionData('transfer', [signedTo, 100n]),
     );
 
@@ -116,7 +116,7 @@ describe('payer custody', () => {
       expiresAt,
       arbiter,
       idempotencyKey,
-    })).rejects.toThrow(/declared payer/i);
+    })).rejects.toThrow(/authorized actor/i);
   });
 
   it('requires payer authorization data for delivery confirmation', () => {
@@ -143,7 +143,7 @@ describe('payer custody', () => {
       payer: payer.address,
       paymentId,
       proof,
-    })).rejects.toThrow(/declared payer/i);
+    })).rejects.toThrow(/authorized actor/i);
   });
 
   it('rejects delivery confirmation with altered proof calldata', async () => {

@@ -1,6 +1,6 @@
 # Institutional mTLS Operations Runbook
 
-This runbook implements ADR-003 for privileged tEUR API operations.
+This runbook implements ADR-003 for privileged CentralBank API operations.
 
 ## Trust boundary
 
@@ -23,16 +23,16 @@ Staging and production configuration fails closed when mTLS is disabled, no trus
 
 The ingress must remove externally supplied copies of these headers before injecting its own values:
 
-- `X-tEUR-mTLS-Verified: true`
-- `X-tEUR-mTLS-Institution-Id`
-- `X-tEUR-mTLS-Fingerprint`
-- `X-tEUR-mTLS-Issuer`
-- `X-tEUR-Ingress-Token`
+- `X-CentralBank-mTLS-Verified: true`
+- `X-CentralBank-mTLS-Institution-Id`
+- `X-CentralBank-mTLS-Fingerprint`
+- `X-CentralBank-mTLS-Issuer`
+- `X-CentralBank-Ingress-Token`
 
 The institution ID must come from the verified URI SAN:
 
 ```text
-spiffe://teur.example/institution/{institutionId}
+spiffe://centralbank.example/institution/{institutionId}
 ```
 
 The fingerprint is the lowercase SHA-256 certificate fingerprint with separators removed. Certificate contents must never be forwarded or logged.

@@ -1,29 +1,48 @@
 # Fees and Limits
 
-Purpose
+## Purpose
 
-- Document configurable fees and holding limits and how they're applied across participant types.
+Document configurable fees, holding limits, and related monetary-policy parameters without coupling them to the generic CBDT token identity.
 
-Scope
+## Scope
 
-- Transfer fees, settlement fees, merchant fees, and default holding limits.
+Depending on the deployment profile, configurable parameters may include:
 
-Defaults (examples)
+- wallet holding limits
+- transfer or settlement fees
+- merchant fees
+- issuance/redemption limits
+- waterfall and reverse-waterfall thresholds
 
-- `holding_limit_individual`: €3,000.00 (300000 cents)
-- `holding_limit_merchant`: €30,000.00 (3000000 cents)
-- `fee_transfer_basis_points`: 5 (0.05%)
+## Eurosystem reference examples
 
-Where configured
+The following values are examples for an EUR-denominated reference profile, not hard-coded properties of CentralBank or CBDT:
 
-- Parameters are defined in `docs/rulebook-parameters.md` and consumed by gateways (`api/src/config/index.ts`).
-- On-chain enforcement points live in `contracts/WalletRegistry.sol` and `contracts/TokenizedEuro.sol` where applicable.
+- `holding_limit_individual`: EUR 3,000.00 (`300000` minor units)
+- `holding_limit_merchant`: EUR 30,000.00 (`3000000` minor units)
+- `fee_transfer_basis_points`: `5` (0.05%)
 
-Change control
+Other deployment profiles may use different denominations, limits, participant classes, or fee models.
 
-- Any change to fees or limits requires documented governance approval and an audit trail.
-- Rolling changes should be applied with a governance `effective_at` timestamp to avoid silent changes.
+## Where configured
 
-TODO
+- Profile-level parameters should be defined by the selected deployment profile and associated rulebook/configuration artifacts.
+- Gateway configuration is consumed through `api/src/config/index.ts` where applicable.
+- On-chain enforcement currently involves components such as `WalletRegistry`, `DigitalToken`, holding-limit policy, and controller modules depending on the deployment path.
 
-- Add machine-readable parameter manifest and sample overrides per environment (`envs/*`).
+## Change control
+
+Changes to monetary or participant limits should be explicit, governed, and auditable. A production deployment should record:
+
+- parameter name and previous/new value
+- approving authority
+- effective time
+- deployment/profile scope
+- change or case reference
+- resulting configuration or transaction identifier
+
+Where delayed activation is supported, use an explicit `effective_at` or equivalent governed activation mechanism rather than silent configuration replacement.
+
+## Architectural rule
+
+Currency-specific values belong in profiles or policy configuration. Do not encode EUR limits or fee assumptions into the generic `DigitalToken` identity or other currency-agnostic protocol components.

@@ -16,20 +16,16 @@ const configSchema = z.object({
   blockchain: z.object({
     rpcUrl: z.string().url(),
     chainId: z.coerce.number().int().positive(),
-    // Raw key material is only permitted under the 'env' backend, which
-    // loadConfig() rejects outside development and test.
     signerBackend: z.enum(['env', 'kms']).default('env'),
     operatorPrivateKey: z.string().regex(/^0x[a-fA-F0-9]{64}$/).optional(),
     kmsKeyId: z.string().min(1).optional(),
-    // Blocks to wait before treating a transaction as settled. One confirmation
-    // is only safe on an instant-finality chain.
     confirmations: z.coerce.number().int().positive().max(64).default(1),
   }),
 
   contracts: z.object({
     permissioning: addressSchema,
     walletRegistry: addressSchema,
-    tokenizedEuro: addressSchema,
+    digitalToken: addressSchema,
     conditionalPayments: addressSchema,
   }),
 
@@ -79,13 +75,6 @@ function csv(value: string | undefined): string[] {
   return value?.split(',').map(item => item.trim()).filter(Boolean) ?? [];
 }
 
-/**
- * Parses a boolean environment variable.
- *
- * Deliberately not z.coerce.boolean(), which is Boolean(value) and therefore
- * maps the string "false" to true. That turned every documented way of
- * disabling a control into a way of enabling it.
- */
 function bool(value: string | undefined, fallback: boolean): boolean {
   if (value === undefined || value === '') return fallback;
   const normalized = value.trim().toLowerCase();
@@ -128,14 +117,14 @@ function loadConfig() {
     contracts: {
       permissioning: required('CONTRACT_PERMISSIONING', dummyAddr),
       walletRegistry: required('CONTRACT_WALLET_REGISTRY', dummyAddr),
-      tokenizedEuro: required('CONTRACT_TOKENIZED_EURO', dummyAddr),
+      digitalToken: required('CONTRACT_DIGITAL_TOKEN', dummyAddr),
       conditionalPayments: required('CONTRACT_CONDITIONAL_PAYMENTS', dummyAddr),
     },
     auth: {
       jwtSecret: required('JWT_SECRET', developmentJwtSecret),
       jwtExpiresIn: process.env['JWT_EXPIRES_IN'],
-      jwtIssuer: required('JWT_ISSUER', 'teur-local'),
-      jwtAudience: required('JWT_AUDIENCE', 'teur-api'),
+      jwtIssuer: required('JWT_ISSUER', 'centralbank-local'),
+      jwtAudience: required('JWT_AUDIENCE', 'centralbank-api'),
       apiKeyHeader: process.env['API_KEY_HEADER'],
     },
     mtls: {

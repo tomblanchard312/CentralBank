@@ -4,16 +4,16 @@ pragma solidity ^0.8.20;
 import "forge-std/Test.sol";
 import "forge-std/StdInvariant.sol";
 import "../src/Permissioning.sol";
-import "../src/TokenizedEuro.sol";
+import "../src/DigitalToken.sol";
 
 contract TokenHandler is Test {
-    TokenizedEuro public token;
-    address public ecb;
+    DigitalToken public token;
+    address public authority;
     address[3] public actors;
 
-    constructor(TokenizedEuro _token, address _ecb, address[3] memory _actors) {
+    constructor(DigitalToken _token, address _authority, address[3] memory _actors) {
         token = _token;
-        ecb = _ecb;
+        authority = _authority;
         actors = _actors;
     }
 
@@ -21,8 +21,8 @@ contract TokenHandler is Test {
         address actor = actors[actorSeed % actors.length];
         amount = bound(amount, 1, 1_000_000);
         bytes32 scopedKey = keccak256(abi.encode("mint", key, actor, amount));
-        vm.prank(ecb);
-        try token.mint(actor, amount, scopedKey) {} catch {}
+        vm.prank(authority);
+        try token.mint(actor, amount, scopedKey) { } catch { }
     }
 
     function burn(uint256 actorSeed, uint256 amount, bytes32 key) external {
@@ -31,8 +31,8 @@ contract TokenHandler is Test {
         if (balance == 0) return;
         amount = bound(amount, 1, balance);
         bytes32 scopedKey = keccak256(abi.encode("burn", key, actor, amount));
-        vm.prank(ecb);
-        try token.burn(actor, amount, scopedKey) {} catch {}
+        vm.prank(authority);
+        try token.burn(actor, amount, scopedKey) { } catch { }
     }
 
     function escrow(uint256 actorSeed, uint256 amount) external {
@@ -40,41 +40,44 @@ contract TokenHandler is Test {
         uint256 balance = token.balanceOf(actor);
         if (balance == 0 || token.escrowTotals(actor) != 0) return;
         amount = bound(amount, 1, balance);
-        vm.prank(ecb);
-        try token.escrowFunds(actor, amount, "case-ref", 0) {} catch {}
+        vm.prank(authority);
+        try token.escrowFunds(actor, amount, "case-ref", 0) { } catch { }
     }
 
     function release(uint256 actorSeed, uint256 recipientSeed) external {
         address actor = actors[actorSeed % actors.length];
         address recipient = actors[recipientSeed % actors.length];
         if (token.escrowTotals(actor) == 0) return;
-        vm.prank(ecb);
-        try token.releaseEscrowedFunds(actor, recipient) {} catch {}
+        vm.prank(authority);
+        try token.releaseEscrowedFunds(actor, recipient) { } catch { }
     }
 
     function burnEscrow(uint256 actorSeed) external {
         address actor = actors[actorSeed % actors.length];
         if (token.escrowTotals(actor) == 0) return;
-        vm.prank(ecb);
-        try token.burnEscrowedFunds(actor) {} catch {}
+        vm.prank(authority);
+        try token.burnEscrowedFunds(actor) { } catch { }
     }
 }
 
-contract TokenizedEuroInvariantTest is StdInvariant, Test {
+contract DigitalTokenInvariantTest is StdInvariant, Test {
     Permissioning internal permissioning;
-    TokenizedEuro internal token;
+    DigitalToken internal token;
     TokenHandler internal handler;
     address internal admin = makeAddr("admin");
-    address internal ecb = makeAddr("ecb");
+    address internal authority = makeAddr("authority");
     address[3] internal actors;
 
     function setUp() public {
         actors = [makeAddr("alice"), makeAddr("bob"), makeAddr("merchant")];
         permissioning = new Permissioning(admin);
-        vm.prank(admin);
-        permissioning.grantRole(permissioning.ECB_ROLE(), ecb);
-        token = new TokenizedEuro(address(permissioning));
-        handler = new TokenHandler(token, ecb, actors);
+        vm.startPrank(admin);
+        permissioning.grantRole(permissioning.CENTRAL_BANK_ROLE(), authority);
+        permissioning.grantRole(permissioning.MINTER_ROLE(), authority);
+        permissioning.grantRole(permissioning.BURNER_ROLE(), authority);
+        vm.stopPrank();
+        token = new DigitalToken(address(permissioning));
+        handler = new TokenHandler(token, authority, actors);
         targetContract(address(handler));
     }
 

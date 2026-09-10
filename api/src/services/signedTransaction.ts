@@ -1,9 +1,9 @@
 import { Interface, JsonRpcProvider, Transaction, getAddress, keccak256, toUtf8Bytes } from 'ethers';
 import { config } from '../config/index.js';
 import { BlockchainError, ValidationError } from '../middleware/errors.js';
-import { ConditionalPaymentsABI, TokenizedEuroABI } from './abi.js';
+import { ConditionalPaymentsABI, DigitalTokenABI } from './abi.js';
 
-const tokenInterface = new Interface(TokenizedEuroABI);
+const tokenInterface = new Interface(DigitalTokenABI);
 const conditionalPaymentsInterface = new Interface(ConditionalPaymentsABI);
 const provider = new JsonRpcProvider(config.blockchain.rpcUrl);
 
@@ -95,7 +95,7 @@ async function broadcastValidated(
 }
 
 export async function broadcastSignedTransfer(params: { rawTransaction: string; payer: string; to: string; amount: bigint }) {
-  return broadcastValidated(params.rawTransaction, config.contracts.tokenizedEuro, tokenInterface, 'transfer', [params.to, params.amount], params.payer);
+  return broadcastValidated(params.rawTransaction, config.contracts.digitalToken, tokenInterface, 'transfer', [params.to, params.amount], params.payer);
 }
 
 export async function broadcastSignedConditionalPayment(params: {

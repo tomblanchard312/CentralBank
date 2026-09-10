@@ -1,179 +1,171 @@
-# Tokenized Euro (tEUR) Canonical Naming Conventions and GitHub Copilot Instructions
+# CentralBank Canonical Naming Conventions
 
-This document defines **authoritative naming conventions** and **GitHub Copilot instruction rules** for the Tokenized Euro (tEUR) project.
+This document defines the authoritative naming conventions for the **CentralBank** platform and the **CentralBank Digital Token Protocol**.
 
-These conventions are designed to:
+CentralBank is a currency-agnostic reference platform. The generic protocol token is the **Central Bank Digital Token (CBDT)**. Currency, jurisdiction, and scheme-specific terminology belong in deployment profiles such as `eurosystem-reference` rather than in the identity of the core platform.
 
-- Support sovereign EU deployment
-- Avoid vendor lock-in
-- Enable clean migration from local lab to sovereign cloud
-- Ensure regulatory readability
-- Prevent architectural drift
+These conventions are intended to:
 
----
+- keep the protocol reusable across jurisdictions and denominations
+- support sovereign and private deployment environments
+- avoid vendor lock-in
+- preserve clear trust boundaries
+- improve regulatory and operational readability
+- prevent architecture and terminology drift
 
-## 1. Global Naming Principles
+## 1. Platform terminology
 
-These rules apply everywhere.
+| Layer | Canonical name |
+| --- | --- |
+| Platform | `CentralBank` |
+| Protocol | `CentralBank Digital Token Protocol` |
+| Generic token | `Central Bank Digital Token` |
+| Token symbol | `CBDT` |
+| Core token contract | `DigitalToken` |
+| Generic ledger | `TokenLedger` / current implementation `TokenLedgerV2` |
+| Initial reference profile | `eurosystem-reference` |
+| Initial profile denomination | `EUR` |
 
-1. Names must be:
+Do not use `T-EUR`, `tEUR`, `TokenizedEuro`, or `Digital Euro` as names for the generic platform, protocol, or core token.
 
-   - Lowercase
-   - Hyphen-separated
-   - ASCII only
+`Digital euro`, `ECB`, `Eurosystem`, and EUR-specific language may be used when documenting the `eurosystem-reference` profile, external requirements, published policy concepts, or regulatory context. Those references must not imply that CentralBank is issued, endorsed, sponsored, or operated by the ECB, Eurosystem, or a national central bank.
 
-2. Names must encode **function**, not implementation.
+## 2. General identifier rules
 
-3. Names must remain valid across:
+Infrastructure identifiers should normally be:
 
-   - Local lab
-   - Private datacenter
-   - EU sovereign cloud
+- lowercase
+- hyphen-separated
+- ASCII-only
+- based on function rather than vendor or implementation
 
-4. No cloud vendor names in identifiers.
+Names should remain usable across local lab, private datacenter, sovereign cloud, and other controlled infrastructure.
 
-5. No personal names.
+Avoid:
 
-6. No region-specific shortcuts like `prod1`, `eu1`, `west` unless explicitly defined.
+- cloud-vendor names in portable identifiers
+- personal names
+- unexplained region shortcuts
+- jurisdiction-specific terms in generic protocol components
+- denomination-specific names in generic ledger or controller components
 
----
+## 3. Environment naming
 
-## 2. Environment Naming
-
-| Environment | Name  | Purpose                          |
-| ----------- | ----- | -------------------------------- |
-| Local Lab   | `lab` | Single or multi-node development |
-| Integration | `int` | Controlled shared testing        |
-| Staging     | `stg` | Pre-production validation        |
-| Production  | `prd` | Sovereign production             |
+| Environment | Name | Purpose |
+| --- | --- | --- |
+| Local Lab | `lab` | Local or isolated development |
+| Integration | `int` | Shared controlled testing |
+| Staging | `stg` | Pre-production validation |
+| Production | `prd` | Production deployment |
 
 Example:
 
-```
+```text
 env = "lab"
 ```
 
----
+## 4. Institutional zone naming
 
-## 3. Zone and Domain Naming
+Zones represent trust and failure domains. Generic deployments should use role-oriented names.
 
-Zones represent **failure domains**, not geography shortcuts.
+| Zone type | Canonical prefix | Example |
+| --- | --- | --- |
+| Central-bank core | `cb-core` | `cb-core-01` |
+| Participant central bank | `participant-cb` | `participant-cb-01` |
+| Commercial bank | `bank` | `bank-a` |
+| Payment service provider | `psp` | `psp-01` |
 
-| Zone Type             | Canonical Prefix | Example       |
-| --------------------- | ---------------- | ------------- |
-| ECB Core              | `ecb-core`       | `ecb-core-01` |
-| National Central Bank | `ncb`            | `ncb-de-01`   |
-| Commercial Bank       | `bank`           | `bank-fr-a`   |
-| PSP                   | `psp`            | `psp-eu-01`   |
+A deployment profile may define profile-specific aliases. For example, the Eurosystem reference profile may use `ecb-core` and `ncb-*` in diagrams or profile configuration where that distinction is intentional.
 
-Rules:
+## 5. Kubernetes naming
 
-- Numeric suffixes represent redundancy
-- Alphabetic suffixes represent peer roles
+### Namespaces
 
----
+Namespaces should map to trust boundaries:
 
-## 4. Kubernetes Naming Conventions
-
-### 4.1 Namespaces
-
-Namespaces map directly to trust boundaries.
-
-```
+```text
 <layer>-<zone>
 ```
 
 Examples:
 
-```
-ledger-ecb-core
-ledger-ncb-de
-routing-bank-fr
-identity-psp-eu
+```text
+ledger-cb-core
+ledger-participant-cb
+routing-bank-a
+identity-psp-01
 obs-global
 ```
 
-### 4.2 Deployments
+### Deployments
 
-```
+```text
 <service>-<role>
 ```
 
 Examples:
 
-```
-besu-validator
+```text
+ledger-validator
 routing-gateway
 identity-bridge
 dns-authoritative
 dns-resolver
 ```
 
-### 4.3 Pods
+Pods should normally inherit deployment-generated names.
 
-Pods inherit deployment names. Do not override.
+## 6. DNS naming
 
----
+CentralBank supports split-horizon deployment models where public-access services are isolated from the closed settlement plane.
 
-## 5. DNS Naming
+### Closed settlement plane
 
-### 5.1 Split-Horizon Model
+Use deployment-owned private DNS. Documentation examples should use reserved/example names rather than implying ownership of a production namespace.
 
-Two DNS realms exist.
-
-| Realm | Purpose          | Visibility          |
-| ----- | ---------------- | ------------------- |
-| CSP   | Settlement plane | Closed network only |
-| PAP   | Public access    | Internet-facing     |
-
-### 5.2 CSP DNS Naming
-
-```
-<service>.<zone>.csp.eu.int
+```text
+<service>.<zone>.csp.centralbank.internal
 ```
 
 Examples:
 
+```text
+ledger.cb-core.csp.centralbank.internal
+ledger.participant-cb.csp.centralbank.internal
+gateway.bank-a.csp.centralbank.internal
 ```
-ledger.ecb-core.csp.eu.int
-ledger.ncb-de.csp.eu.int
-gateway.bank-fr.csp.eu.int
-```
 
-Rules:
+The actual private suffix is a deployment parameter.
 
-- `.csp.eu.int` never resolves on public DNS
-- All CSP zones are DNSSEC signed
+### Public access plane
 
-### 5.3 PAP DNS Naming
+Public DNS is also deployment-specific. Documentation examples use the reserved `.example` namespace:
 
-```
-<service>.t-eursystem.eu
+```text
+<service>.centralbank.example
 ```
 
 Examples:
 
+```text
+api.centralbank.example
+status.centralbank.example
+docs.centralbank.example
 ```
-api.t-eursystem.eu
-status.t-eursystem.eu
-docs.t-eursystem.eu
-```
 
-PAP outages must never affect CSP resolution.
+A public-access outage must not become a dependency of settlement-plane DNS or ledger operation.
 
----
+## 7. Terraform and deployment naming
 
-## 6. Terraform Naming Conventions
+### Modules
 
-### 6.1 Module Names
-
-```
+```text
 modules/<functional-area>
 ```
 
 Examples:
 
-```
+```text
 modules/dns-authoritative
 modules/dns-resolver
 modules/ledger-node
@@ -182,88 +174,100 @@ modules/pki-root
 modules/pki-intermediate
 ```
 
-### 6.2 Environment Layout
+### Environment layout
 
-```
+```text
 envs/<env>/<zone>
-```
-
-Example:
-
-```
-envs/lab/ecb-core
-envs/lab/ncb-de
-envs/lab/bank-fr
-```
-
-### 6.3 Terraform State
-
-- One state file per zone
-- Never shared across zones
-- Remote backends only in production
-
----
-
-## 7. Ledger and Token Naming
-
-### 7.1 Token Naming
-
-| Item       | Value            |
-| ---------- | ---------------- |
-| Token name | Tokenized Euro   |
-| Symbol     | `tEUR`           |
-| Decimals   | 2                |
-| Backing    | 1:1 EUR reserves |
-
-### 7.2 Smart Contracts
-
-```
-<functionality>-contract
 ```
 
 Examples:
 
+```text
+envs/lab/cb-core
+envs/lab/participant-cb
+envs/lab/bank-a
 ```
-issuance-contract
-permissioning-contract
-settlement-finality-contract
-emergency-controls-contract
+
+Use one independently controlled state boundary per trust/failure zone where practical. Production backend and locking requirements are deployment-specific and must be documented by the operator.
+
+## 8. Token and currency naming
+
+CBDT is the protocol token identity. Denomination is supplied separately.
+
+| Item | Generic protocol | Eurosystem reference profile |
+| --- | --- | --- |
+| Token name | Central Bank Digital Token | Central Bank Digital Token |
+| Symbol | `CBDT` | `CBDT` |
+| Currency code | deployment parameter | `EUR` |
+| Minor-unit precision | deployment parameter | 2 |
+| Jurisdiction policy | deployment parameter | Eurosystem reference policy |
+
+Do not encode a fiat denomination into the generic token name or Solidity contract name.
+
+## 9. Smart-contract naming
+
+Contract names should describe protocol responsibility rather than a specific currency.
+
+Preferred examples:
+
+```text
+DigitalToken
+TokenLedger
+MintBurnController
+EscrowController
+WaterfallController
+GovernanceController
+CompositeTransferPolicy
+HoldingLimitPolicy
 ```
 
-No business logic inside infrastructure modules.
+Jurisdiction-specific behavior belongs in policy modules, adapters, or deployment profiles whenever possible.
 
----
+## 10. Logging and metrics
 
-## 8. Logging and Observability Naming
+Log stream names should identify service, trust zone, and severity where applicable:
 
-### 8.1 Log Streams
-
-```
+```text
 <service>.<zone>.<severity>
 ```
 
 Examples:
 
-```
-ledger.ecb-core.info
-ledger.ncb-de.error
+```text
+ledger.cb-core.info
+ledger.participant-cb.error
 dns.auth.warn
 ```
 
-### 8.2 Metrics
+Prometheus-style metric names should use the platform prefix:
 
-Use Prometheus conventions.
-
-```
-teur_<subsystem>_<metric>
+```text
+centralbank_<subsystem>_<metric>
 ```
 
-Example:
+Examples:
 
-```
-teur_ledger_finality_seconds
-teur_dns_query_failures_total
-teur_quorum_active_zones
+```text
+centralbank_ledger_finality_seconds
+centralbank_dns_query_failures_total
+centralbank_quorum_active_zones
 ```
 
----
+## 11. Reference-profile terminology
+
+Profile-specific names must be clearly scoped. Prefer constructions such as:
+
+- `eurosystem-reference`
+- `Eurosystem reference profile`
+- `EUR-denominated CBDT deployment`
+- `profile-specific holding limit`
+
+Avoid describing CentralBank itself as the "ECB system" or CBDT itself as the "digital euro."
+
+## 12. Non-affiliation rule
+
+Documentation that discusses the Eurosystem reference profile should retain the following meaning:
+
+> CentralBank is an independent open-source technical reference implementation. It is not issued, endorsed, sponsored, approved, or operated by the European Central Bank, the Eurosystem, or any national central bank.
+
+This rule applies to public documentation, diagrams, API descriptions, demos, sample receipts, and deployment guides.

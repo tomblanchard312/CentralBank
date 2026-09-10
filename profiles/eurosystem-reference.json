@@ -1,0 +1,23 @@
+{
+  "profile": "eurosystem-reference",
+  "platform": "CentralBank",
+  "protocol": "CentralBank Digital Token Protocol",
+  "token": {
+    "name": "Central Bank Digital Token",
+    "symbol": "CBDT",
+    "decimals": 2
+  },
+  "denomination": {
+    "currency": "EUR",
+    "minorUnit": "cent"
+  },
+  "policy": {
+    "holdingLimits": true,
+    "waterfall": true,
+    "reverseWaterfall": true,
+    "sanctions": true,
+    "emergencyControls": true,
+    "conditionalPayments": true
+  },
+  "disclaimer": "Reference implementation informed by published Eurosystem concepts. Not issued, endorsed, or operated by the ECB or any national central bank."
+}
