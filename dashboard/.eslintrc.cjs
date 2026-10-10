@@ -16,5 +16,14 @@ module.exports = {
   rules: {
     'no-unused-vars': 'off',
   },
+  overrides: [
+    {
+      files: ['*.ts', '*.tsx'],
+      rules: {
+        // TypeScript declarations and Vitest globals are provided by type config.
+        'no-undef': 'off',
+      },
+    },
+  ],
   ignorePatterns: ['dist/', 'node_modules/'],
 };
