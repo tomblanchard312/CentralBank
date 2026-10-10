@@ -16,7 +16,7 @@ describe('Internationalization', () => {
     renderWithProviders(<MainLayout><div>Test</div></MainLayout>);
     // Check for a known English string from the sidebar
     // Since we mocked i18n in setup.ts, we might need to provide real translations or check keys
-    expect(screen.getByText(/EN/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^en$/i })).toBeInTheDocument();
   });
 
   it('switches language correctly', async () => {
@@ -26,10 +26,10 @@ describe('Internationalization', () => {
     fireEvent.click(langButton);
     
     // Should switch to FR (based on our toggleLanguage logic)
-    expect(screen.getByText(/FR/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^fr$/i })).toBeInTheDocument();
     
     fireEvent.click(screen.getByText(/FR/i));
-    expect(screen.getByText(/DE/i)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^de$/i })).toBeInTheDocument();
   });
 
   it('does not have missing translation keys in critical views', () => {

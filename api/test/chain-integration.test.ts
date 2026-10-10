@@ -20,7 +20,7 @@ const configured = Boolean(rpcUrl && registryAddress && tokenAddress);
 
 describe.skipIf(!configured)('gateway calldata against deployed contracts', () => {
   let provider: ethers.JsonRpcProvider;
-  let operator: ethers.NonceManager;
+  let operator: ethers.JsonRpcSigner;
   let operatorAddress: string;
   let registry: ethers.Contract;
   let token: ethers.Contract;
@@ -35,7 +35,7 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
 
   beforeAll(async () => {
     provider = new ethers.JsonRpcProvider(rpcUrl);
-    operator = new ethers.NonceManager(await provider.getSigner(0));
+    operator = await provider.getSigner(0);
     operatorAddress = await operator.getAddress();
     registry = new ethers.Contract(registryAddress!, [...WalletRegistryABI], operator);
     token = new ethers.Contract(tokenAddress!, [...DigitalTokenABI], operator);
@@ -98,7 +98,7 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
 
   it('rejects a duplicate mint idempotency key', async () => {
     await expect(
-      token.mint(holder.address, 100_00n, keyFor('mint-1')),
+      token.mint.staticCall(holder.address, 100_00n, keyFor('mint-1')),
     ).rejects.toThrow();
   });
 
@@ -106,9 +106,8 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
     const asHolder = token.connect(holder) as ethers.Contract;
     const operatorBefore = await token.balanceOf(operatorAddress);
 
-    // Use a read-only simulation for the expected failure. Sending an invalid
-    // transaction makes ethers poll for a receipt/revert and can exceed Vitest's
-    // default timeout even though the contract rejects it immediately.
+    // Use a read-only simulation for the expected failure instead of sending
+    // an invalid transaction to the local chain.
     await expect(
       token.transferFrom.staticCall(holder.address, bank, 10_00n),
     ).rejects.toThrow();
@@ -122,7 +121,7 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
     expect(await token.balanceOf(holder.address)).toBe(holderBefore - 10_00n);
     expect(await token.balanceOf(bank)).toBe(bankBefore + 10_00n);
     expect(await token.balanceOf(operatorAddress)).toBe(operatorBefore);
-  });
+  }, 30_000);
 
   it('exposes escrowedBalances as separate members, not a tuple', async () => {
     const record = await token.escrowedBalances(individual);

@@ -32,7 +32,8 @@ export const MainLayout: React.FC<{children: React.ReactNode}> = ({ children }) 
 
   const toggleLanguage = () => {
     const langs = ['en', 'fr', 'de'];
-    const next = langs[(langs.indexOf(i18n.language) + 1) % langs.length];
+    const currentLanguage = i18n.language.split('-')[0];
+    const next = langs[(langs.indexOf(currentLanguage) + 1) % langs.length];
     i18n.changeLanguage(next);
   };
 
@@ -78,7 +79,7 @@ export const MainLayout: React.FC<{children: React.ReactNode}> = ({ children }) 
             className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
           >
             <Globe className="h-5 w-5" />
-            {i18n.language.toUpperCase()}
+            {i18n.language.split('-')[0].toUpperCase()}
           </button>
           <button
             onClick={handleLogout}

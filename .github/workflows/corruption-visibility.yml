@@ -78,56 +78,51 @@ jobs:
           cache: npm
           cache-dependency-path: api/package-lock.json
 
-      - name: Start local chain
-        run: |
-          anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --silent &
-          for _ in $(seq 1 30); do
-            if cast block-number --rpc-url http://127.0.0.1:8545 >/dev/null 2>&1; then
-              echo "anvil is up"; exit 0
-            fi
-            sleep 1
-          done
-          echo "anvil failed to start"; exit 1
-
-      - name: Deploy contracts
-        working-directory: contracts
-        run: |
-          forge script script/DeployCentralBank.s.sol:DeployLabEnvironment \
-            --rpc-url http://127.0.0.1:8545 \
-            --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \
-            --unlocked \
-            --broadcast \
-            --silent
-          RUN_FILE=broadcast/DeployCentralBank.s.sol/31337/run-latest.json
-          addr() { jq -r --arg n "$1" \
-            '[.transactions[] | select(.transactionType=="CREATE" and .contractName==$n)][0].contractAddress' \
-            "$RUN_FILE"; }
-          {
-            echo "CONTRACT_PERMISSIONING=$(addr Permissioning)"
-            echo "CONTRACT_WALLET_REGISTRY=$(addr WalletRegistry)"
-            echo "CONTRACT_DIGITAL_TOKEN=$(addr DigitalToken)"
-            echo "CONTRACT_CONDITIONAL_PAYMENTS=$(addr ConditionalPayments)"
-          } >> "$GITHUB_ENV"
-
-      - name: Install API dependencies
-        working-directory: api
-        run: npm ci
-
-      - name: Run and validate integration tests
-        working-directory: api
+      - name: Deploy contracts and run integration tests
+        timeout-minutes: 10
         env:
           CENTRALBANK_INTEGRATION_RPC_URL: http://127.0.0.1:8545
         run: |
+          set -euo pipefail
+          anvil --host 127.0.0.1 --port 8545 --chain-id 31337 --silent &
+          ANVIL_PID=$!
+          trap 'kill "$ANVIL_PID" 2>/dev/null || true' EXIT
+
+          for _ in $(seq 1 30); do
+            if cast block-number --rpc-url "$CENTRALBANK_INTEGRATION_RPC_URL" >/dev/null 2>&1; then
+              echo "anvil is up"; break
+            fi
+            sleep 1
+          done
+          cast block-number --rpc-url "$CENTRALBANK_INTEGRATION_RPC_URL" >/dev/null
+
+          cd contracts
+          forge script script/DeployCentralBank.s.sol:DeployLabEnvironment \
+            --rpc-url "$CENTRALBANK_INTEGRATION_RPC_URL" \
+            --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \
+            --unlocked \
+            --broadcast
+
+          RUN_FILE=broadcast/DeployCentralBank.s.sol/31337/run-latest.json
+          addr() {
+            jq -er --arg n "$1" \
+              '[.transactions[] | select(.transactionType=="CREATE" and .contractName==$n)][0].contractAddress' \
+              "$RUN_FILE"
+          }
+          export CONTRACT_PERMISSIONING="$(addr Permissioning)"
+          export CONTRACT_WALLET_REGISTRY="$(addr WalletRegistry)"
+          export CONTRACT_DIGITAL_TOKEN="$(addr DigitalToken)"
+          export CONTRACT_CONDITIONAL_PAYMENTS="$(addr ConditionalPayments)"
+
+          cd ../api
+          npm ci
           set +e
           OUTPUT=$(npm test -- --run test/chain-integration.test.ts 2>&1)
           STATUS=$?
           set -e
-
           echo "$OUTPUT"
-
           if echo "$OUTPUT" | grep -qiE "[1-9][0-9]* skipped|no test files found"; then
             echo "::error::Integration suite did not run - check RPC URL and contract addresses"
             exit 1
           fi
-
           exit "$STATUS"
