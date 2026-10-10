@@ -2,17 +2,7 @@ import '@testing-library/jest-dom';
 import { beforeAll, afterEach, afterAll } from 'vitest';
 import { setupServer } from 'msw/node';
 import { http, HttpResponse } from 'msw';
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-
-// Mock i18n
-i18n.use(initReactI18next).init({
-  lng: 'en',
-  fallbackLng: 'en',
-  ns: ['translations'],
-  defaultNS: 'translations',
-  resources: { en: { translations: {} } },
-});
+import '../i18n';
 
 // Define global MSW server
 export const server = setupServer(
