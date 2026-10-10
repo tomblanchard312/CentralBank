@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generatePaymentStatusReport } from './payment-status-report';
+import { generatePaymentStatusReport } from '../src/handlers/payment-status-report';
 
 describe('generatePaymentStatusReport', () => {
   it('rejects malformed transaction IDs before making an API request', async () => {
