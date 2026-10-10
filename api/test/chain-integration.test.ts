@@ -122,7 +122,7 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
     expect(await token.balanceOf(holder.address)).toBe(holderBefore - 10_00n);
     expect(await token.balanceOf(bank)).toBe(bankBefore + 10_00n);
     expect(await token.balanceOf(operatorAddress)).toBe(operatorBefore);
-  });
+  }, 15_000);
 
   it('exposes escrowedBalances as separate members, not a tuple', async () => {
     const record = await token.escrowedBalances(individual);
