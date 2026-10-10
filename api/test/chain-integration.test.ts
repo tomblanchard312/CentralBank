@@ -20,7 +20,7 @@ const configured = Boolean(rpcUrl && registryAddress && tokenAddress);
 
 describe.skipIf(!configured)('gateway calldata against deployed contracts', () => {
   let provider: ethers.JsonRpcProvider;
-  let operator: ethers.NonceManager;
+  let operator: ethers.JsonRpcSigner;
   let operatorAddress: string;
   let registry: ethers.Contract;
   let token: ethers.Contract;
@@ -35,7 +35,7 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
 
   beforeAll(async () => {
     provider = new ethers.JsonRpcProvider(rpcUrl);
-    operator = new ethers.NonceManager(await provider.getSigner(0));
+    operator = await provider.getSigner(0);
     operatorAddress = await operator.getAddress();
     registry = new ethers.Contract(registryAddress!, [...WalletRegistryABI], operator);
     token = new ethers.Contract(tokenAddress!, [...DigitalTokenABI], operator);
@@ -103,35 +103,25 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
   });
 
   it('moves funds from the payer, not the operator, and requires an allowance', async () => {
-    console.info('allowance test: read operator balance');
     const asHolder = token.connect(holder) as ethers.Contract;
     const operatorBefore = await token.balanceOf(operatorAddress);
 
-    console.info('allowance test: verify missing allowance reverts');
-    // Simulate the failure without broadcasting an invalid transaction.
+    // Use a read-only simulation for the expected failure instead of sending
+    // an invalid transaction to the local chain.
     await expect(
       token.transferFrom.staticCall(holder.address, bank, 10_00n),
     ).rejects.toThrow();
 
-    console.info('allowance test: submit approval');
-    const approval = await asHolder.approve(operatorAddress, 10_00n);
-    console.info('allowance test: wait for approval receipt');
-    await approval.wait();
+    await (await asHolder.approve(operatorAddress, 10_00n)).wait();
 
-    console.info('allowance test: read token balances');
     const holderBefore = await token.balanceOf(holder.address);
     const bankBefore = await token.balanceOf(bank);
+    await (await token.transferFrom(holder.address, bank, 10_00n)).wait();
 
-    console.info('allowance test: submit transferFrom');
-    const transfer = await token.transferFrom(holder.address, bank, 10_00n);
-    console.info('allowance test: wait for transferFrom receipt');
-    await transfer.wait();
-
-    console.info('allowance test: verify balances');
     expect(await token.balanceOf(holder.address)).toBe(holderBefore - 10_00n);
     expect(await token.balanceOf(bank)).toBe(bankBefore + 10_00n);
     expect(await token.balanceOf(operatorAddress)).toBe(operatorBefore);
-  }, 60_000);
+  }, 30_000);
 
   it('exposes escrowedBalances as separate members, not a tuple', async () => {
     const record = await token.escrowedBalances(individual);
