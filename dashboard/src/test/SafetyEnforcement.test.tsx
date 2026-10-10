@@ -19,7 +19,7 @@ describe('ECB Safety Enforcement', () => {
     renderWithProviders(<MonetaryOps />);
     
     // Find the Suspend button
-    const suspendButton = screen.getByText(/suspend/i);
+    const suspendButton = screen.getByRole('button', { name: /suspend minting/i });
     fireEvent.click(suspendButton);
 
     // Modal should appear
@@ -37,7 +37,7 @@ describe('ECB Safety Enforcement', () => {
   it('blocks submission when justification is empty', async () => {
     renderWithProviders(<MonetaryOps />);
     
-    fireEvent.click(screen.getByText(/suspend/i));
+    fireEvent.click(screen.getByRole('button', { name: /suspend minting/i }));
     
     const confirmButton = screen.getByRole('button', { name: /confirm/i });
     expect(confirmButton).toBeDisabled(); // Assuming we disable it if justification is empty
@@ -57,7 +57,7 @@ describe('ECB Safety Enforcement', () => {
 
     renderWithProviders(<MonetaryOps />);
     
-    fireEvent.click(screen.getByText(/suspend/i));
+    fireEvent.click(screen.getByRole('button', { name: /suspend minting/i }));
     fireEvent.change(screen.getByPlaceholderText(/justification/i), { 
       target: { value: 'Unauthorized attempt' } 
     });
