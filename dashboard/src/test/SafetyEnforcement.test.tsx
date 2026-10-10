@@ -1,11 +1,8 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { MonetaryOps } from '../pages/MonetaryOps';
 import { BrowserRouter } from 'react-router-dom';
-import { server } from './setup';
-import { http, HttpResponse } from 'msw';
 
-// Helper to render with providers
 const renderWithProviders = (ui: React.ReactElement) => {
   return render(
     <BrowserRouter>
@@ -15,59 +12,36 @@ const renderWithProviders = (ui: React.ReactElement) => {
 };
 
 describe('ECB Safety Enforcement', () => {
-  it('requires confirmation and justification for destructive actions', async () => {
+  it('requires confirmation and justification for destructive actions', () => {
     renderWithProviders(<MonetaryOps />);
-    
-    // Find the Suspend button
-    const suspendButton = screen.getByRole('button', { name: /suspend minting/i });
-    fireEvent.click(suspendButton);
 
-    // Modal should appear
-    expect(screen.getByText(/confirm/i)).toBeInTheDocument();
-    
-    // Try to confirm without justification
-    const confirmButton = screen.getByRole('button', { name: /confirm/i });
+    fireEvent.click(screen.getByRole('button', { name: /suspend minting/i }));
+
+    const dialog = screen.getByRole('dialog', { name: /confirm global suspension/i });
+    const confirmButton = screen.getByRole('button', { name: /^confirm$/i });
+
+    expect(dialog).toBeInTheDocument();
+    expect(confirmButton).toBeDisabled();
+
+    fireEvent.change(screen.getByPlaceholderText(/required/i), {
+      target: { value: 'Emergency suspension' },
+    });
+
+    expect(confirmButton).toBeEnabled();
+  });
+
+  it('does not submit an empty justification and allows the operator to cancel', () => {
+    renderWithProviders(<MonetaryOps />);
+
+    fireEvent.click(screen.getByRole('button', { name: /suspend minting/i }));
+
+    const dialog = screen.getByRole('dialog', { name: /confirm global suspension/i });
+    const confirmButton = screen.getByRole('button', { name: /^confirm$/i });
+
     fireEvent.click(confirmButton);
+    expect(dialog).toBeInTheDocument();
 
-    // Should still be there (or show error if implemented)
-    // In our implementation, the button is disabled or the modal stays open
-    expect(screen.getByText(/confirm/i)).toBeInTheDocument();
-  });
-
-  it('blocks submission when justification is empty', async () => {
-    renderWithProviders(<MonetaryOps />);
-    
-    fireEvent.click(screen.getByRole('button', { name: /suspend minting/i }));
-    
-    const confirmButton = screen.getByRole('button', { name: /confirm/i });
-    expect(confirmButton).toBeDisabled(); // Assuming we disable it if justification is empty
-
-    const textarea = screen.getByPlaceholderText(/justification/i);
-    fireEvent.change(textarea, { target: { value: 'Emergency suspension' } });
-    
-    expect(confirmButton).not.toBeDisabled();
-  });
-
-  it('handles unauthorized API responses correctly', async () => {
-    server.use(
-      http.post('*/api/v1/monetary/suspend', () => {
-        return new HttpResponse(null, { status: 403 });
-      })
-    );
-
-    renderWithProviders(<MonetaryOps />);
-    
-    fireEvent.click(screen.getByRole('button', { name: /suspend minting/i }));
-    fireEvent.change(screen.getByPlaceholderText(/justification/i), { 
-      target: { value: 'Unauthorized attempt' } 
-    });
-    fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
-
-    // Should show error toast (mocking toast might be needed if we want to be precise)
-    // For now, we check if the modal is still there or if an error message appears
-    await waitFor(() => {
-      // In a real app, we'd check for the toast message
-      // expect(screen.getByText(/unauthorized/i)).toBeInTheDocument();
-    });
+    fireEvent.click(screen.getByRole('button', { name: /cancel/i }));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 });
