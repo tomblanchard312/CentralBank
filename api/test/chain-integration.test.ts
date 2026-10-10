@@ -98,7 +98,7 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
 
   it('rejects a duplicate mint idempotency key', async () => {
     await expect(
-      token.mint(holder.address, 100_00n, keyFor('mint-1')),
+      token.mint.staticCall(holder.address, 100_00n, keyFor('mint-1')),
     ).rejects.toThrow();
   });
 
