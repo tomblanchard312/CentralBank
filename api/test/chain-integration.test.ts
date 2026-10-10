@@ -103,22 +103,31 @@ describe.skipIf(!configured)('gateway calldata against deployed contracts', () =
   });
 
   it('moves funds from the payer, not the operator, and requires an allowance', async () => {
+    console.info('allowance test: read operator balance');
     const asHolder = token.connect(holder) as ethers.Contract;
     const operatorBefore = await token.balanceOf(operatorAddress);
 
-    // Use a read-only simulation for the expected failure. Sending an invalid
-    // transaction makes ethers poll for a receipt/revert and can exceed Vitest's
-    // default timeout even though the contract rejects it immediately.
+    console.info('allowance test: verify missing allowance reverts');
+    // Simulate the failure without broadcasting an invalid transaction.
     await expect(
       token.transferFrom.staticCall(holder.address, bank, 10_00n),
     ).rejects.toThrow();
 
-    await (await asHolder.approve(operatorAddress, 10_00n)).wait();
+    console.info('allowance test: submit approval');
+    const approval = await asHolder.approve(operatorAddress, 10_00n);
+    console.info('allowance test: wait for approval receipt');
+    await approval.wait();
 
+    console.info('allowance test: read token balances');
     const holderBefore = await token.balanceOf(holder.address);
     const bankBefore = await token.balanceOf(bank);
-    await (await token.transferFrom(holder.address, bank, 10_00n)).wait();
 
+    console.info('allowance test: submit transferFrom');
+    const transfer = await token.transferFrom(holder.address, bank, 10_00n);
+    console.info('allowance test: wait for transferFrom receipt');
+    await transfer.wait();
+
+    console.info('allowance test: verify balances');
     expect(await token.balanceOf(holder.address)).toBe(holderBefore - 10_00n);
     expect(await token.balanceOf(bank)).toBe(bankBefore + 10_00n);
     expect(await token.balanceOf(operatorAddress)).toBe(operatorBefore);
