@@ -47,9 +47,13 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: ${{ matrix.package }}/package-lock.json
-      - name: Install dependencies
+          cache-dependency-path: ${{ matrix.package == 'sdk' && 'sdk/package.json' || format('{0}/package-lock.json', matrix.package) }}
+      - name: Install dependencies with the committed lockfile
+        if: matrix.package != 'sdk'
         run: npm ci
+      - name: Install SDK dependencies (SDK has no committed lockfile)
+        if: matrix.package == 'sdk'
+        run: npm install --no-audit --no-fund
       - name: Build
         run: npm run build
       - name: Test
