@@ -91,13 +91,13 @@ jobs:
 
       - name: Deploy contracts
         working-directory: contracts
+        timeout-minutes: 5
         run: |
           forge script script/DeployCentralBank.s.sol:DeployLabEnvironment \
             --rpc-url http://127.0.0.1:8545 \
             --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \
             --unlocked \
-            --broadcast \
-            --silent
+            --broadcast
           RUN_FILE=broadcast/DeployCentralBank.s.sol/31337/run-latest.json
           addr() { jq -r --arg n "$1" \
             '[.transactions[] | select(.transactionType=="CREATE" and .contractName==$n)][0].contractAddress' \
