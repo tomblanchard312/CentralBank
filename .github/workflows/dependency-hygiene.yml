@@ -53,7 +53,7 @@ jobs:
         run: npm ci
       - name: Install SDK dependencies (SDK has no committed lockfile)
         if: matrix.package == 'sdk'
-        run: npm install --no-audit --no-fund
+        run: npm install --legacy-peer-deps --no-audit --no-fund
       - name: Build
         run: npm run build
       - name: Test
