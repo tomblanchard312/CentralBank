@@ -119,12 +119,13 @@ jobs:
           chmod +x scripts/lab-mvp-demo-checklist.sh
           ./scripts/lab-mvp-demo-checklist.sh
 
-      - name: Stop API
+      - name: Stop API and Anvil
         if: always()
         run: |
           if [[ -f /tmp/centralbank-api.pid ]]; then
             kill "$(cat /tmp/centralbank-api.pid)" 2>/dev/null || true
           fi
+          pkill -f '[a]nvil' 2>/dev/null || true
 
   reconciliation-unit:
     name: Reconciliation-ref unit tests

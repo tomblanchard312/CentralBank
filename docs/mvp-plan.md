@@ -1,6 +1,6 @@
 # CentralBank Reference MVP Plan
 
-Status: **In progress**  
+Status: **Reference MVP complete** (lab / CI). Production gates remain open.  
 Scope: lab / institutional **reference MVP** on the v1 API path. Not production sovereign readiness.
 
 ## MVP definition
@@ -29,7 +29,7 @@ Protocol v2 remains a **parallel deployable track** (`make deploy-local-v2`). La
 | 1c | Profile → parameters validation bridge | Done |
 | 1d | Reconciliation automated tests | Done |
 | 1e | SDK package metadata cleanup | Done |
-| 2 | Demo checklist + CI smoke | Checklist done; CI wiring pending |
+| 2 | Demo checklist + CI smoke | Done (`.github/workflows/lab-mvp-ci.yml` + recon unit tests) |
 | 3a | V2 sanctions/emergency policy modules | Done |
 | 3b | V2 API cutover | Done (`PROTOCOL_STACK=v2`; ConditionalPayments/WalletRegistry still v1-only) |
 | 4 | Production gates | Post-MVP |
@@ -42,7 +42,7 @@ Protocol v2 remains a **parallel deployable track** (`make deploy-local-v2`). La
 - [x] `tools/reconciliation-ref` tests pass (`npm test` in that package)
 - [x] SDK package metadata uses CentralBank / CBDT (not legacy Digital Euro product naming)
 - [x] Documented demo checklist covers the core flows ([mvp-demo-checklist.md](mvp-demo-checklist.md))
-- [ ] CI job runs lab smoke / reconciliation tests on PRs
+- [x] CI job runs lab smoke + demo checklist (`lab-mvp-ci.yml`) and reconciliation-ref `npm test` (`parameters-and-recon-ci.yml`)
 
 ## Non-affiliation
 
