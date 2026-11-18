@@ -4,7 +4,7 @@
 
 ### Objectif
 
-Valider la procédure d'isolation des fonds litigieux à l'aide du mécanisme de séquestre tEUR, en garantissant que les fonds sont restreints sans gel complet du compte.
+Valider la procédure d'isolation des fonds litigieux à l'aide du mécanisme de séquestre CBDT, en garantissant que les fonds sont restreints sans gel complet du compte.
 
 ### Portée
 
@@ -45,7 +45,7 @@ Placement de fonds spécifiques sous séquestre, gestion des horodatages d'expir
 
 ### T+15 : Injection 2 - Conflit de paramètres
 
-**Injection** : La banque déclarante demande un blocage indéfini, mais le règlement tEUR limite les séquestres d'urgence à 72 heures sans ordonnance du tribunal.
+**Injection** : La banque déclarante demande un blocage indéfini, mais le règlement CBDT limite les séquestres d'urgence à 72 heures sans ordonnance du tribunal.
 
 **Actions attendues des participants** :
 

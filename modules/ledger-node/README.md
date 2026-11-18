@@ -1,6 +1,6 @@
 # Ledger Node Module
 
-This module deploys a Hyperledger Besu validator node for tEUR settlement.
+This module deploys a Hyperledger Besu validator node for CBDT settlement.
 
 ## Usage
 

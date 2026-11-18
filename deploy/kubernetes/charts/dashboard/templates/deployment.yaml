@@ -1,9 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "teur-dashboard.fullname" . }}
+  name: {{ include "centralbank-dashboard.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "teur-dashboard.name" . }}
+    app.kubernetes.io/name: {{ include "centralbank-dashboard.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
@@ -11,12 +11,12 @@ spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app.kubernetes.io/name: {{ include "teur-dashboard.name" . }}
+      app.kubernetes.io/name: {{ include "centralbank-dashboard.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
   template:
     metadata:
       labels:
-        app.kubernetes.io/name: {{ include "teur-dashboard.name" . }}
+        app.kubernetes.io/name: {{ include "centralbank-dashboard.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       containers:
@@ -24,10 +24,10 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: TEUR_ENV
-              value: {{ .Values.env.TEUR_ENV | quote }}
-            - name: TEUR_ROLE
-              value: {{ .Values.env.TEUR_ROLE | quote }}
+            - name: CENTRALBANK_ENV
+              value: {{ .Values.env.CENTRALBANK_ENV | quote }}
+            - name: CENTRALBANK_ROLE
+              value: {{ .Values.env.CENTRALBANK_ROLE | quote }}
           ports:
             - name: http
               containerPort: 80

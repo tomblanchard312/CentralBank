@@ -61,7 +61,7 @@ export class EcbController {
   static async getMe(req: Request, res: Response) {
     res.json({
       identity: req.operator,
-      environment: process.env.TEUR_ENV || 'lab',
+      environment: process.env.CENTRALBANK_ENV || 'lab',
       capabilities: {
         canMint: req.operator?.role === 'ECB_OPERATOR',
         canAudit: ['ECB_OPERATOR', 'AUDITOR'].includes(req.operator?.role || ''),

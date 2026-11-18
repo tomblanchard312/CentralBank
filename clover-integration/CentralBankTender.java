@@ -1,4 +1,4 @@
-// Clover Custom Tender for tEUR Token Payments
+// Clover Custom Tender for CBDT Token Payments
 // This code would be part of a Clover Android app using the Payment Connector SDK
 //
 // IMPORTANT: This file contains Java code that requires:
@@ -32,21 +32,21 @@ import okhttp3.Response;
 import org.json.JSONObject;
 import java.io.IOException;
 
-public class TEurTender implements ITender {
+public class CentralBankTender implements ITender {
 
-    private static final String TEUR_TENDER_ID = "teur-tender";
+    private static final String CENTRALBANK_TENDER_ID = "centralbank-tender";
     private static final String API_BASE_URL = "http://your-api-url/api/v1"; // Replace with actual API URL
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
     private OkHttpClient client = new OkHttpClient();
 
     @Override
     public String getId() {
-        return TEUR_TENDER_ID;
+        return CENTRALBANK_TENDER_ID;
     }
 
     @Override
     public String getLabel() {
-        return "tEUR Token";
+        return "CBDT Token";
     }
 
     @Override
@@ -112,4 +112,4 @@ public class TEurTender implements ITender {
 
 // In your Clover app's main activity or service, register the custom tender:
 // PaymentConnector connector = new PaymentConnector(context);
-// connector.addTender(new TEurTender());
+// connector.addTender(new CentralBankTender());

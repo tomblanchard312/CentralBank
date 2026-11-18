@@ -4,7 +4,7 @@
 
 ### Objective
 
-Test the rapid propagation of network-wide sanctions across the tEUR ecosystem, focusing on batch processing and manifest synchronization.
+Test the rapid propagation of network-wide sanctions across the CBDT ecosystem, focusing on batch processing and manifest synchronization.
 
 ### Scope
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env pwsh
-# tEUR Besu Validator Bootstrap Script
+# CBDT Besu Validator Bootstrap Script
 # Generates QBFT validator keys and genesis file, then creates Kubernetes secrets
 
 $ErrorActionPreference = "Stop"
@@ -13,7 +13,7 @@ $ValidatorCount = 4
 $ChainId = 31337
 $BlockPeriod = 2
 
-Write-Host "=== tEUR Besu QBFT Bootstrap ===" -ForegroundColor Cyan
+Write-Host "=== CBDT Besu QBFT Bootstrap ===" -ForegroundColor Cyan
 Write-Host "Namespace: $Namespace"
 Write-Host "Validator Count: $ValidatorCount"
 Write-Host "Chain ID: $ChainId"

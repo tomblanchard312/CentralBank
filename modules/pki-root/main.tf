@@ -21,9 +21,9 @@ locals {
   labels = {
     "app.kubernetes.io/name"      = "pki-root"
     "app.kubernetes.io/component" = "security"
-    "app.kubernetes.io/part-of"   = "teur"
-    "teur.eu/zone"                = var.zone_name
-    "teur.eu/environment"         = var.environment
+    "app.kubernetes.io/part-of"   = "centralbank"
+    "centralbank/zone"                = var.zone_name
+    "centralbank/environment"         = var.environment
   }
 }
 
@@ -46,9 +46,9 @@ resource "tls_self_signed_cert" "root_ca" {
   private_key_pem = tls_private_key.root_ca.private_key_pem
 
   subject {
-    common_name         = "tEUR Root CA - ${var.zone_name}"
+    common_name         = "CBDT Root CA - ${var.zone_name}"
     organization        = var.organization
-    organizational_unit = "tEUR Infrastructure"
+    organizational_unit = "CBDT Infrastructure"
     country             = "EU"
   }
 
@@ -75,8 +75,8 @@ resource "kubernetes_secret" "root_ca_cert" {
     labels    = local.labels
 
     annotations = {
-      "teur.eu/secret-type" = "ca-certificate"
-      "teur.eu/description" = "Root CA public certificate for trust chain"
+      "centralbank/secret-type" = "ca-certificate"
+      "centralbank/description" = "Root CA public certificate for trust chain"
     }
   }
 
@@ -104,7 +104,7 @@ resource "kubernetes_config_map" "root_ca_bundle" {
     labels    = local.labels
 
     annotations = {
-      "teur.eu/description" = "Root CA certificate bundle for mTLS validation"
+      "centralbank/description" = "Root CA certificate bundle for mTLS validation"
     }
   }
 

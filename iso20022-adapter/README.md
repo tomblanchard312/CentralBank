@@ -1,15 +1,15 @@
-# ISO 20022 Adapter for tEUR
+# ISO 20022 Adapter for CBDT
 
-Bridges traditional banking systems (SEPA, TARGET2) with tEUR Digital Euro using ISO 20022 messaging standards.
+Bridges traditional banking systems (SEPA, TARGET2) with CBDT Digital Euro using ISO 20022 messaging standards.
 
 ## Features
 
-- ✅ **ISO 20022 pain.001** - Customer Credit Transfer Initiation (SEPA → tEUR)
+- ✅ **ISO 20022 pain.001** - Customer Credit Transfer Initiation (SEPA → CBDT)
 - ✅ **ISO 20022 pain.002** - Payment Status Report
-- ✅ **ISO 20022 camt.053** - Bank to Customer Statement (tEUR → SEPA)
-- ✅ **Bidirectional mapping** - IBAN ↔ tEUR wallet addresses
+- ✅ **ISO 20022 camt.053** - Bank to Customer Statement (CBDT → SEPA)
+- ✅ **Bidirectional mapping** - IBAN ↔ CBDT wallet addresses
 - ✅ **Idempotency** - Uses end-to-end ID from SEPA messages
-- ✅ **Real-time processing** - Instant settlement via tEUR blockchain
+- ✅ **Real-time processing** - Instant settlement via CBDT blockchain
 
 ## Installation
 
@@ -23,8 +23,8 @@ cp .env.example .env
 Edit `.env`:
 
 ```
-TEUR_API_URL=http://localhost:3000/api/v1
-TEUR_API_KEY=your-bank-api-key
+CENTRALBANK_API_URL=http://localhost:3000/api/v1
+CENTRALBANK_API_KEY=your-bank-api-key
 BIC_CODE=YOURBANK00XXX
 INSTITUTION_ID=bank-xx-01
 INSTITUTION_NAME=Your Bank Name
@@ -45,7 +45,7 @@ npm start
 
 ### POST /iso20022/pain.001
 
-Accepts SEPA Credit Transfer Initiation (XML) and executes tEUR transfer.
+Accepts SEPA Credit Transfer Initiation (XML) and executes CBDT transfer.
 
 **Request:**
 
@@ -97,7 +97,7 @@ Accepts SEPA Credit Transfer Initiation (XML) and executes tEUR transfer.
         <TxSts>ACCP</TxSts>
         <OrgnlTxRef>
           <RmtInf>
-            <Ustrd>tEUR TxHash: 0x1234...</Ustrd>
+            <Ustrd>CBDT TxHash: 0x1234...</Ustrd>
           </RmtInf>
         </OrgnlTxRef>
       </TxInfAndSts>
@@ -108,7 +108,7 @@ Accepts SEPA Credit Transfer Initiation (XML) and executes tEUR transfer.
 
 ### GET /payments/:txId/status
 
-Returns ISO 20022 camt.053 statement for a tEUR transaction.
+Returns ISO 20022 camt.053 statement for a CBDT transaction.
 
 **Response:**
 
@@ -141,7 +141,7 @@ Returns ISO 20022 camt.053 statement for a tEUR transaction.
 
 ## IBAN to Wallet Mapping
 
-The adapter maintains a registry mapping IBANs to tEUR wallet addresses:
+The adapter maintains a registry mapping IBANs to CBDT wallet addresses:
 
 ```typescript
 // Production implementation should use database or registry
@@ -151,17 +151,17 @@ IBAN: FR1420041010050500013M02606 → Wallet: 0x5678...
 
 ## Message Flow
 
-### SEPA → tEUR
+### SEPA → CBDT
 
 1. Bank sends ISO 20022 pain.001 (SEPA Credit Transfer)
-2. Adapter maps IBAN to tEUR wallet address
-3. Adapter calls tEUR API `/transfers`
-4. tEUR executes on-chain transfer
+2. Adapter maps IBAN to CBDT wallet address
+3. Adapter calls CBDT API `/transfers`
+4. CBDT executes on-chain transfer
 5. Adapter returns pain.002 (Status Report)
 
-### tEUR → SEPA
+### CBDT → SEPA
 
-1. Query tEUR transaction via API
+1. Query CBDT transaction via API
 2. Adapter generates camt.053 statement
 3. Statement delivered to bank's back-office system
 

@@ -1,10 +1,10 @@
 #!/bin/bash
 set -euo pipefail
 
-# Bootstrapping script for tEUR central bank and participants
+# Bootstrapping script for CBDT central bank and participants
 
-ENV="${TEUR_ENV:-}"
-ROLE="${TEUR_ROLE:-}"
+ENV="${CENTRALBANK_ENV:-}"
+ROLE="${CENTRALBANK_ROLE:-}"
 
 if [[ "$ROLE" == "central-bank" ]]; then
     echo "Bootstrapping central bank..."

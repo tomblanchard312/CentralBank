@@ -1,10 +1,10 @@
-# tEUR-Bereitstellungsanleitung
+# CBDT-Bereitstellungsanleitung
 
-Diese Anleitung erklärt, wie die tEUR-Plattform mithilfe des einheitlichen Bereitstellungssystems bereitgestellt wird.
+Diese Anleitung erklärt, wie die CBDT-Plattform mithilfe des einheitlichen Bereitstellungssystems bereitgestellt wird.
 
 ## Überblick
 
-Die tEUR-Plattform unterstützt die Bereitstellung in mehreren Umgebungen mit verschiedenen Rollen. Das Bereitstellungssystem bietet eine einzige Befehlszeilenschnittstelle, die auf Linux, Windows und CI/CD-Pipelines funktioniert.
+Die CBDT-Plattform unterstützt die Bereitstellung in mehreren Umgebungen mit verschiedenen Rollen. Das Bereitstellungssystem bietet eine einzige Befehlszeilenschnittstelle, die auf Linux, Windows und CI/CD-Pipelines funktioniert.
 
 ## Umgebungen
 
@@ -59,14 +59,14 @@ Schlüssel müssen über folgende Wege bereitgestellt werden:
 1. Umgebungsvariablen:
 
    ```bash
-   export TEUR_ROOT_CA_KEY="..."
-   export TEUR_ISSUER_KEY="..."
-   export TEUR_ACQUIRER_KEY="..."
-   export TEUR_PSP_KEY="..."
+   export CENTRALBANK_ROOT_CA_KEY="..."
+   export CENTRALBANK_ISSUER_KEY="..."
+   export CENTRALBANK_ACQUIRER_KEY="..."
+   export CENTRALBANK_PSP_KEY="..."
    ```
 
 2. Dateien im `keys/`-Verzeichnis:
-   - `keys/TEUR_ROOT_CA_KEY.pem`
+   - `keys/CENTRALBANK_ROOT_CA_KEY.pem`
    - usw.
 
 Für die Produktion niemals Testschlüssel verwenden.

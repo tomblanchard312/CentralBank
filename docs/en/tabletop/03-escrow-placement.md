@@ -4,7 +4,7 @@
 
 ### Objective
 
-Validate the procedure for isolating disputed funds using the tEUR escrow mechanism, ensuring funds are restricted without a full account freeze.
+Validate the procedure for isolating disputed funds using the CBDT escrow mechanism, ensuring funds are restricted without a full account freeze.
 
 ### Scope
 
@@ -45,7 +45,7 @@ Placement of specific funds into escrow, management of expiry timestamps, and ve
 
 ### T+15: Inject 2 - Parameter Conflict
 
-**Inject**: The reporting bank requests an indefinite hold, but the tEUR rulebook limits emergency escrows to 72 hours without a court order.
+**Inject**: The reporting bank requests an indefinite hold, but the CBDT rulebook limits emergency escrows to 72 hours without a court order.
 
 **Expected Participant Actions**:
 

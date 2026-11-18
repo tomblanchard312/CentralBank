@@ -1,4 +1,4 @@
--- tEUR Database Schema
+-- CBDT Database Schema
 -- PostgreSQL initialization script
 
 -- Audit log table
@@ -144,5 +144,5 @@ CREATE TRIGGER update_iban_mapping_updated_at BEFORE UPDATE ON iban_wallet_mappi
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Grant permissions (adjust as needed for production)
--- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO teur;
--- GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO teur;
+-- GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO centralbank;
+-- GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO centralbank;

@@ -13,7 +13,7 @@ variable "image_tag" {
 
 resource "kubernetes_deployment" "api" {
   metadata {
-    name      = "teur-api"
+    name      = "centralbank-api"
     namespace = var.role
   }
 
@@ -22,35 +22,35 @@ resource "kubernetes_deployment" "api" {
 
     selector {
       match_labels = {
-        app = "teur-api"
+        app = "centralbank-api"
       }
     }
 
     template {
       metadata {
         labels = {
-          app = "teur-api"
+          app = "centralbank-api"
         }
       }
 
       spec {
         container {
           name  = "api"
-          image = "teur/api:${var.image_tag}"
+          image = "centralbank/api:${var.image_tag}"
 
           env {
-            name  = "TEUR_ENV"
+            name  = "CENTRALBANK_ENV"
             value = var.environment
           }
 
           env {
-            name  = "TEUR_ROLE"
+            name  = "CENTRALBANK_ROLE"
             value = var.role
           }
 
           # Add key injection here
           env {
-            name  = "TEUR_ROOT_CA_KEY"
+            name  = "CENTRALBANK_ROOT_CA_KEY"
             value = var.root_ca_key
           }
 
@@ -78,13 +78,13 @@ resource "kubernetes_deployment" "api" {
 
 resource "kubernetes_service" "api" {
   metadata {
-    name      = "teur-api"
+    name      = "centralbank-api"
     namespace = var.role
   }
 
   spec {
     selector = {
-      app = "teur-api"
+      app = "centralbank-api"
     }
 
     port {
@@ -106,7 +106,7 @@ resource "kubernetes_network_policy" "api" {
   spec {
     pod_selector {
       match_labels = {
-        app = "teur-api"
+        app = "centralbank-api"
       }
     }
 
@@ -116,7 +116,7 @@ resource "kubernetes_network_policy" "api" {
       from {
         pod_selector {
           match_labels = {
-            app = "teur-gateway"  # Only allow from gateway
+            app = "centralbank-gateway"  # Only allow from gateway
           }
         }
       }
@@ -131,7 +131,7 @@ resource "kubernetes_network_policy" "api" {
       to {
         pod_selector {
           match_labels = {
-            app = "teur-database"
+            app = "centralbank-database"
           }
         }
       }

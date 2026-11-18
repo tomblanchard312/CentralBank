@@ -1,10 +1,10 @@
-# tEUR Deployment Guide
+# CBDT Deployment Guide
 
-This guide explains how to deploy the tEUR platform using the unified deployment system.
+This guide explains how to deploy the CBDT platform using the unified deployment system.
 
 ## Overview
 
-The tEUR platform supports deployment to multiple environments with different roles. The deployment system provides a single command interface that works across Linux, Windows, and CI/CD pipelines.
+The CBDT platform supports deployment to multiple environments with different roles. The deployment system provides a single command interface that works across Linux, Windows, and CI/CD pipelines.
 
 ## Environments
 
@@ -59,14 +59,14 @@ Keys must be provided via:
 1. Environment variables:
 
    ```bash
-   export TEUR_ROOT_CA_KEY="..."
-   export TEUR_ISSUER_KEY="..."
-   export TEUR_ACQUIRER_KEY="..."
-   export TEUR_PSP_KEY="..."
+   export CENTRALBANK_ROOT_CA_KEY="..."
+   export CENTRALBANK_ISSUER_KEY="..."
+   export CENTRALBANK_ACQUIRER_KEY="..."
+   export CENTRALBANK_PSP_KEY="..."
    ```
 
 2. Files in `keys/` directory:
-   - `keys/TEUR_ROOT_CA_KEY.pem`
+   - `keys/CENTRALBANK_ROOT_CA_KEY.pem`
    - etc.
 
 For production, never use test keys.

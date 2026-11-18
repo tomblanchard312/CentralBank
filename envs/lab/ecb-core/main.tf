@@ -35,9 +35,9 @@ locals {
   zone_name   = "ecb-core"
 
   common_labels = {
-    "teur.eu/environment" = local.environment
-    "teur.eu/zone"        = local.zone_name
-    "teur.eu/managed-by"  = "terraform"
+    "centralbank/environment" = local.environment
+    "centralbank/zone"        = local.zone_name
+    "centralbank/managed-by"  = "terraform"
   }
 }
 
@@ -47,7 +47,7 @@ module "pki_root" {
 
   zone_name    = local.zone_name
   environment  = local.environment
-  organization = "tEUR Lab - ECB"
+  organization = "CBDT Lab - ECB"
 
   validity_years = 5
 }

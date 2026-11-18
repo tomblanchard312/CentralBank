@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-internal-reference-api
-  namespace: teur
+  namespace: centralbank
   labels:
     purpose: ecb-reference-data
 # Allow only internal consumers to access the internal reference data API service

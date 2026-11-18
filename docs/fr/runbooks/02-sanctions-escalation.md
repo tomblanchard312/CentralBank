@@ -2,7 +2,7 @@
 
 ## Objectif
 
-Propager rapidement les restrictions liées aux sanctions sur l'ensemble du réseau tEUR, en veillant à ce que tous les participants (banques, prestataires de services de paiement) bloquent immédiatement les transactions impliquant des entités sanctionnées.
+Propager rapidement les restrictions liées aux sanctions sur l'ensemble du réseau CBDT, en veillant à ce que tous les participants (banques, prestataires de services de paiement) bloquent immédiatement les transactions impliquant des entités sanctionnées.
 
 ## Préconditions
 
@@ -46,7 +46,7 @@ Le système génère automatiquement un nouveau `ecb-manifest` contenant les com
 
 ## Garanties de visibilité pour les régulateurs
 
-- Les régulateurs ont un accès en lecture seule aux événements du contrat `TokenizedEuro`.
+- Les régulateurs ont un accès en lecture seule aux événements du contrat `CentralBank`.
 - L' `AuditService` fournit un flux en temps réel des événements `ACCOUNT_FROZEN` via le point de terminaison `/api/v1/audit/stream`.
 
 ## Enregistrement de la référence légale

@@ -1,6 +1,6 @@
-# tEUR — Tokenized Euro (tEUR) Repozitorij
+# CBDT — Central Bank Digital Token (CBDT) Repozitorij
 
-Repozitorij koji sadrži pametne ugovore, API gateway, nadzornu ploču i alate za projekt Tokenized Euro.
+Repozitorij koji sadrži pametne ugovore, API gateway, nadzornu ploču i alate za projekt Central Bank Digital Token.
 
 Brzi početak
 

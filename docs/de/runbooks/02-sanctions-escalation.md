@@ -2,7 +2,7 @@
 
 ## Zielsetzung
 
-Schnelle Verbreitung von sanktionsbezogenen Beschränkungen im gesamten tEUR-Netzwerk, um sicherzustellen, dass alle Teilnehmer (Banken, PSPs) Transaktionen mit sanktionierten Einheiten sofort blockieren.
+Schnelle Verbreitung von sanktionsbezogenen Beschränkungen im gesamten CBDT-Netzwerk, um sicherzustellen, dass alle Teilnehmer (Banken, PSPs) Transaktionen mit sanktionierten Einheiten sofort blockieren.
 
 ## Vorbedingungen
 
@@ -46,7 +46,7 @@ Das System generiert automatisch ein neues `ecb-manifest`, das die aktualisierte
 
 ## Sichtbarkeitsgarantien für Regulierungsbehörden
 
-- Regulierungsbehörden haben Lesezugriff auf die Ereignisse des `TokenizedEuro`-Vertrags.
+- Regulierungsbehörden haben Lesezugriff auf die Ereignisse des `CentralBank`-Vertrags.
 - Der `AuditService` bietet über den Endpunkt `/api/v1/audit/stream` einen Echtzeit-Stream von `ACCOUNT_FROZEN`-Ereignissen an.
 
 ## Erfassung rechtlicher Referenzen

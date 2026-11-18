@@ -1,6 +1,6 @@
-# tEUR — Tokenized Euro (tEUR)
+# CBDT — Central Bank Digital Token (CBDT)
 
-Tá stór ina bhfuil conarthaí cliste, geata API, painéal agus uirlisí don tionscadal Tokenized Euro.
+Tá stór ina bhfuil conarthaí cliste, geata API, painéal agus uirlisí don tionscadal Central Bank Digital Token.
 
 Tús tapa
 

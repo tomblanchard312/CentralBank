@@ -17,8 +17,8 @@ Enforcement
 
 Monitoring signals
 
-- `teur_offline_recon_backlog_total`
-- `teur_offline_disputed_transactions_total`
+- `centralbank_offline_recon_backlog_total`
+- `centralbank_offline_disputed_transactions_total`
 
 Acceptance criteria
 

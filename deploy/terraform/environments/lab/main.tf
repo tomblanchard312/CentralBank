@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket = "teur-terraform-state"
+    bucket = "centralbank-terraform-state"
     key    = "lab/${var.role}/terraform.tfstate"
     region = "us-east-1"
   }

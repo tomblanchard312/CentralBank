@@ -1,6 +1,6 @@
-package com.teur.clover;
+package com.centralbank.clover;
 
-// Clover Custom Tender for tEUR Token Payments
+// Clover Custom Tender for CBDT Token Payments
 // This code is part of a Clover Android app using the Payment Connector SDK
 
 import android.nfc.Ndef;
@@ -17,11 +17,11 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-public class TEurTender implements Tender {
+public class CentralBankTender implements Tender {
 
-    private static final String TEUR_TENDER_ID = "teur-tender";
+    private static final String CENTRALBANK_TENDER_ID = "centralbank-tender";
     private static final String API_BASE_URL = "http://your-api-url/api/v1"; // Replace with actual API URL
-    private static final String TAG = "TEurTender";
+    private static final String TAG = "CentralBankTender";
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private OkHttpClient client = new OkHttpClient();
@@ -31,21 +31,21 @@ public class TEurTender implements Tender {
     private volatile String currentPaymentId = null;
     private volatile String currentSecret = null;
 
-    public TEurTender() {
+    public CentralBankTender() {
         // Initialize NFC adapter - this would typically be passed from the Activity
         // context
         // For now, we'll handle NFC reading through method calls
-        Log.d(TAG, "TEurTender initialized");
+        Log.d(TAG, "CentralBankTender initialized");
     }
 
     @Override
     public String getId() {
-        return TEUR_TENDER_ID;
+        return CENTRALBANK_TENDER_ID;
     }
 
     @Override
     public String getLabel() {
-        return "tEUR Token";
+        return "CBDT Token";
     }
 
     @Override
@@ -158,7 +158,7 @@ public class TEurTender implements Tender {
             } else if (record.getTnf() == NdefRecord.TNF_EXTERNAL_TYPE) {
                 // Handle custom MIME type for payment data
                 String mimeType = new String(record.getType(), StandardCharsets.US_ASCII);
-                if ("application/vnd.teur.payment".equals(mimeType)) {
+                if ("application/vnd.centralbank.payment".equals(mimeType)) {
                     String jsonData = new String(record.getPayload(), StandardCharsets.UTF_8);
                     parseJsonPaymentData(jsonData);
                 }

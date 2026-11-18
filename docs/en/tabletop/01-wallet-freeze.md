@@ -8,7 +8,7 @@ Validate the ECB's ability to execute an emergency wallet freeze in response to 
 
 ### Scope
 
-This exercise covers the end-to-end process from receipt of a legal order to verification of the frozen state on the tEUR ledger.
+This exercise covers the end-to-end process from receipt of a legal order to verification of the frozen state on the CBDT ledger.
 
 ### Participants and Roles
 

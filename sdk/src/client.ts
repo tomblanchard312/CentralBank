@@ -12,14 +12,14 @@ import type {
 } from './types';
 
 /**
- * tEUR Client - TypeScript SDK for European banks
+ * CBDT Client - TypeScript SDK for European banks
  * 
  * @example
  * ```typescript
- * import { TEurClient } from '@teur/bank-sdk';
+ * import { CentralBankClient } from '@centralbank/bank-sdk';
  * 
- * const client = new TEurClient({
- *   apiUrl: 'https://teur-api.eu',
+ * const client = new CentralBankClient({
+ *   apiUrl: 'https://centralbank.local',
  *   apiKey: 'your-bank-api-key',
  * });
  * 
@@ -30,7 +30,7 @@ import type {
  *   kycHash: '0x...',
  * });
  * 
- * // Transfer tEUR
+ * // Transfer CBDT
  * const transfer = await client.transfer({
  *   from: '0x...',
  *   to: '0x...',
@@ -38,7 +38,7 @@ import type {
  * });
  * ```
  */
-export class TEurClient {
+export class CentralBankClient {
   private api: AxiosInstance;
 
   constructor(config: ClientConfig) {
@@ -121,7 +121,7 @@ export class TEurClient {
   // ============ Transfer Operations ============
 
   /**
-   * Transfer tEUR between wallets
+   * Transfer CBDT between wallets
    */
   async transfer(params: Omit<TransferRequest, 'idempotencyKey'> & { idempotencyKey?: string }): Promise<TransactionResult> {
     const response = await this.api.post('/transfers', {
@@ -132,7 +132,7 @@ export class TEurClient {
   }
 
   /**
-   * Mint new tEUR (NCB/ECB only)
+   * Mint new CBDT (NCB/ECB only)
    */
   async mint(params: Omit<MintRequest, 'idempotencyKey'> & { idempotencyKey?: string }): Promise<TransactionResult> {
     const response = await this.api.post('/transfers/mint', {
@@ -143,7 +143,7 @@ export class TEurClient {
   }
 
   /**
-   * Burn tEUR (NCB/ECB only)
+   * Burn CBDT (NCB/ECB only)
    */
   async burn(params: { from: string; amount: number; idempotencyKey?: string }): Promise<TransactionResult> {
     const response = await this.api.post('/transfers/burn', {
@@ -179,7 +179,7 @@ export class TEurClient {
   }
 
   /**
-   * Get total tEUR supply
+   * Get total CBDT supply
    */
   async getTotalSupply(): Promise<{ totalSupply: string; totalSupplyFormatted: string }> {
     const response = await this.api.get('/transfers/total-supply');

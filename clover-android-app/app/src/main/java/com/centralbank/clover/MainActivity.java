@@ -1,4 +1,4 @@
-package com.teur.clover;
+package com.centralbank.clover;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
@@ -22,10 +22,10 @@ public class MainActivity extends AppCompatActivity {
         try {
             paymentConnector = new PaymentConnector(this);
 
-            // Register our custom tEUR tender
-            paymentConnector.addTender(new TEurTender());
+            // Register our custom CBDT tender
+            paymentConnector.addTender(new CentralBankTender());
 
-            statusText.setText("Clover connector initialized. tEUR tender registered.");
+            statusText.setText("Clover connector initialized. CBDT tender registered.");
         } catch (Exception e) {
             statusText.setText("Failed to initialize Clover connector: " + e.getMessage());
         }

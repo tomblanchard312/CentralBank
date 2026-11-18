@@ -1,5 +1,5 @@
-// SumUp tEUR Payment Activity
-// Android activity demonstrating SumUp integration for tEUR payments
+// SumUp CBDT Payment Activity
+// Android activity demonstrating SumUp integration for CBDT payments
 
 import android.nfc.NfcAdapter;
 import android.nfc.Tag;
@@ -16,7 +16,7 @@ import org.json.JSONObject;
 
 public class SumUpPaymentActivity extends AppCompatActivity {
 
-    private SumUpTEurIntegration sumUpIntegration;
+    private SumUpCentralBankIntegration sumUpIntegration;
     private TextView statusText;
     private Button payButton;
     private NfcAdapter nfcAdapter;
@@ -35,7 +35,7 @@ public class SumUpPaymentActivity extends AppCompatActivity {
         payButton = findViewById(R.id.payButton);
 
         // Initialize SumUp integration
-        sumUpIntegration = new SumUpTEurIntegration(SUMUP_API_KEY, SUMUP_MERCHANT_CODE);
+        sumUpIntegration = new SumUpCentralBankIntegration(SUMUP_API_KEY, SUMUP_MERCHANT_CODE);
 
         // Initialize NFC
         nfcAdapter = NfcAdapter.getDefaultAdapter(this);
@@ -82,16 +82,16 @@ public class SumUpPaymentActivity extends AppCompatActivity {
                 String readerId = readers.getJSONObject(0).getString("id");
 
                 // Process payment
-                boolean success = sumUpIntegration.processTEurPayment(
+                boolean success = sumUpIntegration.processCbdtPayment(
                         15.75, // Amount
-                        "tEUR Coffee Purchase", // Description
+                        "CBDT Coffee Purchase", // Description
                         readerId // Reader ID
                 );
 
                 runOnUiThread(() -> {
                     if (success) {
-                        statusText.setText("Payment successful! tEUR tokens released.");
-                        Toast.makeText(this, "tEUR tokens released!", Toast.LENGTH_LONG).show();
+                        statusText.setText("Payment successful! CBDT tokens released.");
+                        Toast.makeText(this, "CBDT tokens released!", Toast.LENGTH_LONG).show();
                     } else {
                         statusText.setText("Payment failed");
                         Toast.makeText(this, "Payment failed", Toast.LENGTH_SHORT).show();
@@ -195,7 +195,7 @@ public class SumUpPaymentActivity extends AppCompatActivity {
  * android:id="@+id/payButton"
  * android:layout_width="match_parent"
  * android:layout_height="wrap_content"
- * android:text="Pay with tEUR (€15.75)"
+ * android:text="Pay with CBDT (€15.75)"
  * android:textSize="18sp"
  * android:enabled="false" />
  * 

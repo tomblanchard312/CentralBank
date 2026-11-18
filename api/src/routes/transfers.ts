@@ -151,7 +151,7 @@ router.post(
     const { from, to, amount, idempotencyKey, signedTransaction } = body;
 
     // Custody is preserved by requiring a transaction signed by `from` that
-    // calls TokenizedEuro.transfer(to, amount). The gateway only validates and
+    // calls CentralBank.transfer(to, amount). The gateway only validates and
     // relays it; the shared operator key never acquires authority over payer funds.
     const result = await broadcastSignedTransfer({
       rawTransaction: signedTransaction,

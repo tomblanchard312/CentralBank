@@ -48,7 +48,7 @@ The Sovereign Control Portal (SCP) is a high-security administrative interface d
 
 ```text
 +--------------------------------------------------------------------------+
-| [tEUR] SOVEREIGN CONTROL PORTAL | Role: ECB_ADMIN | Operator: 0x123... | [LOGOUT] |
+| [CBDT] SOVEREIGN CONTROL PORTAL | Role: ECB_ADMIN | Operator: 0x123... | [LOGOUT] |
 +--------------------------------------------------------------------------+
 | [DASHBOARD] | [MONETARY OPS] | [SANCTIONS & ESCROW] | [SECURITY] | [AUDIT] |
 +--------------------------------------------------------------------------+

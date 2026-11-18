@@ -17,7 +17,7 @@ describe('Role Visibility Enforcement', () => {
   });
 
   it('shows all ECB actions for ECB_OPERATOR role', () => {
-    localStorage.setItem('teur_admin_token', 'mock-ecb-token');
+    localStorage.setItem('centralbank_admin_token', 'mock-ecb-token');
     renderWithProviders(<MainLayout><div>Test</div></MainLayout>);
     
     expect(screen.getByText(/Monetary/i)).toBeInTheDocument();
@@ -28,7 +28,7 @@ describe('Role Visibility Enforcement', () => {
   });
 
   it('hides ECB-only actions for AUDITOR role', () => {
-    localStorage.setItem('teur_admin_token', 'mock-auditor-token');
+    localStorage.setItem('centralbank_admin_token', 'mock-auditor-token');
     renderWithProviders(<MainLayout><div>Test</div></MainLayout>);
     
     expect(screen.queryByText(/Monetary/i)).not.toBeInTheDocument();
@@ -39,7 +39,7 @@ describe('Role Visibility Enforcement', () => {
   });
 
   it('hides all sensitive actions for non-privileged roles', () => {
-    localStorage.setItem('teur_admin_token', 'mock-participant-token');
+    localStorage.setItem('centralbank_admin_token', 'mock-participant-token');
     renderWithProviders(<MainLayout><div>Test</div></MainLayout>);
     
     expect(screen.queryByText(/Monetary/i)).not.toBeInTheDocument();

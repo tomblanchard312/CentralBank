@@ -1,22 +1,22 @@
-# Central Bank Technical Annex: tEUR Acquirer API v1.1
+# Central Bank Technical Annex: CBDT Acquirer API v1.1
 
 ## Document Information
 
 **Version:** 1.1.0  
 **Date:** January 3, 2026  
 **Classification:** Official - Restricted  
-**Prepared by:** tEUR Infrastructure Team  
+**Prepared by:** CBDT Infrastructure Team  
 **Reviewed by:** Eurosystem Oversight Committee
 
 ## Executive Summary
 
-This technical annex provides a comprehensive overview of the tEUR (Tokenized Euro) Acquirer API v1.1, designed for integration with the Eurosystem's Digital Euro scheme. The API facilitates secure, compliant, and deterministic transaction processing within the Closed Settlement Plane (CSP), ensuring alignment with DORA (Digital Operational Resilience Act) requirements, ISO 20022 standards, and ECB regulatory frameworks.
+This technical annex provides a comprehensive overview of the CBDT (Central Bank Digital Token) Acquirer API v1.1, designed for integration with the Eurosystem's Digital Euro scheme. The API facilitates secure, compliant, and deterministic transaction processing within the Closed Settlement Plane (CSP), ensuring alignment with DORA (Digital Operational Resilience Act) requirements, ISO 20022 standards, and ECB regulatory frameworks.
 
 The annex defines system actors, trust boundaries, settlement finality semantics, offline transaction models, evidence artifacts, onboarding procedures, and certification methodologies required for regulatory approval and operational deployment.
 
 ## System Overview
 
-The tEUR network implements a tokenized euro system compliant with the Eurosystem's Digital Euro scheme. The Acquirer API v1.1 serves as the primary interface for authorized intermediaries (banks and Payment Service Providers) to submit transaction authorizations, captures, reversals, refunds, and offline advice within the Closed Settlement Plane.
+The CBDT network implements a Central Bank Digital Token system compliant with the Eurosystem's Digital Euro scheme. The Acquirer API v1.1 serves as the primary interface for authorized intermediaries (banks and Payment Service Providers) to submit transaction authorizations, captures, reversals, refunds, and offline advice within the Closed Settlement Plane.
 
 ### Key Principles
 
@@ -31,13 +31,13 @@ The tEUR network implements a tokenized euro system compliant with the Eurosyste
 
 1. **Eurosystem Access Gateway**
 
-   - Central authority for tEUR issuance and redemption
+   - Central authority for CBDT issuance and redemption
    - Manages CSP infrastructure and validator nodes
    - Issues cryptographic keys and certificates for CSP access
 
 2. **Intermediaries (Banks/PSPs)**
 
-   - Authorized financial institutions participating in the tEUR scheme
+   - Authorized financial institutions participating in the CBDT scheme
    - Operate acquirer processors for merchant transaction processing
    - Maintain CSP connectivity via mTLS certificates
 
@@ -49,12 +49,12 @@ The tEUR network implements a tokenized euro system compliant with the Eurosyste
 
 4. **Merchants**
 
-   - Commercial entities accepting tEUR payments
+   - Commercial entities accepting CBDT payments
    - Utilize secure terminals (e.g., Verifone) for transaction initiation
    - Do not directly access CSP; all transactions flow through acquirers
 
 5. **Payers**
-   - End users holding tEUR wallets
+   - End users holding CBDT wallets
    - Interact through Public Access Plane (PAP) applications
    - Wallets generate offline-capable tokens for secure transactions
 
@@ -129,7 +129,7 @@ The Acquirer API v1.1 exposes the following endpoints within the CSP:
 
 ### Offline Capabilities
 
-The tEUR system supports offline transactions to ensure availability during connectivity disruptions:
+The CBDT system supports offline transactions to ensure availability during connectivity disruptions:
 
 - **Token Generation:** Wallets generate offline-capable tokens with embedded limits
 - **Transaction Limits:**
@@ -182,7 +182,7 @@ Offline transactions are submitted via advice batches:
 
 ### DORA Alignment
 
-The tEUR Acquirer API v1.1 implements comprehensive DORA compliance:
+The CBDT Acquirer API v1.1 implements comprehensive DORA compliance:
 
 - **Third-Party Risk Management:** No external dependencies in CSP
 - **Operational Resilience:** Deterministic processing with replay capabilities
@@ -232,7 +232,7 @@ The system generates comprehensive evidence for regulatory oversight:
 
 ### Pre-Onboarding Requirements
 
-1. **Regulatory Approval:** Eurosystem authorization as tEUR intermediary
+1. **Regulatory Approval:** Eurosystem authorization as CBDT intermediary
 2. **Technical Assessment:** Infrastructure capability evaluation
 3. **Security Review:** CSP access control and key management procedures
 
@@ -262,7 +262,7 @@ The system generates comprehensive evidence for regulatory oversight:
 
 ### Certification Framework
 
-The tEUR Acquirer API v1.1 requires formal certification for production deployment:
+The CBDT Acquirer API v1.1 requires formal certification for production deployment:
 
 - **Test Vectors:** Comprehensive JSON test cases covering all scenarios
 - **Execution Environment:** Isolated testing infrastructure
@@ -303,8 +303,8 @@ The tEUR Acquirer API v1.1 requires formal certification for production deployme
 
 ## Conclusion
 
-The tEUR Acquirer API v1.1 represents a robust, compliant implementation of the Eurosystem's Digital Euro scheme requirements. Through strict adherence to trust boundaries, deterministic processing, and comprehensive evidence generation, the API ensures operational resilience and regulatory compliance.
+The CBDT Acquirer API v1.1 represents a robust, compliant implementation of the Eurosystem's Digital Euro scheme requirements. Through strict adherence to trust boundaries, deterministic processing, and comprehensive evidence generation, the API ensures operational resilience and regulatory compliance.
 
-The certification framework, with its extensive test vectors and evidence artifacts, provides assurance of correct implementation and ongoing compliance monitoring. Intermediaries following the defined onboarding and certification processes can confidently integrate with the tEUR network, contributing to the secure and efficient operation of the Digital Euro ecosystem.
+The certification framework, with its extensive test vectors and evidence artifacts, provides assurance of correct implementation and ongoing compliance monitoring. Intermediaries following the defined onboarding and certification processes can confidently integrate with the CBDT network, contributing to the secure and efficient operation of the Digital Euro ecosystem.
 
 This annex serves as the authoritative technical reference for regulatory oversight and implementation guidance.

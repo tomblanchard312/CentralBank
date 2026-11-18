@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-This document provides verifiable evidence that the **tEUR ECB Operator Interface** is a non-authoritative presentation layer. All sovereign authority, security enforcement, and policy validation reside exclusively within the **Closed Settlement Plane (CSP)** backend.
+This document provides verifiable evidence that the **CBDT ECB Operator Interface** is a non-authoritative presentation layer. All sovereign authority, security enforcement, and policy validation reside exclusively within the **Closed Settlement Plane (CSP)** backend.
 
 ## 2. Proof 1: RBAC Enforcement (Backend Authority)
 
@@ -14,7 +14,7 @@ This document provides verifiable evidence that the **tEUR ECB Operator Interfac
 - **Action**: Direct API call to `/v1/ecb/mint` (Bypassing UI)
 - **Command**:
   ```bash
-  curl -X POST https://csp.teur.internal/v1/ecb/mint \
+  curl -X POST https://csp.centralbank.internal/v1/ecb/mint \
     --cert auditor.crt --key auditor.key \
     -H "Content-Type: application/json" \
     -d '{"amount": "1000", "justification": "Unauthorized attempt"}'
@@ -103,4 +103,4 @@ This document provides verifiable evidence that the **tEUR ECB Operator Interfac
 
 ## 8. Conclusion
 
-These proofs demonstrate that the tEUR system follows the **Principle of Least Privilege** and **Defense in Depth**. The UI cannot be used to bypass the rigorous monetary and security controls enforced by the ECB within the Closed Settlement Plane.
+These proofs demonstrate that the CBDT system follows the **Principle of Least Privilege** and **Defense in Depth**. The UI cannot be used to bypass the rigorous monetary and security controls enforced by the ECB within the Closed Settlement Plane.

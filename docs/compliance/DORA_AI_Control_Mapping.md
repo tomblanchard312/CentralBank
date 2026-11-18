@@ -1,5 +1,5 @@
 # DORA Article-by-Article AI Control Mapping
-Project: tEUR Digital Euro Infrastructure
+Project: CBDT Digital Euro Infrastructure
 Scope: AI-assisted development governance for GitHub Copilot and similar coding assistants
 
 This mapping explains how AI-assisted development is governed to support compliance with the EU Digital Operational Resilience Act (DORA).

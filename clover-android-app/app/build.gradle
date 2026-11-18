@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.teur.clover'
+    namespace 'com.centralbank.clover'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.teur.clover"
+        applicationId "com.centralbank.clover"
         minSdk 24
         targetSdk 34
         versionCode 1

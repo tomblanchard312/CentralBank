@@ -45,7 +45,7 @@ Warten Sie, bis die Transaktion im Besu-Netzwerk gemined wurde. Rufen Sie den Tr
    Fragen Sie den Vertragsstatus ab, um zu bestätigen, dass das Flag `frozen` auf `true` gesetzt ist:
    ```bash
    # Verwendung des internen CLI-Tools
-   teur-cli query is-frozen 0xTargetAddress...
+   centralbank-cli query is-frozen 0xTargetAddress...
    ```
 2. **Test-Transfer versuchen**:
    Versuchen Sie einen kleinen Transfer vom eingefrorenen Konto. Die Transaktion MUSS mit dem Fehler `AccountIsFrozen` fehlschlagen.
@@ -69,5 +69,5 @@ curl -X POST "https://[internal-gateway]/api/v1/transfers/unfreeze" \
 ## Erzeugte Audit-Beweise
 
 - **API-Protokolle**: Ereignis `ACCOUNT_FROZEN` im strukturierten JSON-Format.
-- **Blockchain-Ereignis**: `AccountFrozen(address indexed account)`, emittiert vom `TokenizedEuro`-Vertrag.
+- **Blockchain-Ereignis**: `AccountFrozen(address indexed account)`, emittiert vom `CentralBank`-Vertrag.
 - **Governance-Protokoll**: Aufzeichnung des für den Vorgang verwendeten `ISSUING`-Schlüssels.

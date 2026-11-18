@@ -1,7 +1,7 @@
 {
-  "name": "@teur/iso20022-adapter",
+  "name": "@centralbank/iso20022-adapter",
   "version": "1.0.0",
-  "description": "ISO 20022 adapter for tEUR Digital Euro - SEPA/TARGET2 integration",
+  "description": "ISO 20022 adapter for CBDT Digital Euro - SEPA/TARGET2 integration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
@@ -18,7 +18,7 @@
     "digital-euro",
     "payment-processing"
   ],
-  "author": "tEUR Project",
+  "author": "CBDT Project",
   "license": "MIT",
   "dependencies": {
     "express": "^5.2.1",

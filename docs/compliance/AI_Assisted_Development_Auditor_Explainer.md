@@ -1,6 +1,6 @@
 # Auditor Explainer: AI-Assisted Development Controls
 
-This document explains how AI-assisted development is governed in the tEUR project.
+This document explains how AI-assisted development is governed in the CBDT project.
 
 ## Key Principles
 - AI tools are constrained by written instructions

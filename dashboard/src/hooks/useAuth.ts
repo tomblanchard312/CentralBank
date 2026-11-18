@@ -14,7 +14,7 @@ export const useAuth = () => {
 
   useEffect(() => {
     // Simulate fetching user from token
-    const token = localStorage.getItem('teur_admin_token');
+    const token = localStorage.getItem('centralbank_admin_token');
     if (token) {
       // In a real app, decode JWT or call /me endpoint
       // For now, we mock based on token content for testing

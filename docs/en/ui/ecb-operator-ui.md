@@ -1,6 +1,6 @@
 # ECB Operator Interface - Mockups (English)
 
-This document provides ASCII mockups of the ECB Sovereign Control Interface for the tEUR system.
+This document provides ASCII mockups of the ECB Sovereign Control Interface for the CBDT system.
 
 ## 1. ECB Dashboard
 
@@ -17,12 +17,12 @@ This document provides ASCII mockups of the ECB Sovereign Control Interface for 
 |                                                                              |
 |  RESERVE STATUS                                                              |
 |  +----------------------------+  +----------------------------+              |
-|  | Total Supply (tEUR)        |  | Reserve Balance (EUR)      |              |
+|  | Total Supply (CBDT)        |  | Reserve Balance (EUR)      |              |
 |  | 1,250,000,000.00           |  | 1,250,000,000.00           |              |
 |  +----------------------------+  +----------------------------+              |
 |                                                                              |
 |  ACTIVE ALERTS                                                               |
-|  - [WARN] High-value transfer detected: 5,000,000.00 tEUR (Bank A -> Bank B) |
+|  - [WARN] High-value transfer detected: 5,000,000.00 CBDT (Bank A -> Bank B) |
 |  - [INFO] Key rotation scheduled for 2026-01-15                              |
 |                                                                              |
 +------------------------------------------------------------------------------+
@@ -61,10 +61,10 @@ This document provides ASCII mockups of the ECB Sovereign Control Interface for 
 +------------------------------------------------------------------------------+
 | ESCROW MANAGEMENT                                                            |
 +------------------------------------------------------------------------------+
-| Wallet: [ 0xabcd...1234 ] | Current Balance: 50,000.00 tEUR                  |
+| Wallet: [ 0xabcd...1234 ] | Current Balance: 50,000.00 CBDT                  |
 |                                                                              |
 | [ PLACE INTO ESCROW ]                                                        |
-| Amount: [ 25,000.00 ] tEUR                                                   |
+| Amount: [ 25,000.00 ] CBDT                                                   |
 | Legal Basis: [ Court Order 2026-XYZ ]                                        |
 | Expiry: [ 2026-06-01 ] (Optional)                                            |
 |                                                                              |
@@ -83,13 +83,13 @@ This document provides ASCII mockups of the ECB Sovereign Control Interface for 
 +------------------------------------------------------------------------------+
 | MONETARY OPERATIONS                                                          |
 +------------------------------------------------------------------------------+
-| [ MINT tEUR ]                                                                |
+| [ MINT CBDT ]                                                                |
 | To: [ Reserve Account ]                                                      |
 | Amount: [ 10,000,000.00 ]                                                    |
 | Justification: [ Reserve Expansion ]                                         |
 | [ CONFIRM MINT ]                                                             |
 |                                                                              |
-| [ BURN tEUR ]                                                                |
+| [ BURN CBDT ]                                                                |
 | From: [ Reserve Account ]                                                    |
 | Amount: [ 5,000,000.00 ]                                                     |
 | [ CONFIRM BURN ]                                                             |
@@ -133,7 +133,7 @@ This document provides ASCII mockups of the ECB Sovereign Control Interface for 
 | Filter: [ All Actions |v] [ Date Range |v] [ Search... ]                     |
 |                                                                              |
 | TIMESTAMP           | ACTOR      | ACTION         | DETAILS                  |
-| 2026-01-03 10:00:01 | ecb-admin  | MINT           | 10M tEUR to Reserve      |
+| 2026-01-03 10:00:01 | ecb-admin  | MINT           | 10M CBDT to Reserve      |
 | 2026-01-03 10:15:22 | ecb-admin  | FREEZE_ACCOUNT | 0x1234... (Sanctions)    |
 | 2026-01-03 10:45:10 | system     | KEY_ROTATED    | ecb-iss-01 -> ecb-iss-02 |
 |                                                                              |

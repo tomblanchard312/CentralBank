@@ -1,5 +1,5 @@
-// SumUp Integration for tEUR Token Payments
-// This code integrates with SumUp's REST API to accept tEUR payments
+// SumUp Integration for CBDT Token Payments
+// This code integrates with SumUp's REST API to accept CBDT payments
 //
 // IMPORTANT: This file contains Java code that requires:
 // - OkHttp library (okhttp3.*)
@@ -16,24 +16,24 @@ import org.json.JSONArray;
 import java.io.IOException;
 import java.util.UUID;
 
-public class SumUpTEurIntegration {
+public class SumUpCentralBankIntegration {
 
     private static final String SUMUP_API_BASE_URL = "https://api.sumup.com/v0.1";
-    private static final String TEUR_API_BASE_URL = "http://your-api-url/api/v1"; // Replace with actual API URL
+    private static final String CENTRALBANK_API_BASE_URL = "http://your-api-url/api/v1"; // Replace with actual API URL
     private static final MediaType JSON = MediaType.get("application/json; charset=utf-8");
 
     private final OkHttpClient client;
     private final String apiKey;
     private final String merchantCode;
 
-    public SumUpTEurIntegration(String apiKey, String merchantCode) {
+    public SumUpCentralBankIntegration(String apiKey, String merchantCode) {
         this.client = new OkHttpClient();
         this.apiKey = apiKey;
         this.merchantCode = merchantCode;
     }
 
     /**
-     * Creates a checkout for tEUR payment
+     * Creates a checkout for CBDT payment
      */
     public String createCheckout(double amount, String description) throws IOException {
         JSONObject checkoutData = new JSONObject();
@@ -142,16 +142,16 @@ public class SumUpTEurIntegration {
     }
 
     /**
-     * Releases tEUR tokens after successful payment
+     * Releases CBDT tokens after successful payment
      */
-    public boolean releaseTEurTokens(String paymentId, String secret) throws IOException {
+    public boolean releaseCbdtTokens(String paymentId, String secret) throws IOException {
         JSONObject releaseData = new JSONObject();
         releaseData.put("paymentId", paymentId);
         releaseData.put("secret", secret);
 
         RequestBody body = RequestBody.create(releaseData.toString(), JSON);
         Request request = new Request.Builder()
-                .url(TEUR_API_BASE_URL + "/payments/" + paymentId + "/release")
+                .url(CENTRALBANK_API_BASE_URL + "/payments/" + paymentId + "/release")
                 .post(body)
                 .addHeader("X-API-Key", "your-api-key") // Replace with actual key
                 .build();
@@ -201,9 +201,9 @@ public class SumUpTEurIntegration {
     }
 
     /**
-     * Main payment flow for tEUR using SumUp
+     * Main payment flow for CBDT using SumUp
      */
-    public boolean processTEurPayment(double amount, String description, String readerId) {
+    public boolean processCbdtPayment(double amount, String description, String readerId) {
         try {
             // Step 1: Process payment with SumUp reader
             String transactionId = processWithReader(readerId, amount, description);
@@ -218,8 +218,8 @@ public class SumUpTEurIntegration {
             String paymentId = extractPaymentIdFromNFC();
             String secret = extractSecretFromNFC();
 
-            // Step 5: Release tEUR tokens
-            return releaseTEurTokens(paymentId, secret);
+            // Step 5: Release CBDT tokens
+            return releaseCbdtTokens(paymentId, secret);
 
         } catch (Exception e) {
             System.err.println("Payment processing failed: " + e.getMessage());
@@ -243,7 +243,7 @@ public class SumUpTEurIntegration {
 /*
  * public class MainActivity extends AppCompatActivity {
  * 
- * private SumUpTEurIntegration sumUpIntegration;
+ * private SumUpCentralBankIntegration sumUpIntegration;
  * 
  * @Override
  * protected void onCreate(Bundle savedInstanceState) {
@@ -251,7 +251,7 @@ public class SumUpTEurIntegration {
  * setContentView(R.layout.activity_main);
  * 
  * // Initialize SumUp integration
- * sumUpIntegration = new SumUpTEurIntegration(
+ * sumUpIntegration = new SumUpCentralBankIntegration(
  * "your-sumup-api-key",
  * "your-merchant-code"
  * );
@@ -264,8 +264,8 @@ public class SumUpTEurIntegration {
  * JSONArray readers = sumUpIntegration.listReaders();
  * if (readers.length() > 0) {
  * String readerId = readers.getJSONObject(0).getString("id");
- * boolean success = sumUpIntegration.processTEurPayment(
- * 10.50, "tEUR Purchase", readerId
+ * boolean success = sumUpIntegration.processCbdtPayment(
+ * 10.50, "CBDT Purchase", readerId
  * );
  * 
  * runOnUiThread(() -> {

@@ -1,5 +1,5 @@
 # Default Deny NetworkPolicy
-# Applied to all tEUR namespaces as baseline
+# Applied to all CBDT namespaces as baseline
 # Specific allow rules are added per-service
 apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy

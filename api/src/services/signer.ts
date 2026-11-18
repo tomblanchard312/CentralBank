@@ -70,7 +70,7 @@ interface KmsSignerModule {
  * variable so TypeScript treats it as a runtime import rather than trying to
  * resolve types for a package that may not be installed.
  */
-const KMS_SIGNER_PACKAGE = '@teur/kms-signer';
+const KMS_SIGNER_PACKAGE = '@centralbank/kms-signer';
 
 async function createKmsSigner(provider: JsonRpcProvider, keyId: string): Promise<Signer> {
   let module: KmsSignerModule;

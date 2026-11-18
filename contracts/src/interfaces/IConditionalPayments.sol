@@ -6,7 +6,7 @@ pragma solidity ^0.8.20;
  * @notice Interface for conditional payment mechanisms (pay-on-delivery, milestones, etc.)
  * @dev Implements ECB Digital Euro conditional payment requirements
  * 
- * Note: This is NOT programmable money - funds remain unrestricted tEUR.
+ * Note: This is NOT programmable money - funds remain unrestricted CBDT.
  * Conditions only gate the release of escrowed funds.
  */
 interface IConditionalPayments {

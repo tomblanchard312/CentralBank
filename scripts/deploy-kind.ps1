@@ -1,8 +1,8 @@
-# tEUR Kind Deployment Script (PowerShell)
-# Builds and deploys all tEUR components to a local Kind cluster
+# CBDT Kind Deployment Script (PowerShell)
+# Builds and deploys all CBDT components to a local Kind cluster
 
 param(
-    [string]$ClusterName = "teur-lab",
+    [string]$ClusterName = "centralbank-lab",
     [string]$KubernetesVersion = "1.28.0",
     [switch]$SkipBuild,
     [switch]$SkipCluster,
@@ -17,13 +17,13 @@ $ProjectRoot = Split-Path -Parent $ScriptDir
 $Config = @{
     ClusterName       = $ClusterName
     KubernetesVersion = $KubernetesVersion
-    Registry          = "teur-local"
+    Registry          = "centralbank-local"
     Images            = @(
         @{ Name = "api"; Context = "api"; Dockerfile = "Dockerfile" }
         @{ Name = "dashboard"; Context = "dashboard"; Dockerfile = "Dockerfile" }
         @{ Name = "iso20022-adapter"; Context = "iso20022-adapter"; Dockerfile = "Dockerfile" }
     )
-    Namespaces        = @("obs-global", "teur-csp", "teur-pap")
+    Namespaces        = @("obs-global", "centralbank-csp", "centralbank-pap")
 }
 
 function Write-Step {
@@ -197,7 +197,7 @@ function Install-KubernetesResources {
 }
 
 function Deploy-Services {
-    Write-Step "Deploying tEUR Services"
+    Write-Step "Deploying CBDT Services"
 
     # Create deployments and services based on docker-compose.yml
     $services = @(
@@ -205,10 +205,10 @@ function Deploy-Services {
             Name      = "postgres"
             Image     = "postgres:16-alpine"
             Port      = 5432
-            Namespace = "teur-csp"
+            Namespace = "centralbank-csp"
             Env       = @(
-                @{ Name = "POSTGRES_DB"; Value = "teur" }
-                @{ Name = "POSTGRES_USER"; Value = "teur" }
+                @{ Name = "POSTGRES_DB"; Value = "centralbank" }
+                @{ Name = "POSTGRES_USER"; Value = "centralbank" }
                 @{ Name = "POSTGRES_PASSWORD"; Value = "changeme" }
             )
         },
@@ -222,25 +222,25 @@ function Deploy-Services {
             Name      = "besu-ecb-core"
             Image     = "hyperledger/besu:24.1.0"
             Port      = 8545
-            Namespace = "teur-csp"
+            Namespace = "centralbank-csp"
         },
         @{
             Name      = "api"
             Image     = "$($Config.Registry)/api:latest"
             Port      = 3000
-            Namespace = "teur-csp"
+            Namespace = "centralbank-csp"
         },
         @{
             Name      = "dashboard"
             Image     = "$($Config.Registry)/dashboard:latest"
             Port      = 80
-            Namespace = "teur-pap"
+            Namespace = "centralbank-pap"
         },
         @{
             Name      = "iso20022-adapter"
             Image     = "$($Config.Registry)/iso20022-adapter:latest"
             Port      = 4000
-            Namespace = "teur-csp"
+            Namespace = "centralbank-csp"
         }
     )
 
@@ -338,7 +338,7 @@ function Show-Status {
 
 # Main execution
 try {
-    Write-Host "tEUR Kind Deployment Script" -ForegroundColor Magenta
+    Write-Host "CBDT Kind Deployment Script" -ForegroundColor Magenta
     Write-Host "==========================" -ForegroundColor Magenta
 
     Test-Prerequisites
@@ -363,7 +363,7 @@ try {
     Wait-ForServices
     Show-Status
 
-    Write-Host "`n🎉 tEUR deployment completed successfully!" -ForegroundColor Green
+    Write-Host "`n🎉 CBDT deployment completed successfully!" -ForegroundColor Green
     Write-Host "Use 'kubectl get pods --all-namespaces' to check status." -ForegroundColor Cyan
 
 }

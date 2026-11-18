@@ -1,8 +1,8 @@
-# Central Bank Pilot Onboarding Plan for tEUR
+# Central Bank Pilot Onboarding Plan for CBDT
 
 ## Overview
 
-This phased pilot plan outlines the structured onboarding of tEUR (Tokenized Euro) for a central bank, ensuring regulatory compliance, operational resilience, and incremental risk mitigation. The plan follows a waterfall approach with regulator review at each phase, aligning with DORA (Digital Operational Resilience Act) requirements for financial ICT systems.
+This phased pilot plan outlines the structured onboarding of CBDT (Central Bank Digital Token) for a central bank, ensuring regulatory compliance, operational resilience, and incremental risk mitigation. The plan follows a waterfall approach with regulator review at each phase, aligning with DORA (Digital Operational Resilience Act) requirements for financial ICT systems.
 
 ## General Principles
 
@@ -48,7 +48,7 @@ Establish governance structures, define pilot scope, and set baseline requiremen
 
 ### Description
 
-Conduct controlled testing in a laboratory environment. Validate core tEUR functionality, security controls, and integration points without real-world transactions.
+Conduct controlled testing in a laboratory environment. Validate core CBDT functionality, security controls, and integration points without real-world transactions.
 
 ### Required Artifacts
 
@@ -188,4 +188,4 @@ Final regulatory review and approval for full deployment. Address any remaining 
 - **Stakeholder Communication**: Regular updates to participants and regulators.
 - **Data Protection**: Strict controls on pilot data handling and privacy.
 
-This phased approach ensures thorough validation, regulatory compliance, and controlled risk escalation for the tEUR central bank pilot.
+This phased approach ensures thorough validation, regulatory compliance, and controlled risk escalation for the CBDT central bank pilot.

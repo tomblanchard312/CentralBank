@@ -49,9 +49,9 @@ X-Correlation-Id: 550e8400-e29b-41d4-a716-446655440000
 
 ---
 
-## 3. Flow 2: Mint tEUR (Sovereign Issuance)
+## 3. Flow 2: Mint CBDT (Sovereign Issuance)
 
-**Goal**: Issue new tEUR tokens into the scheme.
+**Goal**: Issue new CBDT tokens into the scheme.
 
 ### Sequence
 
@@ -84,9 +84,9 @@ X-Correlation-Id: 550e8400-e29b-41d4-a716-446655440000
 
 ---
 
-## 4. Flow 3: Burn tEUR (Sovereign Redemption)
+## 4. Flow 3: Burn CBDT (Sovereign Redemption)
 
-**Goal**: Remove tEUR tokens from circulation.
+**Goal**: Remove CBDT tokens from circulation.
 
 ### Sequence
 

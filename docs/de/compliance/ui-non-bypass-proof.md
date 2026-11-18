@@ -2,7 +2,7 @@
 
 ## 1. Einleitung
 
-Dieses Dokument liefert verifizierbare Nachweise dafür, dass die **tEUR EZB-Operator-Schnittstelle** eine nicht-autoritative Präsentationsebene ist. Die gesamte hoheitliche Autorität, Sicherheitsdurchsetzung und Richtlinienvalidierung liegt ausschließlich im Backend der **Geschlossenen Abwicklungsebene (GAE)**.
+Dieses Dokument liefert verifizierbare Nachweise dafür, dass die **CBDT EZB-Operator-Schnittstelle** eine nicht-autoritative Präsentationsebene ist. Die gesamte hoheitliche Autorität, Sicherheitsdurchsetzung und Richtlinienvalidierung liegt ausschließlich im Backend der **Geschlossenen Abwicklungsebene (GAE)**.
 
 ## 2. Nachweis 1: RBAC-Durchsetzung (Backend-Autorität)
 
@@ -14,7 +14,7 @@ Dieses Dokument liefert verifizierbare Nachweise dafür, dass die **tEUR EZB-Ope
 - **Aktion**: Direkter API-Aufruf an `/v1/ecb/mint` (unter Umgehung der UI)
 - **Befehl**:
   ```bash
-  curl -X POST https://csp.teur.internal/v1/ecb/mint \
+  curl -X POST https://csp.centralbank.internal/v1/ecb/mint \
     --cert auditor.crt --key auditor.key \
     -H "Content-Type: application/json" \
     -d '{"amount": "1000", "justification": "Nicht autorisierter Versuch"}'
@@ -103,4 +103,4 @@ Dieses Dokument liefert verifizierbare Nachweise dafür, dass die **tEUR EZB-Ope
 
 ## 8. Fazit
 
-Diese Nachweise belegen, dass das tEUR-System dem **Prinzip der geringsten Privilegien** und der **abgestuften Verteidigung** (Defense in Depth) folgt. Die UI kann nicht dazu verwendet werden, die strengen monetären und sicherheitstechnischen Kontrollen zu umgehen, die von der EZB innerhalb der Geschlossenen Abwicklungsebene durchgesetzt werden.
+Diese Nachweise belegen, dass das CBDT-System dem **Prinzip der geringsten Privilegien** und der **abgestuften Verteidigung** (Defense in Depth) folgt. Die UI kann nicht dazu verwendet werden, die strengen monetären und sicherheitstechnischen Kontrollen zu umgehen, die von der EZB innerhalb der Geschlossenen Abwicklungsebene durchgesetzt werden.

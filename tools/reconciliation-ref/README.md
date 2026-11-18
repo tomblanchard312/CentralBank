@@ -1,23 +1,23 @@
-# tEUR Reconciliation Service
+# CBDT Reconciliation Service
 
-Production-grade reconciliation service for processing offline tEUR transaction batches. This service ensures deterministic deduplication, auditability, and compliance with DORA and ECB digital euro principles.
+Production-grade reconciliation service for processing offline CBDT transaction batches. This service ensures deterministic deduplication, auditability, and compliance with DORA and ECB digital euro principles.
 
 ## Environment Configuration
 
-The service must be configured with the `TEUR_ENV` environment variable:
+The service must be configured with the `CENTRALBANK_ENV` environment variable:
 
 ```bash
-export TEUR_ENV=lab     # Development and testing
-export TEUR_ENV=test    # Automated testing with seeded data
-export TEUR_ENV=pilot   # Pre-production with file rotation
-export TEUR_ENV=prod    # Production with durable storage
+export CENTRALBANK_ENV=lab     # Development and testing
+export CENTRALBANK_ENV=test    # Automated testing with seeded data
+export CENTRALBANK_ENV=pilot   # Pre-production with file rotation
+export CENTRALBANK_ENV=prod    # Production with durable storage
 ```
 
-If `TEUR_ENV` is missing or invalid, the service fails fast at startup.
+If `CENTRALBANK_ENV` is missing or invalid, the service fails fast at startup.
 
 ## Environment Behaviors
 
-### Lab Environment (`TEUR_ENV=lab`)
+### Lab Environment (`CENTRALBANK_ENV=lab`)
 
 - **Purpose**: Development and manual testing
 - **Storage**: Local JSON file with integrity checks
@@ -25,7 +25,7 @@ If `TEUR_ENV` is missing or invalid, the service fails fast at startup.
 - **Retention**: 30 days
 - **Use Case**: Local development and integration testing
 
-### Test Environment (`TEUR_ENV=test`)
+### Test Environment (`CENTRALBANK_ENV=test`)
 
 - **Purpose**: Automated testing
 - **Storage**: In-memory with deterministic seeding
@@ -33,7 +33,7 @@ If `TEUR_ENV` is missing or invalid, the service fails fast at startup.
 - **Retention**: 1 day (ephemeral)
 - **Use Case**: CI/CD pipelines and automated test suites
 
-### Pilot Environment (`TEUR_ENV=pilot`)
+### Pilot Environment (`CENTRALBANK_ENV=pilot`)
 
 - **Purpose**: Pre-production validation
 - **Storage**: Rotating append-only files with integrity
@@ -41,7 +41,7 @@ If `TEUR_ENV` is missing or invalid, the service fails fast at startup.
 - **Retention**: 90 days with 24-hour rotation
 - **Use Case**: Production-like testing before full deployment
 
-### Production Environment (`TEUR_ENV=prod`)
+### Production Environment (`CENTRALBANK_ENV=prod`)
 
 - **Purpose**: Live transaction processing
 - **Storage**: Pluggable durable store (requires configuration)
@@ -117,7 +117,7 @@ npm install
 2. Set environment:
 
 ```bash
-export TEUR_ENV=lab
+export CENTRALBANK_ENV=lab
 export PORT=8081  # Optional, defaults to 8081
 ```
 
@@ -166,7 +166,7 @@ All operations emit structured JSON audit events:
 
 ### From Lab to Pilot
 
-1. Change `TEUR_ENV=pilot`
+1. Change `CENTRALBANK_ENV=pilot`
 2. Configure file rotation directory permissions
 3. Test with larger batch sizes
 4. Validate log rotation and retention
@@ -175,7 +175,7 @@ All operations emit structured JSON audit events:
 
 1. Implement durable storage backend
 2. Configure production storage connection
-3. Set `TEUR_ENV=prod`
+3. Set `CENTRALBANK_ENV=prod`
 4. Enable monitoring and alerting
 5. Perform load testing with production limits
 

@@ -19,9 +19,9 @@ resource "kubernetes_namespace" "dns" {
     labels = {
       "app.kubernetes.io/name"       = "dns-authoritative"
       "app.kubernetes.io/component"  = "dns"
-      "app.kubernetes.io/part-of"    = "teur"
-      "teur.eu/zone"                 = var.zone_name
-      "teur.eu/environment"          = var.environment
+      "app.kubernetes.io/part-of"    = "centralbank"
+      "centralbank/zone"                 = var.zone_name
+      "centralbank/environment"          = var.environment
     }
   }
 }
@@ -52,7 +52,7 @@ resource "kubernetes_deployment" "dns_authoritative" {
     labels = {
       "app.kubernetes.io/name"      = "dns-authoritative"
       "app.kubernetes.io/component" = "dns"
-      "app.kubernetes.io/part-of"   = "teur"
+      "app.kubernetes.io/part-of"   = "centralbank"
     }
   }
 
@@ -70,7 +70,7 @@ resource "kubernetes_deployment" "dns_authoritative" {
         labels = {
           "app.kubernetes.io/name"      = "dns-authoritative"
           "app.kubernetes.io/component" = "dns"
-          "app.kubernetes.io/part-of"   = "teur"
+          "app.kubernetes.io/part-of"   = "centralbank"
         }
       }
 

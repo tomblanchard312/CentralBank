@@ -1,6 +1,6 @@
 # CentralBank API Gateway
 
-REST API gateway for the CentralBank Digital Token Protocol. The gateway integrates institutions with the generic DigitalToken contract and associated wallet, policy, and conditional-payment services. Jurisdictional denomination and policy belong to the selected deployment profile.
+REST API gateway for the CentralBank Digital Token Protocol. The gateway currently integrates institutions with the v1 `DigitalToken` / `WalletRegistry` / `ConditionalPayments` stack. Protocol v2 contracts (`TokenLedgerV2` and controllers) can be deployed separately via `DeployCentralBankV2.s.sol`, but this API is not yet wired to those addresses. Jurisdictional denomination and policy belong to the selected deployment profile (the `eurosystem-reference` JSON is documentation/reference today; runtime parameters still come from environment/config files).
 
 ## Features
 

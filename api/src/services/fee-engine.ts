@@ -41,7 +41,7 @@ export interface FeeResult {
 }
 
 /**
- * Fee calculation engine for tEUR transactions
+ * Fee calculation engine for CBDT transactions
  */
 export class FeeCalculationEngine {
   /**

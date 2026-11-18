@@ -1,6 +1,6 @@
-# tEUR — Tokenized Euro (tEUR) Repository
+# CBDT — Central Bank Digital Token (CBDT) Repository
 
-Hoop, mis sisaldab smart contract'e, API-väravat, armatuurlaua ja tööriistu Tokenized Euro projekti jaoks.
+Hoop, mis sisaldab smart contract'e, API-väravat, armatuurlaua ja tööriistu Central Bank Digital Token projekti jaoks.
 
 Kiirstart
 

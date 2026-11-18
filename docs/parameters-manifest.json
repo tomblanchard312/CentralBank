@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "tEUR Parameters Manifest",
+  "title": "CBDT Parameters Manifest",
   "type": "object",
   "properties": {
     "holding_limit_individual": { "type": "integer", "description": "Max cents an individual may hold" },

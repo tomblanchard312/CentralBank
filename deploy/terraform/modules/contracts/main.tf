@@ -23,7 +23,7 @@ variable "issuer_key" {
 
 resource "kubernetes_deployment" "contracts" {
   metadata {
-    name      = "teur-contracts"
+    name      = "centralbank-contracts"
     namespace = var.role
   }
 
@@ -32,39 +32,39 @@ resource "kubernetes_deployment" "contracts" {
 
     selector {
       match_labels = {
-        app = "teur-contracts"
+        app = "centralbank-contracts"
       }
     }
 
     template {
       metadata {
         labels = {
-          app = "teur-contracts"
+          app = "centralbank-contracts"
         }
       }
 
       spec {
         container {
           name  = "contracts"
-          image = "teur/contracts:${var.image_tag}"
+          image = "centralbank/contracts:${var.image_tag}"
 
           env {
-            name  = "TEUR_ENV"
+            name  = "CENTRALBANK_ENV"
             value = var.environment
           }
 
           env {
-            name  = "TEUR_ROLE"
+            name  = "CENTRALBANK_ROLE"
             value = var.role
           }
 
           env {
-            name  = "TEUR_ROOT_CA_KEY"
+            name  = "CENTRALBANK_ROOT_CA_KEY"
             value = var.root_ca_key
           }
 
           env {
-            name  = "TEUR_ISSUER_KEY"
+            name  = "CENTRALBANK_ISSUER_KEY"
             value = var.issuer_key
           }
 
@@ -90,13 +90,13 @@ resource "kubernetes_deployment" "contracts" {
 
 resource "kubernetes_service" "contracts" {
   metadata {
-    name      = "teur-contracts"
+    name      = "centralbank-contracts"
     namespace = var.role
   }
 
   spec {
     selector = {
-      app = "teur-contracts"
+      app = "centralbank-contracts"
     }
 
     port {
@@ -118,7 +118,7 @@ resource "kubernetes_network_policy" "contracts" {
   spec {
     pod_selector {
       match_labels = {
-        app = "teur-contracts"
+        app = "centralbank-contracts"
       }
     }
 
@@ -128,7 +128,7 @@ resource "kubernetes_network_policy" "contracts" {
       from {
         pod_selector {
           match_labels = {
-            app = "teur-api"
+            app = "centralbank-api"
           }
         }
       }

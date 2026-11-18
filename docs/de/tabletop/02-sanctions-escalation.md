@@ -4,7 +4,7 @@
 
 ### Ziel
 
-Testen der schnellen Verbreitung netzwerkweiter Sanktionen im tEUR-Ökosystem mit Fokus auf Batch-Verarbeitung und Manifest-Synchronisierung.
+Testen der schnellen Verbreitung netzwerkweiter Sanktionen im CBDT-Ökosystem mit Fokus auf Batch-Verarbeitung und Manifest-Synchronisierung.
 
 ### Umfang
 

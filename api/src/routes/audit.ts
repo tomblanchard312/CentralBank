@@ -119,7 +119,7 @@ router.get(
         id: 'event-2',
         timestamp: new Date(Date.now() - 4000).toISOString(),
         action: 'BLOCKCHAIN_TRANSACTION_INITIATED',
-        details: { method: 'mint', contract: 'TokenizedEuro' },
+        details: { method: 'mint', contract: 'CentralBank' },
       },
       {
         id: 'event-3',

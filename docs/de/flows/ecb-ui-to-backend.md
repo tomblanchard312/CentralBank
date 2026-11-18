@@ -49,9 +49,9 @@ X-Correlation-Id: 550e8400-e29b-41d4-a716-446655440000
 
 ---
 
-## 3. Ablauf 2: tEUR-Emission (Hoheitliche Schöpfung)
+## 3. Ablauf 2: CBDT-Emission (Hoheitliche Schöpfung)
 
-**Ziel**: Emission neuer tEUR-Token im System.
+**Ziel**: Emission neuer CBDT-Token im System.
 
 ### Sequenz
 
@@ -84,9 +84,9 @@ X-Correlation-Id: 550e8400-e29b-41d4-a716-446655440000
 
 ---
 
-## 4. Ablauf 3: tEUR-Vernichtung (Hoheitlicher Rückkauf)
+## 4. Ablauf 3: CBDT-Vernichtung (Hoheitlicher Rückkauf)
 
-**Ziel**: Entfernen von tEUR-Token aus dem Umlauf.
+**Ziel**: Entfernen von CBDT-Token aus dem Umlauf.
 
 ### Sequenz
 

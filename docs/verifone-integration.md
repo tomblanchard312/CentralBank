@@ -1,12 +1,12 @@
-# Verifone Integration Design for tEUR
+# Verifone Integration Design for CBDT
 
 ## Assumptions
 
 - **Verifone Terminals**: Secure capture terminals that communicate exclusively with acquirers. They handle card data entry and initial transaction processing but do not perform settlement.
-- **tEUR Direct Communication**: tEUR never communicates directly with Verifone terminals or hardware. All interactions flow through acquirers.
+- **CBDT Direct Communication**: CBDT never communicates directly with Verifone terminals or hardware. All interactions flow through acquirers.
 - **Verifone Cloud Services**: Treated as DORA ICT third parties. Any cloud-based services from Verifone are considered external dependencies with appropriate risk assessments.
 - **Connectivity**: No assumption of continuous connectivity. Transactions must support offline scenarios where possible, with reconciliation for settlement.
-- **Data Handling**: tEUR never handles PAN, PIN, or cardholder data. All sensitive data remains within the acquirer/terminal domain.
+- **Data Handling**: CBDT never handles PAN, PIN, or cardholder data. All sensitive data remains within the acquirer/terminal domain.
 
 ## Responsibilities per Layer
 
@@ -21,14 +21,14 @@
 ### Acquirer Layer
 
 - **Transaction Processing**: Receive and validate transaction requests from terminals.
-- **Tokenization**: Replace sensitive card data with tokens before forwarding to tEUR.
-- **Authorization Requests**: Call tEUR REST API for transaction authorization.
-- **Settlement Coordination**: Handle capture, reversal, and refund operations via tEUR API.
-- **Reconciliation**: Perform end-of-day reconciliation with tEUR settlement data.
+- **Tokenization**: Replace sensitive card data with tokens before forwarding to CBDT.
+- **Authorization Requests**: Call CBDT REST API for transaction authorization.
+- **Settlement Coordination**: Handle capture, reversal, and refund operations via CBDT API.
+- **Reconciliation**: Perform end-of-day reconciliation with CBDT settlement data.
 - **Risk Management**: Implement fraud detection and compliance checks.
 - **Terminal Management**: Provision and manage Verifone terminals.
 
-### tEUR Layer
+### CBDT Layer
 
 - **Authorization Processing**: Validate and authorize transactions based on rules and balances.
 - **Settlement Execution**: Process captures, reversals, and refunds deterministically.
@@ -42,16 +42,16 @@
 ### Trust Zones
 
 1. **Terminal Zone**: Verifone hardware and local processing. Highest trust for data capture.
-2. **Acquirer Zone**: Acquirer systems, including tokenization and API calls to tEUR.
-3. **tEUR Zone**: Core settlement network, isolated from external systems.
+2. **Acquirer Zone**: Acquirer systems, including tokenization and API calls to CBDT.
+3. **CBDT Zone**: Core settlement network, isolated from external systems.
 4. **External Zone**: Internet, third-party services (including Verifone cloud).
 
 ### Security Boundaries
 
 - **Terminal ↔ Acquirer**: Secure channel (TLS/mTLS, VPN). Card data encrypted in transit.
-- **Acquirer ↔ tEUR**: mTLS with client certificates. No card data transmitted.
-- **tEUR Internal**: Isolated network, no external access except authorized APIs.
-- **No Terminal ↔ tEUR Direct Path**: Enforced by architecture; all communication routed through acquirer.
+- **Acquirer ↔ CBDT**: mTLS with client certificates. No card data transmitted.
+- **CBDT Internal**: Isolated network, no external access except authorized APIs.
+- **No Terminal ↔ CBDT Direct Path**: Enforced by architecture; all communication routed through acquirer.
 
 ### Key Security Principles
 
@@ -69,15 +69,15 @@ sequenceDiagram
     participant C as Cardholder
     participant T as Verifone Terminal
     participant A as Acquirer
-    participant TEUR as tEUR Network
+    participant CENTRALBANK as CBDT Network
 
     C->>T: Present card & enter PIN
     T->>T: Capture card data securely
     T->>A: Send transaction request (encrypted)
     A->>A: Validate & tokenize card data
-    A->>TEUR: POST /authorize (tokenized data)
-    TEUR->>TEUR: Validate transaction rules
-    TEUR->>A: 200 OK (approved/declined)
+    A->>CENTRALBANK: POST /authorize (tokenized data)
+    CENTRALBANK->>CENTRALBANK: Validate transaction rules
+    CENTRALBANK->>A: 200 OK (approved/declined)
     A->>T: Send authorization response
     T->>C: Display approval/decline
 ```
@@ -88,13 +88,13 @@ sequenceDiagram
 sequenceDiagram
     participant T as Verifone Terminal
     participant A as Acquirer
-    participant TEUR as tEUR Network
+    participant CENTRALBANK as CBDT Network
 
     T->>A: Send capture request (batch/end-of-day)
     A->>A: Validate capture data
-    A->>TEUR: POST /capture
-    TEUR->>TEUR: Process settlement
-    TEUR->>A: 200 OK (captured)
+    A->>CENTRALBANK: POST /capture
+    CENTRALBANK->>CENTRALBANK: Process settlement
+    CENTRALBANK->>A: 200 OK (captured)
     A->>T: Send capture confirmation
 ```
 
@@ -105,13 +105,13 @@ sequenceDiagram
     participant C as Cardholder
     participant T as Verifone Terminal
     participant A as Acquirer
-    participant TEUR as tEUR Network
+    participant CENTRALBANK as CBDT Network
 
     C->>T: Request reversal
     T->>A: Send reversal request
-    A->>TEUR: POST /reverse
-    TEUR->>TEUR: Process reversal
-    TEUR->>A: 200 OK (reversed)
+    A->>CENTRALBANK: POST /reverse
+    CENTRALBANK->>CENTRALBANK: Process reversal
+    CENTRALBANK->>A: 200 OK (reversed)
     A->>T: Send reversal confirmation
     T->>C: Display confirmation
 ```
@@ -121,11 +121,11 @@ sequenceDiagram
 ```
 sequenceDiagram
     participant A as Acquirer
-    participant TEUR as tEUR Network
+    participant CENTRALBANK as CBDT Network
 
-    A->>TEUR: GET /reconciliation?startDate=...&endDate=...
-    TEUR->>TEUR: Generate reconciliation data
-    TEUR->>A: 200 OK (transaction summary)
+    A->>CENTRALBANK: GET /reconciliation?startDate=...&endDate=...
+    CENTRALBANK->>CENTRALBANK: Generate reconciliation data
+    CENTRALBANK->>A: 200 OK (transaction summary)
     A->>A: Process reconciliation
 ```
 
@@ -141,12 +141,12 @@ sequenceDiagram
 
 - **Terminal Management**: Provisions, configures, and monitors Verifone terminals.
 - **Data Processing**: Receives encrypted transaction data, validates, and tokenizes.
-- **tEUR Integration**: Acts as intermediary, calling tEUR APIs for authorization/settlement.
+- **CBDT Integration**: Acts as intermediary, calling CBDT APIs for authorization/settlement.
 - **Settlement Coordination**: Manages the full transaction lifecycle (auth, capture, refund).
-- **Reconciliation**: Performs financial reconciliation with tEUR settlement data.
+- **Reconciliation**: Performs financial reconciliation with CBDT settlement data.
 - **Compliance**: Ensures PCI DSS and other regulatory compliance for card data handling.
 
-## What tEUR Does
+## What CBDT Does
 
 - **Authorization Logic**: Validates transactions against rules, balances, and sanctions.
 - **Settlement Processing**: Executes deterministic settlement operations.
@@ -157,11 +157,11 @@ sequenceDiagram
 
 ## What is Out of Scope
 
-- **Direct Terminal Control**: tEUR does not configure or manage Verifone devices.
-- **Card Data Handling**: tEUR never processes PAN, PIN, or cardholder information.
-- **Terminal Software Updates**: Managed by acquirer, not tEUR.
-- **Offline Transaction Processing**: Terminals handle offline scenarios; tEUR assumes online processing.
-- **Verifone Cloud Services**: Any cloud-based Verifone services are third-party and not integrated with tEUR.
-- **Point-of-Sale UI**: tEUR does not influence terminal user interfaces.
+- **Direct Terminal Control**: CBDT does not configure or manage Verifone devices.
+- **Card Data Handling**: CBDT never processes PAN, PIN, or cardholder information.
+- **Terminal Software Updates**: Managed by acquirer, not CBDT.
+- **Offline Transaction Processing**: Terminals handle offline scenarios; CBDT assumes online processing.
+- **Verifone Cloud Services**: Any cloud-based Verifone services are third-party and not integrated with CBDT.
+- **Point-of-Sale UI**: CBDT does not influence terminal user interfaces.
 - **Hardware Procurement**: Acquirer responsible for Verifone device acquisition and deployment.
-- **Network Connectivity**: tEUR does not manage or guarantee connectivity between terminals and acquirers.
+- **Network Connectivity**: CBDT does not manage or guarantee connectivity between terminals and acquirers.

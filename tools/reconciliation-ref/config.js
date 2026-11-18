@@ -2,14 +2,14 @@ const VALID_ENVIRONMENTS = ['lab', 'test', 'pilot', 'prod'];
 
 class Config {
   constructor() {
-    this.env = process.env.TEUR_ENV;
+    this.env = process.env.CENTRALBANK_ENV;
     if (!this.env || !VALID_ENVIRONMENTS.includes(this.env)) {
       console.error(JSON.stringify({
         timestamp: new Date().toISOString(),
         severity: 'ERROR',
         component: 'reconciliation-ref',
         event_type: 'invalid_environment',
-        message: `TEUR_ENV must be one of: ${VALID_ENVIRONMENTS.join(', ')}, got: ${this.env || 'undefined'}`
+        message: `CENTRALBANK_ENV must be one of: ${VALID_ENVIRONMENTS.join(', ')}, got: ${this.env || 'undefined'}`
       }));
       process.exit(1);
     }

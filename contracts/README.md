@@ -28,6 +28,7 @@ contracts/
 │   └── ... modular ledger, policy and controller contracts
 ├── script/
 │   ├── DeployCentralBank.s.sol
+│   ├── DeployCentralBankV2.s.sol
 │   └── Interactions.s.sol
 ├── test/
 ├── foundry.toml
@@ -49,6 +50,8 @@ contracts/
 | `WaterfallControllerV2` | Holding-limit overflow and reverse-waterfall controller |
 | `CompositeTransferPolicyV2` | Composable transfer-policy enforcement |
 | `HoldingLimitPolicyV2` | Holding-limit policy module |
+| `MigrationControllerV2` | Optional Merkle snapshot balance migration |
+| `GovernedPermissioning` | Dual-control role administration (optional with `SECOND_ADMIN_ADDRESS`) |
 
 The architectural direction is that the ledger owns balances and controllers receive narrowly scoped capabilities. Controllers should not become independent balance stores.
 
@@ -105,7 +108,7 @@ Start Anvil:
 anvil
 ```
 
-Deploy the lab environment using the CentralBank deployment script:
+Deploy the **v1 integration path** (API-compatible `DigitalToken` stack):
 
 ```bash
 forge script script/DeployCentralBank.s.sol:DeployLabEnvironment \
@@ -113,7 +116,30 @@ forge script script/DeployCentralBank.s.sol:DeployLabEnvironment \
   --broadcast
 ```
 
-For explicit-key deployment modes, provide only the environment-specific signer inputs required by `DeployCentralBank.s.sol`. Do not commit private keys or `.env` files.
+Deploy **Protocol v2** (ledger + controllers + optional policy/waterfall wiring):
+
+```bash
+forge script script/DeployCentralBankV2.s.sol:DeployLabEnvironmentV2 \
+  --rpc-url http://localhost:8545 \
+  --broadcast
+```
+
+Or via Make:
+
+```bash
+make deploy-local-v2
+```
+
+Keyed Protocol v2 deployment (`DeployCentralBankV2`) requires `DEPLOYER_PRIVATE_KEY` and `GOVERNANCE_ADDRESS` to be the same account because `TokenLedgerV2` governance is immutable and must authorize capability wiring in-script. Optional env flags:
+
+| Variable | Default | Effect |
+| --- | --- | --- |
+| `ENABLE_HOLDING_LIMITS` | `true` | Deploy holding-limit + composite transfer policy |
+| `ENABLE_WATERFALL` | `true` | Deploy waterfall controller (requires holding limits) |
+| `DEPLOY_MIGRATION` | `false` | Deploy migration controller when snapshot metadata is set |
+| `SECOND_ADMIN_ADDRESS` | unset | Also deploy `GovernedPermissioning` dual-control admin |
+
+For explicit-key deployment modes, provide only the environment-specific signer inputs required by the deploy script. Do not commit private keys or `.env` files.
 
 ## Interacting with DigitalToken
 
@@ -162,7 +188,7 @@ Do not treat any example EUR limit as a property of CBDT itself.
 
 ## Production status
 
-These contracts are still **pre-MVP**. Production operation additionally requires hardened signer custody, deterministic deployment and role wiring, full-system integration validation, operational rehearsal, gas/DoS analysis, durable audit/reconciliation infrastructure, and independent security review.
+These contracts are still **pre-MVP**. Protocol v2 modules are implemented and deployable (`DeployCentralBankV2.s.sol`), while the institutional API still uses the v1 `DigitalToken` path. Production operation additionally requires hardened signer custody, full-system V2 API cutover, sanctions/emergency V2 policy modules, profile-driven configuration, operational rehearsal, gas/DoS analysis, durable audit/reconciliation infrastructure, and independent security review.
 
 ## Non-affiliation
 

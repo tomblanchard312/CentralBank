@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: ecb-reference-data-ingest
-  namespace: teur
+  namespace: centralbank
   labels:
     app: ecb-reference-data
 spec:
@@ -20,7 +20,7 @@ spec:
           containers:
             - name: ecb-ingest
               # Replace image with your built image registry/tag
-              image: ghcr.io/tomblanchard312/teur-ecb-ingest:latest
+              image: ghcr.io/tomblanchard312/centralbank-ecb-ingest:latest
               imagePullPolicy: IfNotPresent
               env:
                 - name: SERIES_WHITELIST

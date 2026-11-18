@@ -1,6 +1,6 @@
-# TEur Clover Android App
+# CentralBank Clover Android App
 
-This Android app demonstrates integration with Clover POS devices for processing tEUR token payments via NFC.
+This Android app demonstrates integration with Clover POS devices for processing CBDT token payments via NFC.
 
 ## Project Structure
 
@@ -10,9 +10,9 @@ clover-android-app/
 │   ├── build.gradle          # App-level build configuration
 │   └── src/main/
 │       ├── AndroidManifest.xml
-│       ├── java/com/teur/clover/
+│       ├── java/com/centralbank/clover/
 │       │   ├── MainActivity.java    # Main app activity
-│       │   └── TEurTender.java      # Custom Clover tender implementation
+│       │   └── CentralBankTender.java      # Custom Clover tender implementation
 │       └── res/
 │           ├── layout/
 │           │   └── activity_main.xml
@@ -41,7 +41,7 @@ clover-android-app/
 
 ### Configuration
 
-1. Update `TEurTender.java` with your actual API endpoint:
+1. Update `CentralBankTender.java` with your actual API endpoint:
    ```java
    private static final String API_BASE_URL = "https://your-api-domain.com/api/v1";
    ```
@@ -70,7 +70,7 @@ The current implementation includes placeholder methods for NFC reading. To impl
 This app registers a custom tender with Clover that:
 
 - Accepts NFC-based payment data
-- Calls the tEUR API to process payments
+- Calls the CBDT API to process payments
 - Returns success/failure to Clover
 
 ## Security Considerations

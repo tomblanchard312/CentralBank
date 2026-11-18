@@ -1,4 +1,4 @@
-# tEUR Lab Environment Setup Script for Windows
+# CBDT Lab Environment Setup Script for Windows
 # Initializes a local Kubernetes cluster for development
 
 $ErrorActionPreference = "Stop"
@@ -7,10 +7,10 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $ProjectRoot = Split-Path -Parent $ScriptDir
 
 # Configuration
-$ClusterName = if ($env:CLUSTER_NAME) { $env:CLUSTER_NAME } else { "teur-lab" }
+$ClusterName = if ($env:CLUSTER_NAME) { $env:CLUSTER_NAME } else { "centralbank-lab" }
 $K8sVersion = if ($env:K8S_VERSION) { $env:K8S_VERSION } else { "1.28.0" }
 
-Write-Host "=== tEUR Lab Environment Setup ===" -ForegroundColor Cyan
+Write-Host "=== CBDT Lab Environment Setup ===" -ForegroundColor Cyan
 Write-Host "Cluster Name: $ClusterName"
 Write-Host "Kubernetes Version: $K8sVersion"
 Write-Host ""

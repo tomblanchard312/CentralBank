@@ -1,7 +1,7 @@
 {
-  "name": "@teur/bank-sdk",
+  "name": "@centralbank/bank-sdk",
   "version": "1.0.0",
-  "description": "TypeScript SDK for European banks to integrate with tEUR Digital Euro",
+  "description": "TypeScript SDK for European banks to integrate with CBDT Digital Euro",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -24,7 +24,7 @@
     "prepublishOnly": "npm run build"
   },
   "keywords": [
-    "teur",
+    "centralbank",
     "digital-euro",
     "cbdc",
     "blockchain",
@@ -33,7 +33,7 @@
     "sepa",
     "ecb"
   ],
-  "author": "tEUR Project",
+  "author": "CBDT Project",
   "license": "MIT",
   "dependencies": {
     "ethers": "^6.9.2",

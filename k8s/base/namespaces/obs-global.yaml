@@ -7,8 +7,8 @@ metadata:
   labels:
     app.kubernetes.io/name: obs-global
     app.kubernetes.io/component: observability
-    app.kubernetes.io/part-of: teur
-    teur.eu/zone: global
+    app.kubernetes.io/part-of: centralbank
+    centralbank/zone: global
     # Pod Security Standards
     pod-security.kubernetes.io/enforce: restricted
     pod-security.kubernetes.io/audit: restricted

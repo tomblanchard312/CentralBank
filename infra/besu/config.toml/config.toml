@@ -1,4 +1,4 @@
-# Besu Configuration for tEUR Local Development
+# Besu Configuration for CBDT Local Development
 
 # Network
 genesis-file = "/config/genesis.json"

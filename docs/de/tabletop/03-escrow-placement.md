@@ -4,7 +4,7 @@
 
 ### Ziel
 
-Validierung des Verfahrens zur Isolierung strittiger Gelder unter Verwendung des tEUR-Escrow-Mechanismus, wobei sichergestellt wird, dass Gelder ohne vollständige Kontosperrung eingeschränkt werden.
+Validierung des Verfahrens zur Isolierung strittiger Gelder unter Verwendung des CBDT-Escrow-Mechanismus, wobei sichergestellt wird, dass Gelder ohne vollständige Kontosperrung eingeschränkt werden.
 
 ### Umfang
 
@@ -45,7 +45,7 @@ Hinterlegung spezifischer Gelder im Treuhandkonto (Escrow), Verwaltung von Ablau
 
 ### T+15: Inject 2 - Parameterkonflikt
 
-**Inject**: Die meldende Bank fordert eine unbefristete Sperre, aber das tEUR-Regelwerk begrenzt Notfall-Escrows auf 72 Stunden ohne Gerichtsbeschluss.
+**Inject**: Die meldende Bank fordert eine unbefristete Sperre, aber das CBDT-Regelwerk begrenzt Notfall-Escrows auf 72 Stunden ohne Gerichtsbeschluss.
 
 **Erwartete Teilnehmeraktionen**:
 

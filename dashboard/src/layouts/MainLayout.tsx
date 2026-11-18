@@ -26,7 +26,7 @@ export const MainLayout: React.FC<{children: React.ReactNode}> = ({ children }) 
   const { hasRole } = useAuth();
 
   const handleLogout = () => {
-    localStorage.removeItem('teur_admin_token');
+    localStorage.removeItem('centralbank_admin_token');
     navigate('/login');
   };
 
@@ -53,7 +53,7 @@ export const MainLayout: React.FC<{children: React.ReactNode}> = ({ children }) 
       {/* Sidebar */}
       <aside className="w-64 border-r bg-white">
         <div className="flex h-16 items-center border-b px-6">
-          <span className="text-xl font-bold text-blue-900">tEUR Sovereign</span>
+          <span className="text-xl font-bold text-blue-900">CBDT Sovereign</span>
         </div>
         <nav className="mt-6 space-y-1 px-3">
           {filteredNavItems.map((item) => (

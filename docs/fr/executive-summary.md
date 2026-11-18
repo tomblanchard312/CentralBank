@@ -1,8 +1,8 @@
-# Résumé exécutif : Projet Tokenized Euro (tEUR)
+# Résumé exécutif : Projet Central Bank Digital Token (CBDT)
 
 ## 1. Objectif et portée
 
-Ce document fournit un aperçu de haut niveau du projet tEUR, une implémentation de référence technique développée pour explorer les considérations opérationnelles, de gouvernance et de résilience dans les systèmes de registre distribué pour le règlement financier. Le projet sert d'outil de recherche pour examiner les principes de conception des systèmes sans constituer d'infrastructure opérationnelle.
+Ce document fournit un aperçu de haut niveau du projet CBDT, une implémentation de référence technique développée pour explorer les considérations opérationnelles, de gouvernance et de résilience dans les systèmes de registre distribué pour le règlement financier. Le projet sert d'outil de recherche pour examiner les principes de conception des systèmes sans constituer d'infrastructure opérationnelle.
 
 ## 2. Ce que le projet explore
 

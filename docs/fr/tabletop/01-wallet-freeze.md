@@ -8,7 +8,7 @@ Valider la capacité de la BCE à exécuter un gel d'urgence de portefeuille en 
 
 ### Portée
 
-Cet exercice couvre le processus de bout en bout, de la réception d'une ordonnance juridique à la vérification de l'état de gel sur le registre tEUR.
+Cet exercice couvre le processus de bout en bout, de la réception d'une ordonnance juridique à la vérification de l'état de gel sur le registre CBDT.
 
 ### Participants et rôles
 

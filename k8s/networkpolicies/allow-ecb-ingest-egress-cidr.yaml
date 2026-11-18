@@ -2,7 +2,7 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: allow-ecb-ingest-egress-to-ecb
-  namespace: teur
+  namespace: centralbank
   labels:
     purpose: ecb-reference-data
 # NOTE: Standard Kubernetes NetworkPolicy can only restrict egress by IP/CIDR

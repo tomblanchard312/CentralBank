@@ -133,8 +133,9 @@ Major production blockers still include:
 - append-only durable audit persistence
 - deny-by-default institutional route classification
 - hardened production deployment manifests
-- complete Protocol v2 API wiring
-- deterministic capability and permissioning deployment
+- complete Protocol v2 API wiring (contracts deploy via `DeployCentralBankV2.s.sol`; gateway still uses the v1 `DigitalToken` path)
+- sanctions/emergency as composable V2 transfer-policy modules
+- runtime loading of deployment profiles into deploy/API configuration
 - non-balance migration and reconciliation
 - full-system end-to-end and invariant validation
 - gas, contract-size, and denial-of-service analysis
@@ -143,16 +144,16 @@ Major production blockers still include:
 
 These items should remain explicit release gates rather than being hidden behind an MVP label.
 
-## Repository direction
+Protocol v2 contract deployment and capability wiring are available through `contracts/script/DeployCentralBankV2.s.sol` (`make deploy-local-v2`). That closes the earlier “no V2 deploy path” gap; it does not by itself complete API cutover or production readiness.
 
-The project is moving toward the following model:
+## Repository layout
 
 ```text
 CentralBank
-├── contracts/          # Ledger, policies, controllers, governance
-├── api/                # Institutional gateway and transaction APIs
+├── contracts/          # Ledger, policies, controllers, governance (v1 + v2)
+├── api/                # Institutional gateway and transaction APIs (v1 integration path)
 ├── profiles/           # Jurisdiction / denomination reference profiles
-├── reconciliation/     # Reconciliation and integrity tooling
+├── tools/              # Reconciliation and integrity tooling
 ├── deploy/             # Deployment and gateway infrastructure
 ├── docs/
 │   ├── architecture/   # ADRs and protocol design

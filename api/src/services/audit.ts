@@ -130,7 +130,7 @@ export class AuditService {
         amount: transactionDetails.amount,
         from: transactionDetails.from,
         to: transactionDetails.to,
-        asset: transactionDetails.asset || 'tEUR',
+        asset: transactionDetails.asset || 'CBDT',
         txHash: transactionDetails.txHash,
         blockNumber: transactionDetails.blockNumber,
         contract: transactionDetails.contract,

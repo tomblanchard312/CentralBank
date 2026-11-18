@@ -11,10 +11,10 @@ create_client() {
   openssl genrsa -out "$OUT_DIR/${name}.key" 2048
   openssl req -new -key "$OUT_DIR/${name}.key" -out "$OUT_DIR/${name}.csr" \
     -subj "/CN=${institution}" \
-    -addext "subjectAltName=URI:spiffe://teur.example/institution/${institution}" \
+    -addext "subjectAltName=URI:spiffe://centralbank.example/institution/${institution}" \
     -addext "extendedKeyUsage=clientAuth"
   cat > "$OUT_DIR/${name}.ext" <<EOF
-subjectAltName=URI:spiffe://teur.example/institution/${institution}
+subjectAltName=URI:spiffe://centralbank.example/institution/${institution}
 extendedKeyUsage=clientAuth
 keyUsage=digitalSignature
 EOF
@@ -24,7 +24,7 @@ EOF
 
 openssl genrsa -out "$OUT_DIR/ca.key" 4096
 openssl req -x509 -new -key "$OUT_DIR/ca.key" -sha256 -days 365 \
-  -out "$OUT_DIR/ca.crt" -subj "/CN=tEUR Local Institutional Test CA"
+  -out "$OUT_DIR/ca.crt" -subj "/CN=CBDT Local Institutional Test CA"
 
 openssl genrsa -out "$OUT_DIR/server.key" 2048
 openssl req -new -key "$OUT_DIR/server.key" -out "$OUT_DIR/server.csr" \

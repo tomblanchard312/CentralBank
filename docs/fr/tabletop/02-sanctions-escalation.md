@@ -4,7 +4,7 @@
 
 ### Objectif
 
-Tester la propagation rapide des sanctions à l'échelle du réseau dans l'écosystème tEUR, en se concentrant sur le traitement par lots et la synchronisation des manifestes.
+Tester la propagation rapide des sanctions à l'échelle du réseau dans l'écosystème CBDT, en se concentrant sur le traitement par lots et la synchronisation des manifestes.
 
 ### Portée
 

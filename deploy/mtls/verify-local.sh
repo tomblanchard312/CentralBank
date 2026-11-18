@@ -2,8 +2,8 @@
 set -euo pipefail
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
-API_KEY="${TEUR_TEST_API_KEY:-demo-ecb-key}"
-BASE_URL="${TEUR_MTLS_BASE_URL:-https://localhost:8443}"
+API_KEY="${CENTRALBANK_TEST_API_KEY:-demo-ecb-key}"
+BASE_URL="${CENTRALBANK_MTLS_BASE_URL:-https://localhost:8443}"
 
 required=(ca.crt client-ecb.crt client-ecb.key client-ncb.crt client-ncb.key)
 for file in "${required[@]}"; do

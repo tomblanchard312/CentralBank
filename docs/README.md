@@ -16,7 +16,7 @@ CentralBank separates generic protocol documentation from jurisdiction-specific 
 | --- | --- |
 | [`../README.md`](../README.md) | Project overview and current production-readiness status |
 | [`canonical-naming.md`](canonical-naming.md) | Authoritative CentralBank/CBDT terminology and naming rules |
-| [`smart-contracts-architecture.md`](smart-contracts-architecture.md) | Current and target smart-contract architecture |
+| [`smart-contracts-architecture.md`](smart-contracts-architecture.md) | Smart-contract architecture, deploy paths, and remaining V2 gaps |
 | [`architecture/adr-004-centralbank-cbdt-naming.md`](architecture/adr-004-centralbank-cbdt-naming.md) | Decision record for the CentralBank/CBDT refactor |
 | [`central-bank-pilot-plan.md`](central-bank-pilot-plan.md) | Pilot-planning guidance |
 | [`offline-payments-architecture.md`](offline-payments-architecture.md) | Offline-payment architecture and constraints |
@@ -37,7 +37,7 @@ CentralBank separates generic protocol documentation from jurisdiction-specific 
 | Initial profile | `eurosystem-reference` |
 | Initial profile denomination | EUR |
 
-`T-EUR`, `tEUR`, and `TokenizedEuro` are legacy pre-MVP names and should not be used for new generic documentation.
+`T-EUR`, `tEUR`, and `TEUR` are legacy pre-MVP names and should not be used for new generic documentation.
 
 The phrase **digital euro** may still appear where the documentation is explicitly discussing published Eurosystem concepts, external requirements, historical design context, or the `eurosystem-reference` profile. Such usage should not be used as a synonym for CentralBank or CBDT.
 

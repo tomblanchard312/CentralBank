@@ -1,7 +1,7 @@
 {
-  "name": "@teur/admin-dashboard",
+  "name": "@centralbank/admin-dashboard",
   "version": "1.0.0",
-  "description": "Admin dashboard for tEUR Digital Euro management",
+  "description": "Admin dashboard for CBDT Digital Euro management",
   "private": true,
   "type": "module",
   "scripts": {

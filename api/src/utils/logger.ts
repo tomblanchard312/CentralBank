@@ -136,7 +136,7 @@ const prodFormat = combine(timestamp(), json());
 const baseLogger = winston.createLogger({
   level: config.logLevel,
   format: prodFormat,
-  defaultMeta: { service: 'teur-api-gateway' },
+  defaultMeta: { service: 'centralbank-api-gateway' },
   transports: [
     new winston.transports.Console(),
     ...(config.nodeEnv === 'production' ? [

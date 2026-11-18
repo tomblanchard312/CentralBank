@@ -1,5 +1,5 @@
 # Board-Level Summary of AI Governance
-Project: tEUR Digital Euro Infrastructure
+Project: CBDT Digital Euro Infrastructure
 
 ## Purpose
 This summary explains how AI-assisted development is governed to reduce operational, security, and compliance risk under DORA and ISO 27001.

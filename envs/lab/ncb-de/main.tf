@@ -32,9 +32,9 @@ locals {
   zone_name   = "ncb-de"
 
   common_labels = {
-    "teur.eu/environment" = local.environment
-    "teur.eu/zone"        = local.zone_name
-    "teur.eu/managed-by"  = "terraform"
+    "centralbank/environment" = local.environment
+    "centralbank/zone"        = local.zone_name
+    "centralbank/managed-by"  = "terraform"
   }
 }
 

@@ -28,7 +28,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <div className="flex h-16 items-center justify-between px-6 border-b">
             <div className="flex items-center space-x-2">
               <Euro className="w-8 h-8 text-blue-600" />
-              <span className="text-xl font-bold">tEUR Admin</span>
+              <span className="text-xl font-bold">CBDT Admin</span>
             </div>
             <button
               type="button"
@@ -64,7 +64,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         <div className="flex flex-col flex-1 min-h-0 bg-white border-r">
           <div className="flex h-16 items-center px-6 border-b">
             <Euro className="w-8 h-8 text-blue-600" />
-            <span className="ml-2 text-xl font-bold">tEUR Admin</span>
+            <span className="ml-2 text-xl font-bold">CBDT Admin</span>
           </div>
           <nav className="flex-1 space-y-1 px-4 py-4 overflow-y-auto">
             {navigation.map((item) => (
@@ -104,7 +104,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Menu className="w-6 h-6" />
           </button>
           <div className="flex flex-1 items-center justify-between px-4">
-            <span className="text-lg font-semibold">tEUR Admin</span>
+            <span className="text-lg font-semibold">CBDT Admin</span>
           </div>
         </div>
 

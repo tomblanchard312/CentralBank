@@ -1,6 +1,6 @@
 # PKI Root Module
 
-This module deploys a root Certificate Authority for tEUR mTLS infrastructure.
+This module deploys a root Certificate Authority for CBDT mTLS infrastructure.
 
 ## Usage
 

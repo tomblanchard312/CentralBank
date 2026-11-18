@@ -1,11 +1,11 @@
 // SumUp Integration Test
-// This demonstrates the basic usage of the SumUpTEurIntegration class
+// This demonstrates the basic usage of the SumUpCentralBankIntegration class
 
 public class SumUpIntegrationTest {
 
     public static void main(String[] args) {
         // Initialize with test credentials (replace with real ones)
-        SumUpTEurIntegration sumUp = new SumUpTEurIntegration(
+        SumUpCentralBankIntegration sumUp = new SumUpCentralBankIntegration(
                 "sk_test_1234567890abcdef", // Test API key
                 "MTEST123" // Test merchant code
         );
@@ -22,9 +22,9 @@ public class SumUpIntegrationTest {
 
                 // Test 2: Process a payment
                 System.out.println("Testing payment processing...");
-                boolean success = sumUp.processTEurPayment(
+                boolean success = sumUp.processCbdtPayment(
                         5.00, // €5.00
-                        "Test tEUR Purchase", // Description
+                        "Test CBDT Purchase", // Description
                         readerId // Reader ID
                 );
 

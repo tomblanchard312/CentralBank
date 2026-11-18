@@ -38,7 +38,7 @@ jobs:
       - name: Start reconciliation-ref service
         working-directory: tools/reconciliation-ref
         env:
-          TEUR_ENV: lab
+          CENTRALBANK_ENV: lab
         run: |
           npm ci
           # Start server in background on default port 8081

@@ -20,7 +20,7 @@
 - **Device Secure Element (SE)**: Hardware-backed security module in the wallet device that generates and signs offline tokens.
 - **Local Wallet App**: Consumer app that requests offline tokens from the SE and presents them to merchants.
 - **Merchant Terminal**: Validates offline tokens locally and stores approved transactions for later reconciliation.
-- **Reconciliation Gateway**: Collects signed offline transactions from terminals and submits them to tEUR for on-chain settlement.
+- **Reconciliation Gateway**: Collects signed offline transactions from terminals and submits them to CBDT for on-chain settlement.
 - **Reconciliation Ledger**: Maintains records of offline transactions for audit and dispute resolution.
 - **Dispute Resolver**: Handles cases of invalid or disputed offline transactions.
 
@@ -39,9 +39,9 @@ Offline tokens are JSON Web Tokens (JWT) signed by the device's secure element.
 
 ```json
 {
-  "iss": "teur-wallet-se", // Issuer: wallet secure element
+  "iss": "centralbank-wallet-se", // Issuer: wallet secure element
   "sub": "device-uuid", // Subject: unique device identifier
-  "aud": "teur-merchant-terminal", // Audience: merchant terminal
+  "aud": "centralbank-merchant-terminal", // Audience: merchant terminal
   "iat": 1640995200, // Issued at: Unix timestamp
   "exp": 1641081600, // Expiration: token validity period
   "jti": "txn-uuid", // JWT ID: unique transaction identifier
@@ -87,7 +87,7 @@ If all checks pass, approve the transaction and store for reconciliation. If any
 
 1. **Batch Collection**: Terminals batch approved offline transactions.
 2. **Gateway Submission**: When online, terminals submit batches to reconciliation gateway.
-3. **tEUR Validation**: Gateway forwards to tEUR for settlement validation:
+3. **CBDT Validation**: Gateway forwards to CBDT for settlement validation:
    - Verify device is registered and not suspended.
    - Check offline cap against actual balance.
    - Process settlement if valid.
@@ -124,7 +124,7 @@ If all checks pass, approve the transaction and store for reconciliation. If any
 ### Dispute Process
 
 1. **Merchant Report**: Merchant reports suspicious offline transaction.
-2. **tEUR Review**: Validate against reconciliation data.
+2. **CBDT Review**: Validate against reconciliation data.
 3. **Chargeback**: If invalid, reverse settlement and notify wallet.
 4. **Device Action**: Suspend device if fraud detected.
 5. **Escalation**: Severe cases involve regulatory authorities.

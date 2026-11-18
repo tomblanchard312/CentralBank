@@ -1,8 +1,8 @@
-# Executive Summary: Tokenized Euro (tEUR) Project
+# Executive Summary: Central Bank Digital Token (CBDT) Project
 
 ## 1. Purpose and Scope
 
-This document provides a high-level overview of the tEUR project, a technical reference implementation developed to explore operational, governance, and resilience considerations in distributed ledger systems for financial settlement. The project serves as a research tool for examining system design principles without constituting operational infrastructure.
+This document provides a high-level overview of the CBDT project, a technical reference implementation developed to explore operational, governance, and resilience considerations in distributed ledger systems for financial settlement. The project serves as a research tool for examining system design principles without constituting operational infrastructure.
 
 ## 2. What the Project Explores
 

@@ -4,7 +4,7 @@
 
 CentralBank separates token accounting, policy enforcement, operational controllers, and institutional governance. The core protocol is currency-agnostic. The generic token is **CBDT (Central Bank Digital Token)** and profile-specific denomination or policy is supplied separately.
 
-The repository currently contains both the `DigitalToken` implementation used by the API integration path and the newer modular protocol components such as `TokenLedgerV2`, policy modules, and dedicated controllers. The architectural direction is to keep balances in the ledger while granting narrowly scoped capabilities to controllers.
+The repository contains both the `DigitalToken` implementation used by the current API integration path and the modular Protocol v2 stack (`TokenLedgerV2`, policy modules, and dedicated controllers). Balances stay in the ledger; controllers receive narrowly scoped capabilities. Protocol v2 can be deployed with `DeployCentralBankV2.s.sol`; the API gateway still targets the v1 `DigitalToken` path.
 
 ```text
                          Permissioning / Governance
@@ -58,22 +58,23 @@ The pre-MVP refactor uses dedicated `MINTER_ROLE` and `BURNER_ROLE` authority fo
 
 `TokenLedgerV2` is the modular ledger direction for the protocol. It owns balances and exposes scoped controller capabilities. Controllers should not become parallel balance stores.
 
-The intended model is:
+Implemented Protocol v2 modules today:
 
 ```text
-TokenLedger
+TokenLedgerV2
     |
-    +--> CompositeTransferPolicy
-    |       +--> sanctions policy
-    |       +--> emergency policy
-    |       +--> holding-limit policy
-    |       +--> future compliance policies
+    +--> CompositeTransferPolicyV2
+    |       +--> HoldingLimitPolicyV2   (implemented)
+    |       +--> sanctions policy       (reference design; still V1 freeze on DigitalToken)
+    |       +--> emergency policy       (reference design; still V1 pause on DigitalToken)
     |
-    +--> MintBurnController
-    +--> EscrowController
-    +--> WaterfallController
-    +--> Migration / future controllers
+    +--> MintBurnControllerV2
+    +--> EscrowControllerV2
+    +--> WaterfallControllerV2
+    +--> MigrationControllerV2          (balance claims; not full ADR-001 state migration)
 ```
+
+These modules are unit-tested and deployable via `DeployCentralBankV2.s.sol` / `DeployLabEnvironmentV2`.
 
 ### ConditionalPayments
 
@@ -195,7 +196,7 @@ The dedicated mint/burn controller design separates issuance from redemption aut
 
 The migration framework supports snapshot-based balance migration using Merkle commitments, duplicate-claim protection, deadlines, governance pause/resume, exact migrated-total reconciliation, and finalization.
 
-Because CentralBank is still pre-MVP, the T-EUR to CentralBank rename is **not** being treated as a production migration. The migration framework remains useful as a future protocol capability for real deployed-version transitions.
+Because CentralBank is still pre-MVP, the historical T-EUR to CentralBank rename is **not** being treated as a production migration. The migration framework remains useful as a future protocol capability for real deployed-version transitions.
 
 ## Reference profile: Eurosystem
 
@@ -203,19 +204,34 @@ The initial `eurosystem-reference` profile currently supplies EUR denomination a
 
 Profile-specific terminology such as ECB, NCB, EUR, digital-euro concepts, or Eurosystem rules belongs in that profile, its documentation, or external-requirement mappings. It should not be encoded into generic contract names.
 
-## Deployment direction
+## Deployment status
 
-The current deployment path is `DeployCentralBank.s.sol`. Deployment must wire the required permissioning roles and contract dependencies explicitly.
+There are two deployment paths:
 
-At a high level:
+| Script | Status | Stack |
+| --- | --- | --- |
+| `DeployCentralBank.s.sol` | **Implemented** and used by the API/lab integration path | `Permissioning`, `WalletRegistry`, `DigitalToken`, `ConditionalPayments` |
+| `DeployCentralBankV2.s.sol` | **Implemented** for contract deployment/wiring | `TokenLedgerV2`, `MintBurnControllerV2`, `EscrowControllerV2`, optional holding/composite policy, waterfall, migration, and `GovernedPermissioning` |
 
-1. deploy permissioning/governance components
-2. deploy wallet registry and generic token/ledger
-3. deploy policy and controller components
-4. deploy conditional-payment components
-5. grant narrowly scoped operational roles/capabilities
-6. configure profile-specific limits and policy
-7. verify role, policy, balance, and reconciliation invariants before enabling participant traffic
+Lab shortcuts: `make deploy-local` / `make deploy-lab` (v1) and `make deploy-local-v2` / `make deploy-lab-v2` (Protocol v2).
+
+Protocol v2 deploy wiring:
+
+1. deploy governance address / optional `GovernedPermissioning` when `SECOND_ADMIN_ADDRESS` is set
+2. deploy `TokenLedgerV2`
+3. deploy mint/burn and escrow controllers; grant scoped ledger capabilities
+4. deploy holding-limit and composite transfer policy when `ENABLE_HOLDING_LIMITS=true`
+5. deploy waterfall controller when `ENABLE_WATERFALL=true` (requires holding limits)
+6. optionally deploy migration controller when `DEPLOY_MIGRATION=true` and snapshot metadata is supplied
+7. verify capability, policy, balance, and reconciliation invariants before enabling participant traffic
+
+Still open relative to the full README/ADR target:
+
+- sanctions and emergency as composable V2 transfer-policy modules
+- API/ABI wiring onto `TokenLedgerV2` and `EscrowControllerV2`
+- runtime loading of `profiles/eurosystem-reference.json` into deploy/API configuration
+- non-balance migration (freeze, escrow cases, roles, optional allowances) per ADR-001
+- ConditionalPayments on the modular V2 ledger/escrow path
 
 ## Security invariants
 

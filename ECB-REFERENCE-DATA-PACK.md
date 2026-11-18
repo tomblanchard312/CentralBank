@@ -1,4 +1,4 @@
-# ECB Reference Data Integration Pack (tEUR)
+# ECB Reference Data Integration Pack (CBDT)
 
 This pack provides four deliverables, in order:
 
@@ -104,7 +104,7 @@ Objects:
 ### 1.6 Failure behavior
 
 If ECB API fails:
-- Ingestor records failure and emits metric `teur_refdata_ingest_failures_total`
+- Ingestor records failure and emits metric `centralbank_refdata_ingest_failures_total`
 - Internal API continues serving cached values
 - Governance tooling can mark a dataset as “temporarily frozen” so policy does not shift unexpectedly
 
@@ -196,7 +196,7 @@ Use cases:
 - analytics and reconciliation reports
 ECB provides the EXR dataset and shows series key patterns such as `EXR.D.CHF.EUR.SP00.A` and similar. citeturn0search6turn0search5  
 Important note: ECB reference rates are published for information purposes and discourages using them for transaction purposes. citeturn0search3  
-So do not use EXR to price or settle tEUR transfers.
+So do not use EXR to price or settle CBDT transfers.
 
 **Interest rate and money market reference series**  
 Use cases:

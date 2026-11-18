@@ -4,7 +4,7 @@ services:
   # Hyperledger Besu Node (ECB Core)
   besu-ecb-core:
     image: hyperledger/besu:24.1.0
-    container_name: teur-besu-ecb-core
+    container_name: centralbank-besu-ecb-core
     user: root
     ports:
       - "8545:8545"   # JSON-RPC
@@ -20,19 +20,19 @@ services:
       - --config-file=/config/config.toml
       - --data-path=/data
     networks:
-      - teur-csp
+      - centralbank-csp
     # healthcheck:
     #   test: ["CMD-SHELL", "curl -X POST -H 'Content-Type: application/json' --data '{\"jsonrpc\":\"2.0\",\"method\":\"eth_blockNumber\",\"params\":[],\"id\":1}' -f http://localhost:8545 > /dev/null"]
     #   interval: 10s
     #   timeout: 5s
     #   retries: 5
 
-  # tEUR API Gateway
-  teur-api:
+  # CBDT API Gateway
+  centralbank-api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    container_name: teur-api
+    container_name: centralbank-api
     ports:
       - "3000:3000"
     environment:
@@ -55,8 +55,8 @@ services:
       postgres:
         condition: service_healthy
     networks:
-      - teur-csp
-      - teur-pap
+      - centralbank-csp
+      - centralbank-pap
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
       interval: 10s
@@ -65,19 +65,19 @@ services:
     restart: unless-stopped
 
   # Admin Dashboard
-  teur-dashboard:
+  centralbank-dashboard:
     build:
       context: ./dashboard
       dockerfile: Dockerfile
-    container_name: teur-dashboard
+    container_name: centralbank-dashboard
     ports:
       - "3001:80"
     environment:
       - VITE_API_URL=http://localhost:3000/api/v1
     depends_on:
-      - teur-api
+      - centralbank-api
     networks:
-      - teur-pap
+      - centralbank-pap
     restart: unless-stopped
 
   # ISO 20022 Adapter
@@ -85,21 +85,21 @@ services:
     build:
       context: ./iso20022-adapter
       dockerfile: Dockerfile
-    container_name: teur-iso20022
+    container_name: centralbank-iso20022
     ports:
       - "4000:4000"
     environment:
       - PORT=4000
-      - TEUR_API_URL=http://teur-api:3000/api/v1
-      - TEUR_API_KEY=${BANK_API_KEY}
-      - BIC_CODE=${BIC_CODE:-TEURDE00XXX}
+      - CENTRALBANK_API_URL=http://centralbank-api:3000/api/v1
+      - CENTRALBANK_API_KEY=${BANK_API_KEY}
+      - BIC_CODE=${BIC_CODE:-CENTRALBANKDE00XXX}
       - INSTITUTION_ID=${INSTITUTION_ID:-bank-de-01}
-      - INSTITUTION_NAME=${INSTITUTION_NAME:-tEUR Test Bank}
+      - INSTITUTION_NAME=${INSTITUTION_NAME:-CBDT Test Bank}
     depends_on:
-      teur-api:
+      centralbank-api:
         condition: service_healthy
     networks:
-      - teur-csp
+      - centralbank-csp
     volumes:
       - iso-logs:/app/logs
     healthcheck:
@@ -112,20 +112,20 @@ services:
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
-    container_name: teur-postgres
+    container_name: centralbank-postgres
     ports:
       - "5432:5432"
     environment:
-      - POSTGRES_DB=teur
-      - POSTGRES_USER=teur
+      - POSTGRES_DB=centralbank
+      - POSTGRES_USER=centralbank
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-changeme}
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     networks:
-      - teur-csp
+      - centralbank-csp
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U teur"]
+      test: ["CMD-SHELL", "pg_isready -U centralbank"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -134,7 +134,7 @@ services:
   # Prometheus
   prometheus:
     image: prom/prometheus:v2.48.1
-    container_name: teur-prometheus
+    container_name: centralbank-prometheus
     ports:
       - "9090:9090"
     volumes:
@@ -146,13 +146,13 @@ services:
       - '--web.console.libraries=/usr/share/prometheus/console_libraries'
       - '--web.console.templates=/usr/share/prometheus/consoles'
     networks:
-      - teur-obs
+      - centralbank-obs
     restart: unless-stopped
 
   # Grafana
   grafana:
     image: grafana/grafana:10.2.3
-    container_name: teur-grafana
+    container_name: centralbank-grafana
     ports:
       - "3002:3000"
     environment:
@@ -166,14 +166,14 @@ services:
     depends_on:
       - prometheus
     networks:
-      - teur-obs
-      - teur-pap
+      - centralbank-obs
+      - centralbank-pap
     restart: unless-stopped
 
   # Elasticsearch
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.11.3
-    container_name: teur-elasticsearch
+    container_name: centralbank-elasticsearch
     ports:
       - "9200:9200"
     environment:
@@ -183,7 +183,7 @@ services:
     volumes:
       - elasticsearch-data:/usr/share/elasticsearch/data
     networks:
-      - teur-obs
+      - centralbank-obs
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
@@ -194,7 +194,7 @@ services:
   # Logstash
   logstash:
     image: docker.elastic.co/logstash/logstash:8.11.3
-    container_name: teur-logstash
+    container_name: centralbank-logstash
     ports:
       - "5000:5000/tcp"
       - "5000:5000/udp"
@@ -206,13 +206,13 @@ services:
       elasticsearch:
         condition: service_healthy
     networks:
-      - teur-obs
+      - centralbank-obs
     restart: unless-stopped
 
   # Kibana
   kibana:
     image: docker.elastic.co/kibana/kibana:8.11.3
-    container_name: teur-kibana
+    container_name: centralbank-kibana
     ports:
       - "5601:5601"
     environment:
@@ -221,8 +221,8 @@ services:
       elasticsearch:
         condition: service_healthy
     networks:
-      - teur-obs
-      - teur-pap
+      - centralbank-obs
+      - centralbank-pap
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
       interval: 10s
@@ -233,7 +233,7 @@ services:
   # Node Exporter (for system metrics)
   node-exporter:
     image: prom/node-exporter:v1.7.0
-    container_name: teur-node-exporter
+    container_name: centralbank-node-exporter
     ports:
       - "9100:9100"
     command:
@@ -241,26 +241,26 @@ services:
     volumes:
       - ${HOST_ROOT:-/}:/host:ro
     networks:
-      - teur-obs
+      - centralbank-obs
     restart: unless-stopped
 
 networks:
   # CSP - Critical Settlement Payments (internal, sovereign)
-  teur-csp:
+  centralbank-csp:
     driver: bridge
     ipam:
       config:
         - subnet: 172.20.0.0/16
   
   # PAP - Public API & Portal (external facing)
-  teur-pap:
+  centralbank-pap:
     driver: bridge
     ipam:
       config:
         - subnet: 172.21.0.0/16
   
   # OBS - Observability (monitoring, logging)
-  teur-obs:
+  centralbank-obs:
     driver: bridge
     ipam:
       config:

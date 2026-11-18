@@ -1,10 +1,10 @@
-# SumUp Integration for tEUR Token Payments
+# SumUp Integration for CBDT Token Payments
 
-This integration enables tEUR token payments through SumUp's payment platform, providing merchants with access to SumUp's extensive European network.
+This integration enables CBDT token payments through SumUp's payment platform, providing merchants with access to SumUp's extensive European network.
 
 ## Overview
 
-SumUp is a popular payment terminal provider in Europe, especially among SMEs. This integration allows merchants to accept fiat payments via SumUp terminals and release tEUR tokens to customers.
+SumUp is a popular payment terminal provider in Europe, especially among SMEs. This integration allows merchants to accept fiat payments via SumUp terminals and release CBDT tokens to customers.
 
 ## Key Features
 
@@ -17,7 +17,7 @@ SumUp is a popular payment terminal provider in Europe, especially among SMEs. T
 ## Architecture
 
 ```
-Customer NFC/QR → SumUp Terminal → SumUp API → tEUR API → Token Release
+Customer NFC/QR → SumUp Terminal → SumUp API → CBDT API → Token Release
 ```
 
 ## Setup Requirements
@@ -50,13 +50,13 @@ dependencies {
 
 ```java
 // Initialize the integration
-SumUpTEurIntegration sumUp = new SumUpTEurIntegration(
+SumUpCentralBankIntegration sumUp = new SumUpCentralBankIntegration(
     "your-sumup-api-key",
     "your-merchant-code"
 );
 
 // Process a payment
-boolean success = sumUp.processTEurPayment(
+boolean success = sumUp.processCbdtPayment(
     25.50,           // Amount in EUR
     "Coffee purchase", // Description
     "reader-id"      // SumUp reader ID
@@ -77,7 +77,7 @@ JSONObject status = sumUp.getReaderStatus("reader-id");
 
 ```java
 // Create a checkout
-String checkoutId = sumUp.createCheckout(10.00, "tEUR Purchase");
+String checkoutId = sumUp.createCheckout(10.00, "CBDT Purchase");
 
 // Process with card token
 boolean paid = sumUp.processCheckout(checkoutId, "card-token");
@@ -163,4 +163,4 @@ SumUp operates in 30+ European countries including:
 
 - [SumUp Developer Documentation](https://developer.sumup.com)
 - [SumUp API Reference](https://developer.sumup.com/api)
-- [tEUR Integration Guide](../README.md)
+- [CBDT Integration Guide](../README.md)

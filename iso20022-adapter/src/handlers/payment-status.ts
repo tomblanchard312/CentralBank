@@ -15,12 +15,12 @@ export async function processPaymentStatus(xml: string): Promise<string> {
     // Extract transaction ID from status inquiry
     const txId = parsed.Document.CstmrPmtStsRpt.OrgnlPmtInfAndSts.TxInfAndSts.OrgnlEndToEndId;
     
-    // Query tEUR API for transaction status
+    // Query CBDT API for transaction status
     const response = await axios.get(
-      `${config.teurApiUrl}/transfers/${txId}`,
+      `${config.centralBankApiUrl}/transfers/${txId}`,
       {
         headers: {
-          'X-API-Key': config.teurApiKey,
+          'X-API-Key': config.centralBankApiKey,
         },
       }
     );

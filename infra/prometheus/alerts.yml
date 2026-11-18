@@ -1,17 +1,17 @@
 groups:
-  - name: teur_alerts
+  - name: centralbank_alerts
     interval: 30s
     rules:
       # API Health
       - alert: APIDown
-        expr: up{job="teur-api"} == 0
+        expr: up{job="centralbank-api"} == 0
         for: 1m
         labels:
           severity: critical
           component: api
         annotations:
-          summary: "tEUR API is down"
-          description: "tEUR API has been down for more than 1 minute"
+          summary: "CBDT API is down"
+          description: "CBDT API has been down for more than 1 minute"
 
       # Blockchain Health
       - alert: BesuNodeDown
@@ -37,7 +37,7 @@ groups:
 
       # Transaction Failures
       - alert: HighTransactionFailureRate
-        expr: rate(teur_transactions_failed_total[5m]) / rate(teur_transactions_total[5m]) > 0.1
+        expr: rate(centralbank_transactions_failed_total[5m]) / rate(centralbank_transactions_total[5m]) > 0.1
         for: 5m
         labels:
           severity: warning
@@ -48,7 +48,7 @@ groups:
 
       # Holding Limit Violations
       - alert: HoldingLimitViolations
-        expr: increase(teur_holding_limit_violations_total[1h]) > 10
+        expr: increase(centralbank_holding_limit_violations_total[1h]) > 10
         for: 5m
         labels:
           severity: warning

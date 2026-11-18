@@ -1,6 +1,6 @@
 apiVersion: v2
-name: teur-api
-description: tEUR API service
+name: centralbank-api
+description: CBDT API service
 type: application
 version: 0.1.0
 appVersion: "1.0.0"

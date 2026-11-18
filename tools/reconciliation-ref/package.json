@@ -1,7 +1,7 @@
 {
   "name": "reconciliation-ref",
   "version": "1.0.0",
-  "description": "Production-grade reconciliation service for tEUR offline transactions",
+  "description": "Production-grade reconciliation service for CBDT offline transactions",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"

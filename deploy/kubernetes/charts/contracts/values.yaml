@@ -1,13 +1,13 @@
 image:
-  repository: teur/contracts
+  repository: centralbank/contracts
   tag: latest
   pullPolicy: IfNotPresent
 
 replicaCount: 1
 
 env:
-  TEUR_ENV: ""
-  TEUR_ROLE: ""
+  CENTRALBANK_ENV: ""
+  CENTRALBANK_ROLE: ""
 
 secrets:
   rootCaKey: ""

@@ -1,6 +1,6 @@
-# tEUR — Tokenized Euro (tEUR) Repository
+# CBDT — Central Bank Digital Token (CBDT) Repository
 
-Repository mit Smart Contracts, API-Gateway, Dashboard und Tools für das Tokenized Euro Projekt.
+Repository mit Smart Contracts, API-Gateway, Dashboard und Tools für das Central Bank Digital Token Projekt.
 
 Schnellstart
 

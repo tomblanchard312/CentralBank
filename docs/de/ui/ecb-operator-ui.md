@@ -1,6 +1,6 @@
 # EZB-Bedieneroberfläche - Mockups (Deutsch)
 
-Dieses Dokument enthält ASCII-Mockups der EZB-Souveränitätskontrollschnittstelle für das tEUR-System.
+Dieses Dokument enthält ASCII-Mockups der EZB-Souveränitätskontrollschnittstelle für das CBDT-System.
 
 ## 1. EZB-Dashboard
 
@@ -17,12 +17,12 @@ Dieses Dokument enthält ASCII-Mockups der EZB-Souveränitätskontrollschnittste
 |                                                                              |
 |  RESERVESTATUS                                                               |
 |  +----------------------------+  +----------------------------+              |
-|  | Gesamtangebot (tEUR)       |  | Reserveguthaben (EUR)      |              |
+|  | Gesamtangebot (CBDT)       |  | Reserveguthaben (EUR)      |              |
 |  | 1.250.000.000,00           |  | 1.250.000.000,00           |              |
 |  +----------------------------+  +----------------------------+              |
 |                                                                              |
 |  AKTIVE ALARME                                                               |
-|  - [WARN] Hoher Transfer erkannt: 5.000.000,00 tEUR (Bank A -> Bank B)       |
+|  - [WARN] Hoher Transfer erkannt: 5.000.000,00 CBDT (Bank A -> Bank B)       |
 |  - [INFO] Schlüsselrotation für 2026-01-15 geplant                           |
 |                                                                              |
 +------------------------------------------------------------------------------+
@@ -61,10 +61,10 @@ Dieses Dokument enthält ASCII-Mockups der EZB-Souveränitätskontrollschnittste
 +------------------------------------------------------------------------------+
 | TREUHANDVERWALTUNG                                                           |
 +------------------------------------------------------------------------------+
-| Wallet: [ 0xabcd...1234 ] | Aktuelles Guthaben: 50.000,00 tEUR               |
+| Wallet: [ 0xabcd...1234 ] | Aktuelles Guthaben: 50.000,00 CBDT               |
 |                                                                              |
 | [ AUF TREUHANDKONTO ÜBERTRAGEN ]                                             |
-| Betrag: [ 25.000,00 ] tEUR                                                   |
+| Betrag: [ 25.000,00 ] CBDT                                                   |
 | Rechtsgrundlage: [ Gerichtsbeschluss 2026-XYZ ]                              |
 | Ablaufdatum: [ 2026-06-01 ] (Optional)                                       |
 |                                                                              |
@@ -83,13 +83,13 @@ Dieses Dokument enthält ASCII-Mockups der EZB-Souveränitätskontrollschnittste
 +------------------------------------------------------------------------------+
 | WÄHRUNGSPOLITISCHE OPERATIONEN                                               |
 +------------------------------------------------------------------------------+
-| [ tEUR EMITTIEREN ]                                                          |
+| [ CBDT EMITTIEREN ]                                                          |
 | An: [ Reservekonto ]                                                         |
 | Betrag: [ 10.000.000,00 ]                                                    |
 | Begründung: [ Reserveausweitung ]                                            |
 | [ EMISSION BESTÄTIGEN ]                                                      |
 |                                                                              |
-| [ tEUR VERNICHTEN ]                                                          |
+| [ CBDT VERNICHTEN ]                                                          |
 | Von: [ Reservekonto ]                                                        |
 | Betrag: [ 5.000.000,00 ]                                                     |
 | [ VERNICHTUNG BESTÄTIGEN ]                                                   |
@@ -132,8 +132,8 @@ Dieses Dokument enthält ASCII-Mockups der EZB-Souveränitätskontrollschnittste
 +------------------------------------------------------------------------------+
 | Filter: [ Alle Aktionen |v] [ Zeitraum |v] [ Suchen... ]                     |
 |                                                                              |
-| ZEITSTEMPEL         | AKTEUR     | AKTION         | DETAILS                  |
-| 2026-01-03 10:00:01 | ecb-admin  | EMISSION       | 10M tEUR an Reserve      |
+| ZEITSTEMPEL         | AKCENTRALBANK     | AKTION         | DETAILS                  |
+| 2026-01-03 10:00:01 | ecb-admin  | EMISSION       | 10M CBDT an Reserve      |
 | 2026-01-03 10:15:22 | ecb-admin  | KONTO_SPERREN  | 0x1234... (Sanktionen)   |
 | 2026-01-03 10:45:10 | System     | SCHLÜSSEL_ROT. | ecb-iss-01 -> ecb-iss-02 |
 |                                                                              |

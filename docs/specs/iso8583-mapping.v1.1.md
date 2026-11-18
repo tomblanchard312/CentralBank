@@ -1,6 +1,6 @@
-# ISO 8583 Mapping for tEUR Acquirer API v1.1
+# ISO 8583 Mapping for CBDT Acquirer API v1.1
 
-This document provides the mapping between tEUR Acquirer API endpoints and ISO 8583 message types, along with field-level mappings.
+This document provides the mapping between CBDT Acquirer API endpoints and ISO 8583 message types, along with field-level mappings.
 
 ## Endpoint to Message Type Mapping
 
@@ -20,7 +20,7 @@ This document provides the mapping between tEUR Acquirer API endpoints and ISO 8
 ### Common Fields Across All Messages
 
 - **Message Type Indicator (MTI)**: As specified in table above
-- **Primary Account Number (PAN, 2)**: Not applicable; set to "0000000000000000" or special tEUR identifier
+- **Primary Account Number (PAN, 2)**: Not applicable; set to "0000000000000000" or special CBDT identifier
 - **Processing Code (3)**:
   - "000000" for authorization
   - "000000" for capture

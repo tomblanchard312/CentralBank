@@ -1,20 +1,20 @@
-# ISO 8583 Mapping Guidance for tEUR
+# ISO 8583 Mapping Guidance for CBDT
 
 ## 1. Objective
 
-This document provides a deterministic mapping between the Tokenized Euro (tEUR) system states and the ISO 8583 standard. It enables financial institutions, acquirers, and PSPs to integrate tEUR into existing payment rails while preserving regulatory requirements for sanctions, escrow, and auditability.
+This document provides a deterministic mapping between the Central Bank Digital Token (CBDT) system states and the ISO 8583 standard. It enables financial institutions, acquirers, and PSPs to integrate CBDT into existing payment rails while preserving regulatory requirements for sanctions, escrow, and auditability.
 
 ## 2. Core Mapping Table
 
-| tEUR error.code        | scheme_code               | ISO 8583 DE 39            | Recommended Merchant Message |
+| CBDT error.code        | scheme_code               | ISO 8583 DE 39            | Recommended Merchant Message |
 | :--------------------- | :------------------------ | :------------------------ | :--------------------------- |
-| `ACCOUNT_FROZEN`       | `TEUR_SANCTION_BLOCK`     | `62` (Restricted Card)    | Restricted Account           |
-| `INSUFFICIENT_BALANCE` | `TEUR_INSUFFICIENT_FUNDS` | `51` (Insufficient Funds) | Insufficient Funds           |
-| `ESCROW_LOCKED`        | `TEUR_ESCROW_HOLD`        | `51` (Insufficient Funds) | Insufficient Funds           |
-| `LIMIT_EXCEEDED`       | `TEUR_LIMIT_EXCEEDED`     | `61` (Exceeds Limit)      | Limit Exceeded               |
-| `INVALID_WALLET`       | `TEUR_INVALID_ACCOUNT`    | `14` (Invalid Card)       | Invalid Account              |
-| `SYSTEM_PAUSED`        | `TEUR_SYSTEM_UNAVAILABLE` | `91` (Issuer Inoperative) | System Unavailable           |
-| `INTERNAL_ERROR`       | `TEUR_SYSTEM_ERROR`       | `96` (System Malfunction) | System Error                 |
+| `ACCOUNT_FROZEN`       | `CENTRALBANK_SANCTION_BLOCK`     | `62` (Restricted Card)    | Restricted Account           |
+| `INSUFFICIENT_BALANCE` | `CENTRALBANK_INSUFFICIENT_FUNDS` | `51` (Insufficient Funds) | Insufficient Funds           |
+| `ESCROW_LOCKED`        | `CENTRALBANK_ESCROW_HOLD`        | `51` (Insufficient Funds) | Insufficient Funds           |
+| `LIMIT_EXCEEDED`       | `CENTRALBANK_LIMIT_EXCEEDED`     | `61` (Exceeds Limit)      | Limit Exceeded               |
+| `INVALID_WALLET`       | `CENTRALBANK_INVALID_ACCOUNT`    | `14` (Invalid Card)       | Invalid Account              |
+| `SYSTEM_PAUSED`        | `CENTRALBANK_SYSTEM_UNAVAILABLE` | `91` (Issuer Inoperative) | System Unavailable           |
+| `INTERNAL_ERROR`       | `CENTRALBANK_SYSTEM_ERROR`       | `96` (System Malfunction) | System Error                 |
 
 ## 3. Sanctions and Freeze Handling
 
@@ -25,7 +25,7 @@ When a transaction involves a sanctioned or frozen wallet, the Eurosystem Access
 ### 3.2 Authorization Response (MTI 0110/0210)
 
 - **Response Code (DE 39)**: `62`
-- **Additional Response Data (DE 44)**: `TEUR_SANCTION_BLOCK`
+- **Additional Response Data (DE 44)**: `CENTRALBANK_SANCTION_BLOCK`
 - **Private Data (DE 48)**: Should include the legal reference if permitted by privacy policy.
 
 ### 3.3 Advice and Reversal (MTI 0400/0420)
@@ -71,12 +71,12 @@ If a transaction is uploaded and the account is found to be sanctioned _after_ t
 
 ## 6. Required ISO Fields
 
-| Field     | Name             | Usage in tEUR                                                              |
+| Field     | Name             | Usage in CBDT                                                              |
 | :-------- | :--------------- | :------------------------------------------------------------------------- |
 | **DE 39** | Response Code    | Primary status (e.g., `00`, `51`, `62`).                                   |
-| **DE 44** | Addl. Resp. Data | Contains the `scheme_code` (e.g., `TEUR_SANCTION_BLOCK`).                  |
+| **DE 44** | Addl. Resp. Data | Contains the `scheme_code` (e.g., `CENTRALBANK_SANCTION_BLOCK`).                  |
 | **DE 48** | Private Data     | Subfield 01: `correlation_id` (UUID). Subfield 02: `legal_ref` (Optional). |
-| **DE 63** | Network Data     | tEUR Version and Environment ID (e.g., `TEUR1.0\|LAB`).                    |
+| **DE 63** | Network Data     | CBDT Version and Environment ID (e.g., `CENTRALBANK1.0\|LAB`).                    |
 
 ## 7. Examples
 
@@ -84,14 +84,14 @@ If a transaction is uploaded and the account is found to be sanctioned _after_ t
 
 - **MTI**: `0110`
 - **DE 39**: `00`
-- **DE 44**: `TEUR_SUCCESS`
+- **DE 44**: `CENTRALBANK_SUCCESS`
 - **Result**: Transaction proceeds to clearing.
 
 ### Example 2: Sanctioned Account
 
 - **MTI**: `0110`
 - **DE 39**: `62`
-- **DE 44**: `TEUR_SANCTION_BLOCK`
+- **DE 44**: `CENTRALBANK_SANCTION_BLOCK`
 - **DE 48**: `REF:EU-2026-001`
 - **Result**: Merchant displays "Restricted Account".
 
@@ -99,5 +99,5 @@ If a transaction is uploaded and the account is found to be sanctioned _after_ t
 
 - **MTI**: `0110`
 - **DE 39**: `51`
-- **DE 44**: `TEUR_ESCROW_HOLD`
+- **DE 44**: `CENTRALBANK_ESCROW_HOLD`
 - **Result**: Merchant displays "Insufficient Funds".

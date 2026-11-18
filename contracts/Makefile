@@ -1,7 +1,7 @@
 # CentralBank Smart Contracts - Makefile
 # Provides convenient commands for development and deployment
 
-.PHONY: all build test clean deploy-local deploy-lab deploy-int deploy-stg deploy-prd-dry-run help
+.PHONY: all build test clean deploy-local deploy-local-v2 deploy-lab deploy-lab-v2 deploy-int deploy-int-v2 deploy-stg deploy-stg-v2 deploy-prd-dry-run deploy-prd-dry-run-v2 help
 
 all: build test
 
@@ -41,8 +41,15 @@ anvil:
 	anvil --chain-id 31337 --block-time 2
 
 deploy-local:
-	@echo "Deploying CentralBank to local Anvil..."
+	@echo "Deploying CentralBank (v1 integration path) to local Anvil..."
 	forge script script/DeployCentralBank.s.sol:DeployLabEnvironment \
+		--rpc-url http://localhost:8545 \
+		--broadcast \
+		-vvv
+
+deploy-local-v2:
+	@echo "Deploying CentralBank Protocol v2 to local Anvil..."
+	forge script script/DeployCentralBankV2.s.sol:DeployLabEnvironmentV2 \
 		--rpc-url http://localhost:8545 \
 		--broadcast \
 		-vvv
@@ -55,9 +62,17 @@ port-forward:
 	kubectl port-forward svc/besu-validator-rpc -n ledger-ecb-core 8545:8545
 
 deploy-lab:
-	@echo "Deploying CentralBank to Lab (Kind + Besu)..."
+	@echo "Deploying CentralBank (v1 integration path) to Lab (Kind + Besu)..."
 	@echo "Ensure port-forward is running: make port-forward"
 	forge script script/DeployCentralBank.s.sol:DeployLabEnvironment \
+		--rpc-url http://localhost:8545 \
+		--broadcast \
+		-vvv
+
+deploy-lab-v2:
+	@echo "Deploying CentralBank Protocol v2 to Lab (Kind + Besu)..."
+	@echo "Ensure port-forward is running: make port-forward"
+	forge script script/DeployCentralBankV2.s.sol:DeployLabEnvironmentV2 \
 		--rpc-url http://localhost:8545 \
 		--broadcast \
 		-vvv
@@ -67,10 +82,20 @@ deploy-lab:
 # ============================================
 
 deploy-int:
-	@echo "Deploying CentralBank to Integration..."
+	@echo "Deploying CentralBank (v1) to Integration..."
 	@test -n "$(INT_RPC_URL)" || (echo "INT_RPC_URL not set" && exit 1)
 	@test -n "$(DEPLOYER_PRIVATE_KEY)" || (echo "DEPLOYER_PRIVATE_KEY not set" && exit 1)
 	DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) forge script script/DeployCentralBank.s.sol:DeployCentralBank \
+		--rpc-url $(INT_RPC_URL) \
+		--broadcast \
+		-vvv
+
+deploy-int-v2:
+	@echo "Deploying CentralBank Protocol v2 to Integration..."
+	@test -n "$(INT_RPC_URL)" || (echo "INT_RPC_URL not set" && exit 1)
+	@test -n "$(DEPLOYER_PRIVATE_KEY)" || (echo "DEPLOYER_PRIVATE_KEY not set" && exit 1)
+	DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) GOVERNANCE_ADDRESS=$(GOVERNANCE_ADDRESS) \
+		forge script script/DeployCentralBankV2.s.sol:DeployCentralBankV2 \
 		--rpc-url $(INT_RPC_URL) \
 		--broadcast \
 		-vvv
@@ -80,11 +105,22 @@ deploy-int:
 # ============================================
 
 deploy-stg:
-	@echo "Deploying CentralBank to Staging..."
+	@echo "Deploying CentralBank (v1) to Staging..."
 	@test -n "$(STG_RPC_URL)" || (echo "STG_RPC_URL not set" && exit 1)
 	@test -n "$(DEPLOYER_PRIVATE_KEY)" || (echo "DEPLOYER_PRIVATE_KEY not set" && exit 1)
 	@echo "⚠️  Staging deployment - ensure proper approvals"
 	DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) forge script script/DeployCentralBank.s.sol:DeployCentralBank \
+		--rpc-url $(STG_RPC_URL) \
+		--broadcast \
+		-vvv
+
+deploy-stg-v2:
+	@echo "Deploying CentralBank Protocol v2 to Staging..."
+	@test -n "$(STG_RPC_URL)" || (echo "STG_RPC_URL not set" && exit 1)
+	@test -n "$(DEPLOYER_PRIVATE_KEY)" || (echo "DEPLOYER_PRIVATE_KEY not set" && exit 1)
+	@echo "⚠️  Staging deployment - ensure proper approvals"
+	DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) GOVERNANCE_ADDRESS=$(GOVERNANCE_ADDRESS) \
+		forge script script/DeployCentralBankV2.s.sol:DeployCentralBankV2 \
 		--rpc-url $(STG_RPC_URL) \
 		--broadcast \
 		-vvv
@@ -94,7 +130,7 @@ deploy-stg:
 # ============================================
 
 deploy-prd-dry-run:
-	@echo "⚠️  PRODUCTION DRY RUN - Review carefully!"
+	@echo "⚠️  PRODUCTION DRY RUN (v1) - Review carefully!"
 	@test -n "$(PRD_RPC_URL)" || (echo "PRD_RPC_URL not set" && exit 1)
 	@test -n "$(DEPLOYER_PRIVATE_KEY)" || (echo "DEPLOYER_PRIVATE_KEY not set" && exit 1)
 	DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) forge script script/DeployCentralBank.s.sol:DeployCentralBank \
@@ -105,6 +141,21 @@ deploy-prd-dry-run:
 	@echo "   1. Review the simulation above"
 	@echo "   2. Get multi-sig approval"
 	@echo "   3. Execute via governance process"
+
+deploy-prd-dry-run-v2:
+	@echo "⚠️  PRODUCTION DRY RUN (v2) - Review carefully!"
+	@test -n "$(PRD_RPC_URL)" || (echo "PRD_RPC_URL not set" && exit 1)
+	@test -n "$(DEPLOYER_PRIVATE_KEY)" || (echo "DEPLOYER_PRIVATE_KEY not set" && exit 1)
+	DEPLOYER_PRIVATE_KEY=$(DEPLOYER_PRIVATE_KEY) GOVERNANCE_ADDRESS=$(GOVERNANCE_ADDRESS) \
+		forge script script/DeployCentralBankV2.s.sol:DeployCentralBankV2 \
+		--rpc-url $(PRD_RPC_URL) \
+		-vvv
+	@echo ""
+	@echo "⚠️  To deploy Protocol v2 to production:"
+	@echo "   1. Review the simulation above"
+	@echo "   2. Confirm GOVERNANCE_ADDRESS equals the deployer"
+	@echo "   3. Get multi-sig approval"
+	@echo "   4. Execute via governance process"
 
 # ============================================
 # Utilities
@@ -144,17 +195,19 @@ help:
 	@echo "  clean         Clean build artifacts"
 	@echo ""
 	@echo "Local:"
-	@echo "  anvil         Start local Anvil node"
-	@echo "  deploy-local  Deploy to local Anvil"
+	@echo "  anvil            Start local Anvil node"
+	@echo "  deploy-local     Deploy v1 integration path to local Anvil"
+	@echo "  deploy-local-v2  Deploy Protocol v2 to local Anvil"
 	@echo ""
 	@echo "Lab:"
-	@echo "  port-forward  Port-forward to Besu in Kind"
-	@echo "  deploy-lab    Deploy to lab environment"
+	@echo "  port-forward     Port-forward to Besu in Kind"
+	@echo "  deploy-lab       Deploy v1 to lab environment"
+	@echo "  deploy-lab-v2    Deploy Protocol v2 to lab environment"
 	@echo ""
 	@echo "Environments:"
-	@echo "  deploy-int    Deploy to integration"
-	@echo "  deploy-stg    Deploy to staging"
-	@echo "  deploy-prd-dry-run  Dry run for production"
+	@echo "  deploy-int / deploy-int-v2"
+	@echo "  deploy-stg / deploy-stg-v2"
+	@echo "  deploy-prd-dry-run / deploy-prd-dry-run-v2"
 	@echo ""
 	@echo "Utilities:"
 	@echo "  balance       Check native balance"

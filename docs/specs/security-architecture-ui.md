@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary
 
-The Tokenized Euro (tEUR) ECB Operator Interface is designed as a **stateless, authority-less presentation layer**. It serves as a secure gateway for human-in-the-loop operations but possesses no intrinsic power to modify the ledger or bypass the monetary policy constraints defined in the settlement core. All security enforcement is performed server-side within the Closed Settlement Plane (CSP).
+The Central Bank Digital Token (CBDT) ECB Operator Interface is designed as a **stateless, authority-less presentation layer**. It serves as a secure gateway for human-in-the-loop operations but possesses no intrinsic power to modify the ledger or bypass the monetary policy constraints defined in the settlement core. All security enforcement is performed server-side within the Closed Settlement Plane (CSP).
 
 ## 2. Core Security Principles
 
@@ -77,4 +77,4 @@ router.post(
 
 ## 5. Conclusion
 
-The tEUR Operator UI is a transparent window into the system's state. It provides the necessary tools for ECB officials to execute their mandate while ensuring that **no single point of failure** exists within the browser environment. Auditors can verify the integrity of the system by inspecting the backend logs, which remain the single source of truth for all sovereign actions.
+The CBDT Operator UI is a transparent window into the system's state. It provides the necessary tools for ECB officials to execute their mandate while ensuring that **no single point of failure** exists within the browser environment. Auditors can verify the integrity of the system by inspecting the backend logs, which remain the single source of truth for all sovereign actions.

@@ -36,7 +36,7 @@ Activation de la pause globale, communication avec l'Eurosystème et reprise con
 
 ### T+10 : Injection 1 - Détection de vulnérabilité
 
-**Injection** : Le centre d'opérations de sécurité (SOC) détecte une exploitation dans la fonction `mint` qui permet de contourner la vérification des données de référence de la BCE. Des tEUR non autorisés sont générés.
+**Injection** : Le centre d'opérations de sécurité (SOC) détecte une exploitation dans la fonction `mint` qui permet de contourner la vérification des données de référence de la BCE. Des CBDT non autorisés sont générés.
 
 **Actions attendues des participants** :
 

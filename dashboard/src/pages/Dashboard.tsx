@@ -25,13 +25,13 @@ export const Dashboard: React.FC = () => {
   const stats = [
     { 
       label: t('dashboard.reserveBalance'), 
-      value: `${status.reserveBalance} tEUR`, 
+      value: `${status.reserveBalance} CBDT`, 
       icon: TrendingUp,
       color: 'text-blue-600'
     },
     { 
       label: t('dashboard.escrowBalance'), 
-      value: `${status.escrowBalance} tEUR`, 
+      value: `${status.escrowBalance} CBDT`, 
       icon: Lock,
       color: 'text-orange-600'
     },
@@ -114,7 +114,7 @@ export const Dashboard: React.FC = () => {
             </div>
             <div>
               <p className="text-sm font-medium text-gray-900">High-value transfer detected</p>
-              <p className="text-xs text-gray-500">5,000,000.00 tEUR (Bank A -&gt; Bank B) | 2026-01-03 10:45 UTC</p>
+              <p className="text-xs text-gray-500">5,000,000.00 CBDT (Bank A -&gt; Bank B) | 2026-01-03 10:45 UTC</p>
             </div>
           </div>
           <div className="flex items-center gap-4 px-6 py-4">

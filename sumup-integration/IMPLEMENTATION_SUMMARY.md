@@ -1,14 +1,14 @@
-# SumUp tEUR Integration - Implementation Summary
+# SumUp CBDT Integration - Implementation Summary
 
 ## Overview
 
-We have successfully created a comprehensive SumUp integration for tEUR token payments. This integration enables merchants to accept fiat payments through SumUp's European payment network and automatically release tEUR tokens to customers.
+We have successfully created a comprehensive SumUp integration for CBDT token payments. This integration enables merchants to accept fiat payments through SumUp's European payment network and automatically release CBDT tokens to customers.
 
 ## Files Created
 
 ### Core Integration
 
-- **`SumUpTEurIntegration.java`** - Main integration class with SumUp API methods
+- **`SumUpCentralBankIntegration.java`** - Main integration class with SumUp API methods
 - **`SumUpPaymentActivity.java`** - Android activity demonstrating usage
 - **`SumUpIntegrationTest.java`** - Test class for validation
 
@@ -26,9 +26,9 @@ We have successfully created a comprehensive SumUp integration for tEUR token pa
 - **Transaction Processing**: Handle payments through SumUp's network
 - **Status Monitoring**: Real-time payment status checking
 
-### 2. tEUR Token Release
+### 2. CBDT Token Release
 
-- **API Communication**: Secure communication with tEUR backend
+- **API Communication**: Secure communication with CBDT backend
 - **Token Validation**: Verify payment success before token release
 - **Error Handling**: Comprehensive error handling for failed transactions
 
@@ -62,7 +62,7 @@ sequenceDiagram
     participant Customer
     participant Android App
     participant SumUp API
-    participant tEUR API
+    participant CBDT API
 
     Customer->>Android App: Tap NFC/Select Payment
     Android App->>SumUp API: Create Checkout
@@ -70,8 +70,8 @@ sequenceDiagram
     Android App->>SumUp API: Process with Reader
     SumUp API-->>Android App: Transaction ID
     Android App->>Android App: Extract NFC Data
-    Android App->>tEUR API: Release Tokens
-    tEUR API-->>Android App: Success/Failure
+    Android App->>CBDT API: Release Tokens
+    CBDT API-->>Android App: Success/Failure
     Android App-->>Customer: Payment Complete
 ```
 
@@ -90,7 +90,7 @@ sequenceDiagram
 - **Mobile Apps**: Companion apps for merchants
 - **Real-time Processing**: Immediate payment confirmation
 
-### tEUR Specific Benefits
+### CBDT Specific Benefits
 
 - **Broad Acceptance**: Access to millions of SumUp merchants
 - **Local Currency**: EUR payments with automatic token conversion
@@ -124,7 +124,7 @@ sequenceDiagram
 3. Initialize integration with credentials
 4. Implement NFC reading logic
 
-### tEUR Backend
+### CBDT Backend
 
 1. Configure API endpoints
 2. Set up authentication
@@ -208,7 +208,7 @@ sequenceDiagram
 
 ## Conclusion
 
-The SumUp integration provides a robust, scalable solution for tEUR adoption in Europe. By leveraging SumUp's extensive merchant network and mature API infrastructure, we can significantly expand tEUR's reach while maintaining high security and user experience standards.
+The SumUp integration provides a robust, scalable solution for CBDT adoption in Europe. By leveraging SumUp's extensive merchant network and mature API infrastructure, we can significantly expand CBDT's reach while maintaining high security and user experience standards.
 
 The integration follows the same architectural patterns as the Clover implementation, ensuring consistency across different payment platforms and simplifying future expansions to other European payment providers.
 
@@ -222,4 +222,4 @@ The integration follows the same architectural patterns as the Clover implementa
 
 ---
 
-_This integration was created as part of the tEUR Tokenized Euro project, enabling seamless fiat-to-token conversion through SumUp's European payment network._
+_This integration was created as part of the CBDT Central Bank Digital Token project, enabling seamless fiat-to-token conversion through SumUp's European payment network._

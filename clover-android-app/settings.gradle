@@ -13,5 +13,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TEur Clover App"
+rootProject.name = "CentralBank Clover App"
 include ':app'

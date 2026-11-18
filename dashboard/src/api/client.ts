@@ -9,7 +9,7 @@ const apiClient = axios.create({
 
 // Request interceptor for authentication
 apiClient.interceptors.request.use((config) => {
-  const token = localStorage.getItem('teur_admin_token');
+  const token = localStorage.getItem('centralbank_admin_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -21,7 +21,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      localStorage.removeItem('teur_admin_token');
+      localStorage.removeItem('centralbank_admin_token');
       window.location.href = '/login';
     }
     return Promise.reject(error);

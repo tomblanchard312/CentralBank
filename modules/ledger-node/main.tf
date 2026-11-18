@@ -1,5 +1,5 @@
 # Ledger Node Module
-# Deploys Hyperledger Besu validator nodes for tEUR settlement
+# Deploys Hyperledger Besu validator nodes for CBDT settlement
 
 terraform {
   required_version = ">= 1.5.0"
@@ -17,9 +17,9 @@ locals {
   labels = {
     "app.kubernetes.io/name"      = "besu-${var.role}"
     "app.kubernetes.io/component" = "ledger"
-    "app.kubernetes.io/part-of"   = "teur"
-    "teur.eu/zone"                = var.zone_name
-    "teur.eu/environment"         = var.environment
+    "app.kubernetes.io/part-of"   = "centralbank"
+    "centralbank/zone"                = var.zone_name
+    "centralbank/environment"         = var.environment
   }
 }
 
@@ -88,7 +88,7 @@ resource "kubernetes_config_map" "besu_config" {
 
   data = {
     "config.toml" = <<-EOT
-      # Besu configuration for tEUR ${var.zone_name}
+      # Besu configuration for CBDT ${var.zone_name}
       
       # Network
       genesis-file="/etc/besu/genesis.json"

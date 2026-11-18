@@ -1,6 +1,6 @@
-# tEUR — Tokenized Euro (tEUR) Repository
+# CBDT — Central Bank Digital Token (CBDT) Repository
 
-Saugykla, kurioje yra smart kontraktai, API tarpininkas, prietaisų skydelis ir įrankiai Tokenized Euro projektui.
+Saugykla, kurioje yra smart kontraktai, API tarpininkas, prietaisų skydelis ir įrankiai Central Bank Digital Token projektui.
 
 Greitas pradėjimas
 

@@ -12,7 +12,7 @@ function isValidTxId(txId: string): boolean {
 
 /**
  * Generate ISO 20022 camt.053.001.02 - Bank to Customer Statement
- * Converts tEUR transaction to ISO 20022 format
+ * Converts CBDT transaction to ISO 20022 format
  */
 export async function generatePaymentStatusReport(txId: string, txData?: any): Promise<string> {
   try {
@@ -22,12 +22,12 @@ export async function generatePaymentStatusReport(txId: string, txData?: any): P
 
     // If transaction data not provided, fetch it
     if (!txData) {
-      const requestUrl = new URL(`/transfers/${encodeURIComponent(txId)}`, config.teurApiUrl);
+      const requestUrl = new URL(`/transfers/${encodeURIComponent(txId)}`, config.centralBankApiUrl);
       const response = await axios.get(
         requestUrl.toString(),
         {
           headers: {
-            'X-API-Key': config.teurApiKey,
+            'X-API-Key': config.centralBankApiKey,
           },
         }
       );
@@ -58,7 +58,7 @@ export async function generatePaymentStatusReport(txId: string, txData?: any): P
               Id: {
                 Othr: {
                   Id: txData.from,
-                  Issr: 'tEUR',
+                  Issr: 'CBDT',
                 },
               },
               Ccy: 'EUR',
@@ -133,7 +133,7 @@ export async function generatePaymentStatusReport(txId: string, txData?: any): P
                   },
                   RltdPties: {
                     Dbtr: {
-                      Nm: 'tEUR Wallet',
+                      Nm: 'CBDT Wallet',
                       Id: {
                         OrgId: {
                           Othr: {
@@ -143,7 +143,7 @@ export async function generatePaymentStatusReport(txId: string, txData?: any): P
                       },
                     },
                     Cdtr: {
-                      Nm: 'tEUR Wallet',
+                      Nm: 'CBDT Wallet',
                       Id: {
                         OrgId: {
                           Othr: {
@@ -154,7 +154,7 @@ export async function generatePaymentStatusReport(txId: string, txData?: any): P
                     },
                   },
                   RmtInf: {
-                    Ustrd: `tEUR Digital Euro Transfer - TxHash: ${txData.txHash}`,
+                    Ustrd: `CBDT Digital Euro Transfer - TxHash: ${txData.txHash}`,
                   },
                 },
               },

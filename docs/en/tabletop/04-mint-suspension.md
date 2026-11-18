@@ -36,7 +36,7 @@ Activation of the global pause, communication with the Eurosystem, and the contr
 
 ### T+10: Inject 1 - Vulnerability Detection
 
-**Inject**: The Security Operations Center (SOC) detects an exploit in the `mint` function that allows bypassing the ECB reference data check. Unauthorized tEUR is being generated.
+**Inject**: The Security Operations Center (SOC) detects an exploit in the `mint` function that allows bypassing the ECB reference data check. Unauthorized CBDT is being generated.
 
 **Expected Participant Actions**:
 

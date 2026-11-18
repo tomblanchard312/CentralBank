@@ -8,7 +8,7 @@ Validierung der Fähigkeit der EZB, ein Notfall-Einfrieren eines Wallets als Rea
 
 ### Umfang
 
-Diese Übung deckt den End-to-End-Prozess vom Eingang einer rechtlichen Anordnung bis zur Verifizierung des eingefrorenen Status im tEUR-Ledger ab.
+Diese Übung deckt den End-to-End-Prozess vom Eingang einer rechtlichen Anordnung bis zur Verifizierung des eingefrorenen Status im CBDT-Ledger ab.
 
 ### Teilnehmer und Rollen
 

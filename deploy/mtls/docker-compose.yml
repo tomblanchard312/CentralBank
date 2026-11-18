@@ -16,7 +16,7 @@ services:
       - api
     env_file:
       - ./.env.local
-    command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--service-cluster", "teur-mtls"]
+    command: ["envoy", "-c", "/etc/envoy/envoy.yaml", "--service-cluster", "centralbank-mtls"]
     volumes:
       - ./envoy.yaml:/etc/envoy/envoy.yaml:ro
       - ./pki:/etc/envoy/pki:ro

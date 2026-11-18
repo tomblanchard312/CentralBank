@@ -2,14 +2,14 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
   external_labels:
-    cluster: 'teur-ecb-core'
+    cluster: 'centralbank-ecb-core'
     environment: 'production'
 
 scrape_configs:
-  # tEUR API metrics
-  - job_name: 'teur-api'
+  # CBDT API metrics
+  - job_name: 'centralbank-api'
     static_configs:
-      - targets: ['teur-api:3000']
+      - targets: ['centralbank-api:3000']
     metrics_path: '/metrics'
 
   # Besu blockchain metrics

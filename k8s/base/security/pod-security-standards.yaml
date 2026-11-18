@@ -1,15 +1,15 @@
-# Pod Security Standards for tEUR
+# Pod Security Standards for CBDT
 # Enforces restricted security context for all pods
 
 # Restricted profile is the most restrictive and follows security best practices
 # Reference: https://kubernetes.io/docs/concepts/security/pod-security-standards/
 
 ---
-# ResourceQuota template for tEUR namespaces
+# ResourceQuota template for CBDT namespaces
 apiVersion: v1
 kind: ResourceQuota
 metadata:
-  name: teur-resource-quota
+  name: centralbank-resource-quota
 spec:
   hard:
     requests.cpu: "10"
@@ -25,7 +25,7 @@ spec:
 apiVersion: v1
 kind: LimitRange
 metadata:
-  name: teur-limit-range
+  name: centralbank-limit-range
 spec:
   limits:
     - type: Container

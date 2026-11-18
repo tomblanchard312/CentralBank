@@ -9,7 +9,7 @@ const builder = new XMLBuilder({ ignoreAttributes: false, attributeNamePrefix: '
 
 /**
  * Process ISO 20022 pain.001.001.03 - Customer Credit Transfer Initiation
- * Maps SEPA Credit Transfer to tEUR transfer
+ * Maps SEPA Credit Transfer to CBDT transfer
  */
 export async function processPaymentInitiation(xml: string): Promise<string> {
   try {
@@ -35,14 +35,14 @@ export async function processPaymentInitiation(xml: string): Promise<string> {
       const amountCents = Math.round(parseFloat(txInf.Amt.InstdAmt['#text']) * 100);
       const endToEndId = txInf.PmtId.EndToEndId;
       
-      // Map IBAN to tEUR wallet address (in production, use a registry)
+      // Map IBAN to CBDT wallet address (in production, use a registry)
       const fromAddress = ibanToAddress(debtorAccount);
       const toAddress = ibanToAddress(creditorAccount);
       
       try {
-        // Execute tEUR transfer
+        // Execute CBDT transfer
         const response = await axios.post(
-          `${config.teurApiUrl}/transfers`,
+          `${config.centralBankApiUrl}/transfers`,
           {
             from: fromAddress,
             to: toAddress,
@@ -51,7 +51,7 @@ export async function processPaymentInitiation(xml: string): Promise<string> {
           },
           {
             headers: {
-              'X-API-Key': config.teurApiKey,
+              'X-API-Key': config.centralBankApiKey,
             },
           }
         );
@@ -129,7 +129,7 @@ function generateStatusResponse(
                 InstrPrty: 'NORM',
               },
               RmtInf: {
-                Ustrd: `tEUR TxHash: ${tx.txHash}`,
+                Ustrd: `CBDT TxHash: ${tx.txHash}`,
               },
             } : undefined,
           })),
@@ -142,7 +142,7 @@ function generateStatusResponse(
 }
 
 /**
- * Map IBAN to tEUR wallet address
+ * Map IBAN to CBDT wallet address
  * In production, this would query a registry or database
  */
 function ibanToAddress(iban: string): string {

@@ -10,11 +10,11 @@ The reference deployment will use Envoy. A managed ingress with equivalent contr
 
 ## Certificate identity
 
-- Certificates are issued by the tEUR institutional private CA hierarchy.
+- Certificates are issued by the CBDT institutional private CA hierarchy.
 - The authoritative institution identity is carried in a URI SAN:
 
 ```text
-spiffe://teur.example/institution/{institutionId}
+spiffe://centralbank.example/institution/{institutionId}
 ```
 
 - Common Name is informational only and is never used for authorization.

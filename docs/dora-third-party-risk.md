@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document maps Verifone terminals and acquirer systems to DORA (Digital Operational Resilience Act) third-party ICT risk management requirements. As a regulated digital euro settlement network, tEUR must classify and manage ICT third-parties to ensure operational resilience.
+This document maps Verifone terminals and acquirer systems to DORA (Digital Operational Resilience Act) third-party ICT risk management requirements. As a regulated digital euro settlement network, CBDT must classify and manage ICT third-parties to ensure operational resilience.
 
 ## Third-Party Classification
 
@@ -23,7 +23,7 @@ This document maps Verifone terminals and acquirer systems to DORA (Digital Oper
 ### Supporting Services
 
 - **Verifone Cloud Services**: Classified as Important, treated as external dependencies with contractual controls.
-- **Payment Networks (e.g., Visa)**: Critical if integrated, but tEUR acts as parallel network.
+- **Payment Networks (e.g., Visa)**: Critical if integrated, but CBDT acts as parallel network.
 
 ## Concentration Risk Controls
 
@@ -35,7 +35,7 @@ This document maps Verifone terminals and acquirer systems to DORA (Digital Oper
 
 ### Mitigation Strategies
 
-- **Multi-Acquirer Architecture**: tEUR APIs designed for plug-and-play acquirer integration.
+- **Multi-Acquirer Architecture**: CBDT APIs designed for plug-and-play acquirer integration.
 - **Terminal Agnosticism**: Support multiple terminal providers beyond Verifone.
 - **Capacity Planning**: Monitor and enforce acquirer capacity limits to prevent over-reliance.
 
@@ -59,7 +59,7 @@ This document maps Verifone terminals and acquirer systems to DORA (Digital Oper
 ### Notification Process
 
 1. **Detection**: Automated monitoring detects incidents via API health checks and transaction metrics.
-2. **Internal Assessment**: tEUR security team evaluates impact within 30 minutes.
+2. **Internal Assessment**: CBDT security team evaluates impact within 30 minutes.
 3. **Regulatory Notification**: Report to competent authorities (e.g., ECB, national supervisors) per DORA timelines.
 4. **Stakeholder Communication**: Notify affected acquirers and merchants.
 
@@ -74,13 +74,13 @@ This document maps Verifone terminals and acquirer systems to DORA (Digital Oper
 ### Verifone Exit Strategy
 
 - **Contractual Clauses**: 90-day termination notice with data portability requirements.
-- **Technical Portability**: Terminal configurations stored in acquirer systems, not tEUR.
-- **Migration Path**: Acquirers responsible for terminal replacement; tEUR provides API compatibility.
+- **Technical Portability**: Terminal configurations stored in acquirer systems, not CBDT.
+- **Migration Path**: Acquirers responsible for terminal replacement; CBDT provides API compatibility.
 - **Fallback Options**: Generic terminal support for non-Verifone devices.
 
 ### Acquirer Exit Strategy
 
-- **Multi-Tenancy**: tEUR APIs support concurrent acquirer operations.
+- **Multi-Tenancy**: CBDT APIs support concurrent acquirer operations.
 - **Data Export**: Standardized reconciliation data formats for easy migration.
 - **Transition Period**: 30-day overlap for acquirer switching.
 - **Contingency Contracts**: Pre-qualified backup acquirers for rapid replacement.
@@ -110,7 +110,7 @@ This document maps Verifone terminals and acquirer systems to DORA (Digital Oper
 
 ## DORA Article Mapping
 
-| DORA Article | Requirement                      | tEUR Implementation                                      |
+| DORA Article | Requirement                      | CBDT Implementation                                      |
 | ------------ | -------------------------------- | -------------------------------------------------------- |
 | Article 15   | Protection and prevention        | Concentration risk controls, multi-acquirer architecture |
 | Article 16   | ICT and security risk management | Third-party classification and risk assessments          |
@@ -143,7 +143,7 @@ This document maps Verifone terminals and acquirer systems to DORA (Digital Oper
 
 ### Security Layer
 
-- **Network Segmentation**: Acquirer traffic isolated from core tEUR systems.
+- **Network Segmentation**: Acquirer traffic isolated from core CBDT systems.
 - **Encryption**: End-to-end encryption for all data in transit.
 - **Access Control**: Role-based access with principle of least privilege.
 
@@ -169,4 +169,4 @@ This document maps Verifone terminals and acquirer systems to DORA (Digital Oper
 - **Retention Policies**: 7-year retention for regulatory evidence.
 - **Chain of Custody**: Cryptographic proofs for evidence integrity.
 
-This mapping ensures tEUR's third-party ICT relationships are DORA-compliant, with robust controls for risk management, incident response, and operational resilience.
+This mapping ensures CBDT's third-party ICT relationships are DORA-compliant, with robust controls for risk management, incident response, and operational resilience.

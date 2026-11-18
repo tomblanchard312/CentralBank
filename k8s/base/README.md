@@ -1,6 +1,6 @@
 # Kubernetes Base Manifests
 
-Base Kubernetes configurations for tEUR infrastructure.
+Base Kubernetes configurations for CBDT infrastructure.
 
 ## Structure
 

@@ -2,7 +2,7 @@
 
 ## 1. Introduction
 
-Ce document fournit des preuves vérifiables que **l'interface opérateur de la BCE tEUR** est une couche de présentation non autoritaire. Toute l'autorité souveraine, l'application de la sécurité et la validation des politiques résident exclusivement dans le backend du **Plan de Règlement Fermé (PRF)**.
+Ce document fournit des preuves vérifiables que **l'interface opérateur de la BCE CBDT** est une couche de présentation non autoritaire. Toute l'autorité souveraine, l'application de la sécurité et la validation des politiques résident exclusivement dans le backend du **Plan de Règlement Fermé (PRF)**.
 
 ## 2. Preuve 1 : Application du RBAC (Autorité du Backend)
 
@@ -14,7 +14,7 @@ Ce document fournit des preuves vérifiables que **l'interface opérateur de la 
 - **Action** : Appel API direct vers `/v1/ecb/mint` (en contournant l'UI)
 - **Commande** :
   ```bash
-  curl -X POST https://csp.teur.internal/v1/ecb/mint \
+  curl -X POST https://csp.centralbank.internal/v1/ecb/mint \
     --cert auditor.crt --key auditor.key \
     -H "Content-Type: application/json" \
     -d '{"amount": "1000", "justification": "Tentative non autorisée"}'
@@ -103,4 +103,4 @@ Ce document fournit des preuves vérifiables que **l'interface opérateur de la 
 
 ## 8. Conclusion
 
-Ces preuves démontrent que le système tEUR suit le **principe du moindre privilège** et la **défense en profondeur**. L'UI ne peut pas être utilisée pour contourner les contrôles monétaires et de sécurité rigoureux appliqués par la BCE au sein du Plan de Règlement Fermé.
+Ces preuves démontrent que le système CBDT suit le **principe du moindre privilège** et la **défense en profondeur**. L'UI ne peut pas être utilisée pour contourner les contrôles monétaires et de sécurité rigoureux appliqués par la BCE au sein du Plan de Règlement Fermé.

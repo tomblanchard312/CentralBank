@@ -45,7 +45,7 @@ Attendre que la transaction soit minée sur le réseau Besu. Récupérer le hach
    Interroger l'état du contrat pour confirmer que l'indicateur `frozen` est défini sur `true` :
    ```bash
    # Utilisation de l'outil CLI interne
-   teur-cli query is-frozen 0xTargetAddress...
+   centralbank-cli query is-frozen 0xTargetAddress...
    ```
 2. **Tentative de transfert de test** :
    Tenter un petit transfert à partir du compte gelé. La transaction DOIT échouer avec l'erreur `AccountIsFrozen`.
@@ -69,5 +69,5 @@ curl -X POST "https://[internal-gateway]/api/v1/transfers/unfreeze" \
 ## Preuves d'audit produites
 
 - **Journaux API** : Événement `ACCOUNT_FROZEN` au format JSON structuré.
-- **Événement Blockchain** : `AccountFrozen(address indexed account)` émis par le contrat `TokenizedEuro`.
+- **Événement Blockchain** : `AccountFrozen(address indexed account)` émis par le contrat `CentralBank`.
 - **Journal de gouvernance** : Enregistrement de la clé `ISSUING` utilisée pour l'opération.

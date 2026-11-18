@@ -210,7 +210,7 @@ contract WalletRegistry is IWalletRegistry {
     /**
      * @notice Calculate excess amount above holding limit (for waterfall)
      * @param wallet Address to check
-     * @param currentBalance Current tEUR balance
+     * @param currentBalance Current CBDT balance
      * @param incomingAmount Amount being received
      * @return uint256 Amount to sweep to linked bank account
      */

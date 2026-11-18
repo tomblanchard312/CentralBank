@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
-  title: tEUR Acquirer API
+  title: CBDT Acquirer API
   version: 1.1.0
   description: >
-    Visa-style acquirer integration API for the tEUR network. This API is intended for acquirers/processors
+    Visa-style acquirer integration API for the CBDT network. This API is intended for acquirers/processors
     to request authorization and submit clearing, reversals, refunds, reconciliation queries, and offline
     advice batches. All mutating endpoints require idempotency and detached JWS over the canonical JSON body.
 
@@ -12,11 +12,11 @@ info:
     - Capture: Finalizes the transaction amount for settlement in the next batch. Cannot be reversed after batch cutoff.
     - Batch: Settlement occurs at batch close, with finality achieved upon successful interbank clearing.
   contact:
-    name: tEUR Infrastructure Team
+    name: CBDT Infrastructure Team
 servers:
-  - url: https://api.t-eursystem.eu
+  - url: https://api.centralbank.example
     description: Public Access Plane (non-settlement)
-  - url: https://teur-gateway.csp.internal
+  - url: https://centralbank-gateway.csp.internal
     description: Closed Settlement Plane (private connectivity only)
 security:
   - mTLS: []
@@ -29,7 +29,7 @@ x-security:
   mtls_required: true
   detached_jws_required: true
   notes:
-    - Use mutual TLS with client certificates issued by the tEUR closed-plane PKI.
+    - Use mutual TLS with client certificates issued by the CBDT closed-plane PKI.
     - Use detached JWS over a canonical JSON representation of the request body.
     - Do not include secrets or raw payloads in logs.
 x-conformance-profiles:
@@ -98,7 +98,7 @@ paths:
                   merchant: { merchant_id: "m_123", category_code: "5411" }
                   terminal: { terminal_id: "t_456", capabilities: ["NFC","CHIP","OFFLINE"] }
                   payer:
-                    instrument_type: "TEUR_WALLET"
+                    instrument_type: "CENTRALBANK_WALLET"
                     wallet_token: "opaque_token"
                   risk:
                     device_attestation: "opaque_attestation"
@@ -282,7 +282,7 @@ paths:
       tags: [Offline]
       summary: Submit offline advice batch for later clearing
       description: >
-        Submits a batch of offline-approved transactions. The tEUR network will verify token signatures,
+        Submits a batch of offline-approved transactions. The CBDT network will verify token signatures,
         anti-replay counters, limits, and policy. Accepted items are posted for settlement; rejected items
         include explicit reason codes. Must be idempotent per batch_id.
       operationId: submitOfflineAdvice
@@ -411,7 +411,7 @@ components:
         type: string
         minLength: 3
         maxLength: 64
-      description: Acquirer or processor identifier assigned by tEUR governance.
+      description: Acquirer or processor identifier assigned by CBDT governance.
     XMerchantId:
       name: X-Merchant-Id
       in: header
@@ -556,7 +556,7 @@ components:
       properties:
         instrument_type:
           type: string
-          enum: [TEUR_WALLET]
+          enum: [CENTRALBANK_WALLET]
         wallet_token:
           type: string
           minLength: 8

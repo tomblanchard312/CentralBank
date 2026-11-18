@@ -50,7 +50,7 @@ Currency: EUR
 
 A profile may define a customer-facing label, but it must not imply endorsement or operation by a central bank unless that statement is actually authorized by the operator.
 
-Do **not** use legacy `tEUR` or `Tokenized Euro` labels for the generic CentralBank protocol.
+Do **not** use legacy `T-EUR` or `tEUR` labels for the generic CentralBank protocol.
 
 ## EUR reference formatting
 

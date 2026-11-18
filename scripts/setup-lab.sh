@@ -1,5 +1,5 @@
 #!/bin/bash
-# tEUR Local Lab Setup Script
+# CBDT Local Lab Setup Script
 # Initializes a local Kubernetes cluster for development
 
 set -euo pipefail
@@ -8,10 +8,10 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
 # Configuration
-CLUSTER_NAME="${CLUSTER_NAME:-teur-lab}"
+CLUSTER_NAME="${CLUSTER_NAME:-centralbank-lab}"
 K8S_VERSION="${K8S_VERSION:-1.28.0}"
 
-echo "=== tEUR Lab Environment Setup ==="
+echo "=== CBDT Lab Environment Setup ==="
 echo "Cluster Name: $CLUSTER_NAME"
 echo "Kubernetes Version: $K8S_VERSION"
 echo ""

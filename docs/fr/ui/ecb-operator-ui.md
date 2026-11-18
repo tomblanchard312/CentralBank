@@ -1,6 +1,6 @@
 # Interface Opérateur BCE - Maquettes (Français)
 
-Ce document présente des maquettes ASCII de l'interface de contrôle souverain de la BCE pour le système tEUR.
+Ce document présente des maquettes ASCII de l'interface de contrôle souverain de la BCE pour le système CBDT.
 
 ## 1. Tableau de bord de la BCE
 
@@ -17,12 +17,12 @@ Ce document présente des maquettes ASCII de l'interface de contrôle souverain 
 |                                                                              |
 |  ÉTAT DES RÉSERVES                                                           |
 |  +----------------------------+  +----------------------------+              |
-|  | Offre Totale (tEUR)        |  | Solde de Réserve (EUR)     |              |
+|  | Offre Totale (CBDT)        |  | Solde de Réserve (EUR)     |              |
 |  | 1 250 000 000,00           |  | 1 250 000 000,00           |              |
 |  +----------------------------+  +----------------------------+              |
 |                                                                              |
 |  ALERTES ACTIVES                                                             |
-|  - [AVERT] Transfert élevé détecté: 5 000 000,00 tEUR (Banque A -> Banque B) |
+|  - [AVERT] Transfert élevé détecté: 5 000 000,00 CBDT (Banque A -> Banque B) |
 |  - [INFO] Rotation des clés prévue pour le 2026-01-15                        |
 |                                                                              |
 +------------------------------------------------------------------------------+
@@ -61,10 +61,10 @@ Ce document présente des maquettes ASCII de l'interface de contrôle souverain 
 +------------------------------------------------------------------------------+
 | GESTION DES SÉQUESTRES                                                       |
 +------------------------------------------------------------------------------+
-| Portefeuille: [ 0xabcd...1234 ] | Solde Actuel: 50 000,00 tEUR               |
+| Portefeuille: [ 0xabcd...1234 ] | Solde Actuel: 50 000,00 CBDT               |
 |                                                                              |
 | [ PLACER SOUS SÉQUESTRE ]                                                    |
-| Montant: [ 25 000,00 ] tEUR                                                  |
+| Montant: [ 25 000,00 ] CBDT                                                  |
 | Base Légale: [ Ordonnance 2026-XYZ ]                                         |
 | Expiration: [ 2026-06-01 ] (Optionnel)                                       |
 |                                                                              |
@@ -83,13 +83,13 @@ Ce document présente des maquettes ASCII de l'interface de contrôle souverain 
 +------------------------------------------------------------------------------+
 | OPÉRATIONS MONÉTAIRES                                                        |
 +------------------------------------------------------------------------------+
-| [ ÉMETTRE tEUR ]                                                             |
+| [ ÉMETTRE CBDT ]                                                             |
 | Vers: [ Compte de Réserve ]                                                  |
 | Montant: [ 10 000 000,00 ]                                                   |
 | Justification: [ Expansion des Réserves ]                                    |
 | [ CONFIRMER L'ÉMISSION ]                                                     |
 |                                                                              |
-| [ DÉTRUIRE tEUR ]                                                            |
+| [ DÉTRUIRE CBDT ]                                                            |
 | Depuis: [ Compte de Réserve ]                                                |
 | Montant: [ 5 000 000,00 ]                                                    |
 | [ CONFIRMER LA DESTRUCTION ]                                                 |
@@ -132,8 +132,8 @@ Ce document présente des maquettes ASCII de l'interface de contrôle souverain 
 +------------------------------------------------------------------------------+
 | Filtre: [ Toutes Actions |v] [ Période |v] [ Rechercher... ]                 |
 |                                                                              |
-| HORODATAGE          | ACTEUR     | ACTION         | DÉTAILS                  |
-| 2026-01-03 10:00:01 | ecb-admin  | ÉMISSION       | 10M tEUR vers Réserve    |
+| HORODATAGE          | ACCENTRALBANK     | ACTION         | DÉTAILS                  |
+| 2026-01-03 10:00:01 | ecb-admin  | ÉMISSION       | 10M CBDT vers Réserve    |
 | 2026-01-03 10:15:22 | ecb-admin  | GEL_COMPTE     | 0x1234... (Sanctions)    |
 | 2026-01-03 10:45:10 | système    | CLÉ_ROTÉE      | ecb-iss-01 -> ecb-iss-02 |
 |                                                                              |

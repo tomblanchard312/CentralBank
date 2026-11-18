@@ -1,4 +1,4 @@
-# tEUR Project Ignore Patterns
+# CBDT Project Ignore Patterns
 
 # Terraform
 .terraform/

@@ -1,4 +1,4 @@
-# tEUR Besu Validator Initialization Script
+# CBDT Besu Validator Initialization Script
 # Generates validator keys and configures QBFT genesis
 
 $ErrorActionPreference = "Stop"
@@ -11,9 +11,9 @@ $Namespace = "ledger-ecb-core"
 $ValidatorCount = 4
 $ChainId = 31337
 $BlockPeriod = 2
-$TempDir = Join-Path $env:TEMP "teur-besu-init"
+$TempDir = Join-Path $env:TEMP "centralbank-besu-init"
 
-Write-Host "=== tEUR Besu Validator Initialization ===" -ForegroundColor Cyan
+Write-Host "=== CBDT Besu Validator Initialization ===" -ForegroundColor Cyan
 Write-Host "Namespace: $Namespace"
 Write-Host "Validator Count: $ValidatorCount"
 Write-Host "Chain ID: $ChainId"

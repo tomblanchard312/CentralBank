@@ -1,5 +1,5 @@
-// SumUp tEUR Integration - Android App Build Configuration
-// This build.gradle configures an Android app for SumUp tEUR payments
+// SumUp CBDT Integration - Android App Build Configuration
+// This build.gradle configures an Android app for SumUp CBDT payments
 
 plugins {
     id 'com.android.application'
@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace 'com.teur.sumup'
+    namespace 'com.centralbank.sumup'
     compileSdk 34
 
     defaultConfig {
-        applicationId "com.teur.sumup"
+        applicationId "com.centralbank.sumup"
         minSdk 24
         targetSdk 34
         versionCode 1

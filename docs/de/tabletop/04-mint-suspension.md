@@ -36,7 +36,7 @@ Aktivierung der globalen Pause, Kommunikation mit dem Eurosystem und die kontrol
 
 ### T+10: Inject 1 - Schwachstellenerkennung
 
-**Inject**: Das Security Operations Center (SOC) erkennt einen Exploit in der `mint`-Funktion, der die Umgehung der EZB-Referenzdatenprüfung ermöglicht. Unbefugte tEUR werden generiert.
+**Inject**: Das Security Operations Center (SOC) erkennt einen Exploit in der `mint`-Funktion, der die Umgehung der EZB-Referenzdatenprüfung ermöglicht. Unbefugte CBDT werden generiert.
 
 **Erwartete Teilnehmeraktionen**:
 

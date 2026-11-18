@@ -13,7 +13,7 @@ variable "image_tag" {
 
 resource "kubernetes_deployment" "dashboard" {
   metadata {
-    name      = "teur-dashboard"
+    name      = "centralbank-dashboard"
     namespace = var.role
   }
 
@@ -22,29 +22,29 @@ resource "kubernetes_deployment" "dashboard" {
 
     selector {
       match_labels = {
-        app = "teur-dashboard"
+        app = "centralbank-dashboard"
       }
     }
 
     template {
       metadata {
         labels = {
-          app = "teur-dashboard"
+          app = "centralbank-dashboard"
         }
       }
 
       spec {
         container {
           name  = "dashboard"
-          image = "teur/dashboard:${var.image_tag}"
+          image = "centralbank/dashboard:${var.image_tag}"
 
           env {
-            name  = "TEUR_ENV"
+            name  = "CENTRALBANK_ENV"
             value = var.environment
           }
 
           env {
-            name  = "TEUR_ROLE"
+            name  = "CENTRALBANK_ROLE"
             value = var.role
           }
 
@@ -70,13 +70,13 @@ resource "kubernetes_deployment" "dashboard" {
 
 resource "kubernetes_service" "dashboard" {
   metadata {
-    name      = "teur-dashboard"
+    name      = "centralbank-dashboard"
     namespace = var.role
   }
 
   spec {
     selector = {
-      app = "teur-dashboard"
+      app = "centralbank-dashboard"
     }
 
     port {
@@ -98,7 +98,7 @@ resource "kubernetes_network_policy" "dashboard" {
   spec {
     pod_selector {
       match_labels = {
-        app = "teur-dashboard"
+        app = "centralbank-dashboard"
       }
     }
 

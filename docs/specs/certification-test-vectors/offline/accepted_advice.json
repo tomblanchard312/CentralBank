@@ -16,7 +16,7 @@
       "amount": { "value": "5.67", "currency": "EUR" },
       "merchant": { "merchant_id": "m_123", "category_code": "5411" },
       "terminal": { "terminal_id": "t_456", "capabilities": ["NFC", "CHIP", "OFFLINE"] },
-      "payer": { "instrument_type": "TEUR_WALLET", "wallet_token": "valid_token_123" },
+      "payer": { "instrument_type": "CENTRALBANK_WALLET", "wallet_token": "valid_token_123" },
       "risk": { "device_attestation": "attest_123", "offline_eligible": true },
       "metadata": { "local_txn_time_utc": "2025-01-03T12:30:00Z" }
     }

@@ -1,6 +1,6 @@
-# ECB Alignment Matrix for tEUR Reference Architecture
+# ECB Alignment Matrix for CBDT Reference Architecture
 
-This document maps the current tEUR design to publicly described Digital Euro objectives and implementation themes, and captures the specific design changes we discussed so the repo stays compatible with an EU scheme style approach.
+This document maps the current CBDT design to publicly described Digital Euro objectives and implementation themes, and captures the specific design changes we discussed so the repo stays compatible with an EU scheme style approach.
 
 This is written for a developer audience and for audit readability.
 
@@ -28,7 +28,7 @@ Key public references used to align terminology and requirements:
 To stay maximally compatible with ECB language:
 
 - Prefer “Digital Euro scheme” wording for policy and participation docs.
-- Use “tEUR” as the internal token engineering label and prototype artifact label.
+- Use “CBDT” as the internal token engineering label and prototype artifact label.
 - Use “intermediaries” for banks and supervised PSPs.
 - Use “Eurosystem access gateway” as the concept name for the closed settlement plane entrypoint.
 
@@ -40,7 +40,7 @@ Legend:
 - Partial: aligns but requires additional constraints
 - Divergent: needs a change
 
-| Topic                       | ECB Digital Euro direction                                | Current tEUR design                               | Alignment | Required changes                                                                                   |
+| Topic                       | ECB Digital Euro direction                                | Current CBDT design                               | Alignment | Required changes                                                                                   |
 | --------------------------- | --------------------------------------------------------- | ------------------------------------------------- | --------- | -------------------------------------------------------------------------------------------------- |
 | Distribution model          | Supervised PSPs distribute and service users              | Banks and PSPs operate gateways and wallets       | Aligned   | Use “scheme participant” and onboarding controls in docs and code comments                         |
 | Scheme rulebook             | Single set of rules, standards, procedures                | Canonical conventions plus governance coded rules | Aligned   | Add explicit “Rulebook parameters” module and keep it provider agnostic                            |

@@ -1,6 +1,6 @@
-# tEUR Acquirer API v1.1 Certification Test Vectors
+# CBDT Acquirer API v1.1 Certification Test Vectors
 
-This directory contains structured test vectors for certifying implementations of the tEUR Acquirer API v1.1.
+This directory contains structured test vectors for certifying implementations of the CBDT Acquirer API v1.1.
 
 ## Structure
 

@@ -1,6 +1,6 @@
-# tEUR Kind Deployment Scripts
+# CBDT Kind Deployment Scripts
 
-This directory contains scripts to build and deploy the complete tEUR (Tokenized Euro) system to a local Kind cluster.
+This directory contains scripts to build and deploy the complete CBDT (Central Bank Digital Token) system to a local Kind cluster.
 
 ## Scripts
 
@@ -34,7 +34,7 @@ Before running the scripts, ensure you have the following tools installed:
 .\deploy-kind.ps1 -Clean
 
 # Custom cluster name and Kubernetes version
-.\deploy-kind.ps1 -ClusterName "my-teur-cluster" -KubernetesVersion "1.29.0"
+.\deploy-kind.ps1 -ClusterName "my-centralbank-cluster" -KubernetesVersion "1.29.0"
 ```
 
 ### Bash (Linux/macOS)
@@ -56,14 +56,14 @@ chmod +x deploy-kind.sh
 ./deploy-kind.sh --clean
 
 # Custom cluster name and Kubernetes version
-CLUSTER_NAME=my-teur-cluster KUBERNETES_VERSION=1.29.0 ./deploy-kind.sh
+CLUSTER_NAME=my-centralbank-cluster KUBERNETES_VERSION=1.29.0 ./deploy-kind.sh
 ```
 
 ## What the Scripts Do
 
 1. **Prerequisites Check**: Verifies all required tools are installed and Docker is running
 2. **Cluster Creation**: Creates a Kind cluster with necessary port mappings
-3. **Image Building**: Builds Docker images for all tEUR services:
+3. **Image Building**: Builds Docker images for all CBDT services:
    - API Gateway (`api/`)
    - Admin Dashboard (`dashboard/`)
    - ISO 20022 Adapter (`iso20022-adapter/`)
@@ -73,7 +73,7 @@ CLUSTER_NAME=my-teur-cluster KUBERNETES_VERSION=1.29.0 ./deploy-kind.sh
    - PostgreSQL database
    - Prometheus monitoring
    - Hyperledger Besu blockchain node
-   - tEUR API Gateway
+   - CBDT API Gateway
    - Admin Dashboard
    - ISO 20022 Adapter
 7. **Health Checks**: Waits for all services to be ready
@@ -94,7 +94,7 @@ After successful deployment, the services will be available at:
 
 The scripts support the following environment variables:
 
-- `CLUSTER_NAME` - Name of the Kind cluster (default: `teur-lab`)
+- `CLUSTER_NAME` - Name of the Kind cluster (default: `centralbank-lab`)
 - `KUBERNETES_VERSION` - Kubernetes version to use (default: `1.28.0`)
 
 ## Troubleshooting
@@ -131,7 +131,7 @@ To completely clean up the deployment:
 Or manually:
 
 ```bash
-kind delete cluster --name teur-lab
+kind delete cluster --name centralbank-lab
 ```
 
 ## Architecture
@@ -139,7 +139,7 @@ kind delete cluster --name teur-lab
 The deployment creates a multi-namespace Kubernetes cluster:
 
 - `obs-global` - Observability services (Prometheus)
-- `teur-csp` - Core settlement plane (API, Besu, PostgreSQL, ISO20022)
-- `teur-pap` - Public access plane (Dashboard)
+- `centralbank-csp` - Core settlement plane (API, Besu, PostgreSQL, ISO20022)
+- `centralbank-pap` - Public access plane (Dashboard)
 
 All services are configured with appropriate networking and security policies as defined in the `k8s/base/` resources.

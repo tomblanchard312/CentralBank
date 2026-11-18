@@ -1,7 +1,7 @@
 #!/bin/bash
 set -euo pipefail
 
-# tEUR Deployment Script
+# CBDT Deployment Script
 # Unified deployment for local, lab, test, pilot, prod environments
 # Supports roles: central-bank, state-bank, local-bank, psp, merchant-simulator
 
@@ -87,8 +87,8 @@ if [[ "$ENV" == "prod" && "$CONFIRM_PROD" != true ]]; then
 fi
 
 # Set environment variables
-export TEUR_ENV="$ENV"
-export TEUR_ROLE="$ROLE"
+export CENTRALBANK_ENV="$ENV"
+export CENTRALBANK_ROLE="$ROLE"
 
 # Validate required tools
 validate_tools() {
@@ -124,7 +124,7 @@ validate_tools() {
 # Validate keys and secrets
 validate_keys() {
     # Check for required key environment variables or files
-    local required_keys=("TEUR_ROOT_CA_KEY" "TEUR_ISSUER_KEY" "TEUR_ACQUIRER_KEY" "TEUR_PSP_KEY")
+    local required_keys=("CENTRALBANK_ROOT_CA_KEY" "CENTRALBANK_ISSUER_KEY" "CENTRALBANK_ACQUIRER_KEY" "CENTRALBANK_PSP_KEY")
 
     for key in "${required_keys[@]}"; do
         if [[ -z "${!key:-}" && ! -f "$PROJECT_ROOT/keys/${key}.pem" ]]; then
@@ -135,7 +135,7 @@ validate_keys() {
 
     # For prod, ensure no test keys
     if [[ "$ENV" == "prod" ]]; then
-        if [[ "${TEUR_ROOT_CA_KEY:-}" == "test-key" || -f "$PROJECT_ROOT/keys/TEUR_ROOT_CA_KEY.pem" && grep -q "test" "$PROJECT_ROOT/keys/TEUR_ROOT_CA_KEY.pem" ]]; then
+        if [[ "${CENTRALBANK_ROOT_CA_KEY:-}" == "test-key" || -f "$PROJECT_ROOT/keys/CENTRALBANK_ROOT_CA_KEY.pem" && grep -q "test" "$PROJECT_ROOT/keys/CENTRALBANK_ROOT_CA_KEY.pem" ]]; then
             echo "Error: Production deployment cannot use test keys"
             exit 1
         fi
@@ -144,7 +144,7 @@ validate_keys() {
 
 # Print deployment plan
 print_plan() {
-    echo "=== tEUR Deployment Plan ==="
+    echo "=== CBDT Deployment Plan ==="
     echo "Environment: $ENV"
     echo "Role: $ROLE"
     echo "Project Root: $PROJECT_ROOT"
@@ -210,9 +210,9 @@ deploy_cloud() {
 
         # Deploy Kubernetes
         cd "$DEPLOY_DIR/kubernetes"
-        helm upgrade --install teur-api charts/api --namespace $ROLE --create-namespace --set env.TEUR_ENV=$ENV --set env.TEUR_ROLE=$ROLE
-        helm upgrade --install teur-contracts charts/contracts --namespace $ROLE --set env.TEUR_ENV=$ENV --set env.TEUR_ROLE=$ROLE
-        helm upgrade --install teur-dashboard charts/dashboard --namespace $ROLE --set env.TEUR_ENV=$ENV --set env.TEUR_ROLE=$ROLE
+        helm upgrade --install centralbank-api charts/api --namespace $ROLE --create-namespace --set env.CENTRALBANK_ENV=$ENV --set env.CENTRALBANK_ROLE=$ROLE
+        helm upgrade --install centralbank-contracts charts/contracts --namespace $ROLE --set env.CENTRALBANK_ENV=$ENV --set env.CENTRALBANK_ROLE=$ROLE
+        helm upgrade --install centralbank-dashboard charts/dashboard --namespace $ROLE --set env.CENTRALBANK_ENV=$ENV --set env.CENTRALBANK_ROLE=$ROLE
     fi
 
     # Health checks

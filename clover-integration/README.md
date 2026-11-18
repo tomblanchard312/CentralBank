@@ -1,10 +1,10 @@
-# Clover Integration for tEUR Token Payments
+# Clover Integration for CBDT Token Payments
 
-This directory contains code for integrating tEUR token payments with Clover POS devices.
+This directory contains code for integrating CBDT token payments with Clover POS devices.
 
 ## Overview
 
-The integration allows consumers to make contactless payments using tEUR tokens via NFC-enabled devices that communicate with Clover terminals.
+The integration allows consumers to make contactless payments using CBDT tokens via NFC-enabled devices that communicate with Clover terminals.
 
 ## Components
 
@@ -16,9 +16,9 @@ The integration allows consumers to make contactless payments using tEUR tokens 
 
 ### Clover Custom Tender
 
-- `TEurTender.java`: Java implementation of a custom tender for Clover
+- `CentralBankTender.java`: Java implementation of a custom tender for Clover
 - Uses Clover Payment Connector SDK
-- Processes payments by calling the tEUR API
+- Processes payments by calling the CBDT API
 - **Note**: This Java file will show import resolution errors in VS Code because the required Clover SDK and Android dependencies are not available in this workspace. These errors are expected and will not occur when the code is properly integrated into an Android Studio project with the correct dependencies.
 
 ## Setup
@@ -27,7 +27,7 @@ The integration allows consumers to make contactless payments using tEUR tokens 
 
 - Clover device with Payment Connector SDK
 - Android development environment
-- tEUR API running and accessible
+- CBDT API running and accessible
 
 ### Installation
 
@@ -40,7 +40,7 @@ The integration allows consumers to make contactless payments using tEUR tokens 
        implementation 'org.json:json:latest-version'
    }
    ```
-3. Copy `TEurTender.java` into your Android project
+3. Copy `CentralBankTender.java` into your Android project
 4. Register the tender with the PaymentConnector in your main activity
 5. Configure API endpoints and keys
 

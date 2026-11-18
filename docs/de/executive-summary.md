@@ -1,8 +1,8 @@
-# Executive Summary: Tokenized Euro (tEUR) Projekt
+# Executive Summary: Central Bank Digital Token (CBDT) Projekt
 
 ## 1. Zweck und Umfang
 
-Dieses Dokument bietet einen Überblick auf hoher Ebene über das tEUR-Projekt, eine technische Referenzimplementierung, die entwickelt wurde, um operative, governance- und Resilienzüberlegungen in Distributed-Ledger-Systemen für Finanzabrechnung zu erkunden. Das Projekt dient als Forschungstool zur Untersuchung von Systemdesign-Prinzipien, ohne operative Infrastruktur darzustellen.
+Dieses Dokument bietet einen Überblick auf hoher Ebene über das CBDT-Projekt, eine technische Referenzimplementierung, die entwickelt wurde, um operative, governance- und Resilienzüberlegungen in Distributed-Ledger-Systemen für Finanzabrechnung zu erkunden. Das Projekt dient als Forschungstool zur Untersuchung von Systemdesign-Prinzipien, ohne operative Infrastruktur darzustellen.
 
 ## 2. Was das Projekt erkundet
 

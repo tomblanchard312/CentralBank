@@ -1,21 +1,21 @@
-# tEUR Bank SDK
+# CBDT Bank SDK
 
-TypeScript/JavaScript SDK for European banks to integrate with the tEUR (Tokenized Euro) Digital Currency.
+TypeScript/JavaScript SDK for European banks to integrate with the CBDT (Central Bank Digital Token) Digital Currency.
 
 ## Installation
 
 ```bash
-npm install @teur/bank-sdk
+npm install @centralbank/bank-sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { TEurClient, WalletType } from '@teur/bank-sdk';
+import { CentralBankClient, WalletType } from '@centralbank/bank-sdk';
 
 // Initialize client
-const client = new TEurClient({
-  apiUrl: 'https://teur-api.eu',
+const client = new CentralBankClient({
+  apiUrl: 'https://centralbank.local',
   apiKey: 'your-bank-api-key',
 });
 
@@ -26,11 +26,11 @@ const wallet = await client.registerWallet({
   kycHash: '0xabcd...', // SHA256 hash of KYC data
 });
 
-// Transfer tEUR
+// Transfer CBDT
 const transfer = await client.transfer({
   from: '0x1234...',
   to: '0x5678...',
-  amount: TEurClient.eurosToCents(100), // €100.00
+  amount: CentralBankClient.eurosToCents(100), // €100.00
 });
 
 console.log(`Transfer completed: ${transfer.txHash}`);
@@ -44,7 +44,7 @@ console.log(`Transfer completed: ${transfer.txHash}`);
 - ✅ **Error handling** with detailed error messages
 - ✅ **Auto-retry** for network failures
 - ✅ **Wallet management** - register, activate, deactivate
-- ✅ **Transfers** - send tEUR with holding limit enforcement
+- ✅ **Transfers** - send CBDT with holding limit enforcement
 - ✅ **Conditional payments** - escrow with delivery confirmation
 - ✅ **Waterfall operations** - automatic excess sweeping
 
@@ -53,8 +53,8 @@ console.log(`Transfer completed: ${transfer.txHash}`);
 ### Client Initialization
 
 ```typescript
-const client = new TEurClient({
-  apiUrl: 'https://teur-api.eu', // API endpoint
+const client = new CentralBankClient({
+  apiUrl: 'https://centralbank.local', // API endpoint
   apiKey: 'your-bank-api-key',   // Your institution's API key
   timeout: 30000,                 // Request timeout (optional)
 });
@@ -81,7 +81,7 @@ console.log(wallet.balanceFormatted); // "€1,234.56"
 
 ### Transfer Operations
 
-#### Transfer tEUR
+#### Transfer CBDT
 ```typescript
 await client.transfer({
   from: '0x...',
@@ -91,7 +91,7 @@ await client.transfer({
 });
 ```
 
-#### Mint tEUR (NCB/ECB only)
+#### Mint CBDT (NCB/ECB only)
 ```typescript
 await client.mint({
   to: '0x...',
@@ -129,16 +129,16 @@ await client.releasePayment(paymentId, proof);
 
 ```typescript
 // Convert euros to cents
-const cents = TEurClient.eurosToCents(123.45); // 12345
+const cents = CentralBankClient.eurosToCents(123.45); // 12345
 
 // Convert cents to euros
-const euros = TEurClient.centsToEuros(12345); // 123.45
+const euros = CentralBankClient.centsToEuros(12345); // 123.45
 
 // Format as currency
-const formatted = TEurClient.formatEuro(12345); // "€123.45"
+const formatted = CentralBankClient.formatEuro(12345); // "€123.45"
 
 // Generate idempotency key
-const key = TEurClient.generateIdempotencyKey(); // UUID v4
+const key = CentralBankClient.generateIdempotencyKey(); // UUID v4
 ```
 
 ## Error Handling

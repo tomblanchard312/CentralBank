@@ -1,4 +1,4 @@
-# Projet Tokenized Euro (tEUR)
+# Projet Central Bank Digital Token (CBDT)
 
 ## 1. Aperçu du projet
 

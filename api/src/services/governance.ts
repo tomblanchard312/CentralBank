@@ -4,7 +4,7 @@ import { logger } from '../utils/logger.js';
  * ECB-grade Key Hierarchy and Role Governance
  * 
  * This service implements the root-of-trust and key lifecycle management
- * for the tEUR system, ensuring that all operations are bound to 
+ * for the CBDT system, ensuring that all operations are bound to 
  * authorized keys and roles.
  */
 

@@ -1,6 +1,6 @@
-# tEUR — Copilot Instructions
+# CBDT — Copilot Instructions
 
-You are an AI coding agent for the Tokenized Euro (tEUR) project. Follow these rules to ensure regulatory compliance (DORA, ISO 27001) and architectural integrity.
+You are an AI coding agent for the Central Bank Digital Token (CBDT) project. Follow these rules to ensure regulatory compliance (DORA, ISO 27001) and architectural integrity.
 
 ## Core Principles
 
@@ -29,6 +29,8 @@ You are an AI coding agent for the Tokenized Euro (tEUR) project. Follow these r
 ## Critical Workflows
 
 - **Smart Contracts**: `cd contracts && forge build` | `forge test`.
+- **Deploy v1 (API path)**: `cd contracts && make deploy-local`.
+- **Deploy Protocol v2**: `cd contracts && make deploy-local-v2` (`DeployCentralBankV2.s.sol`). API is not yet cut over to V2 addresses.
 - **API Service**: `cd api && npm run dev` | `npm run test` (Vitest).
 - **Data Ingestion**: `node api/bin/ecb-ingest.js` (Pulls ECB reference data).
 - **Infra**: `terraform init && terraform apply` within `envs/lab/`.
@@ -42,7 +44,7 @@ You are an AI coding agent for the Tokenized Euro (tEUR) project. Follow these r
 
 ## ECB Alignment
 
-- **Terminology**: Use "Digital Euro scheme", "tEUR", "intermediaries" (banks/PSPs), and "Eurosystem access gateway".
+- **Terminology**: Use "Digital Euro scheme", "CBDT", "intermediaries" (banks/PSPs), and "Eurosystem access gateway".
 - **Sanctions**: Implement as **freezes only** (block transfers, preserve balances).
 - **Confiscation**: Requires court order, escrow, and high governance threshold.
 
@@ -50,7 +52,7 @@ You are an AI coding agent for the Tokenized Euro (tEUR) project. Follow these r
 
 You are implementing a regulated payment network integration.
 
-The tEUR system acts as a Visa-style authorization and settlement network.
+The CBDT system acts as a Visa-style authorization and settlement network.
 Verifone devices are secure capture terminals only.
 All integrations must flow through an acquiring processor.
 

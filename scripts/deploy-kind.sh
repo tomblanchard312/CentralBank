@@ -1,13 +1,13 @@
 #!/bin/bash
-# tEUR Kind Deployment Script (Bash)
-# Builds and deploys all tEUR components to a local Kind cluster
+# CBDT Kind Deployment Script (Bash)
+# Builds and deploys all CBDT components to a local Kind cluster
 
 set -euo pipefail
 
 # Configuration
-CLUSTER_NAME="${CLUSTER_NAME:-teur-lab}"
+CLUSTER_NAME="${CLUSTER_NAME:-centralbank-lab}"
 KUBERNETES_VERSION="${KUBERNETES_VERSION:-1.28.0}"
-REGISTRY="teur-local"
+REGISTRY="centralbank-local"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
@@ -29,8 +29,8 @@ declare -a IMAGES=(
 
 declare -a NAMESPACES=(
     "obs-global"
-    "teur-csp"
-    "teur-pap"
+    "centralbank-csp"
+    "centralbank-pap"
 )
 
 # Parse command line arguments
@@ -62,7 +62,7 @@ while [[ $# -gt 0 ]]; do
             echo "  -h, --help      Show this help message"
             echo ""
             echo "Environment variables:"
-            echo "  CLUSTER_NAME          Kind cluster name (default: teur-lab)"
+            echo "  CLUSTER_NAME          Kind cluster name (default: centralbank-lab)"
             echo "  KUBERNETES_VERSION    Kubernetes version (default: 1.28.0)"
             exit 0
             ;;
@@ -235,16 +235,16 @@ install_kubernetes_resources() {
 }
 
 deploy_services() {
-    log_step "Deploying tEUR Services"
+    log_step "Deploying CBDT Services"
 
     # Define services
     declare -a services=(
-        "postgres:postgres:16-alpine:5432:teur-csp"
+        "postgres:postgres:16-alpine:5432:centralbank-csp"
         "prometheus:prom/prometheus:v2.48.1:9090:obs-global"
-        "besu-ecb-core:hyperledger/besu:24.1.0:8545:teur-csp"
-        "api:$REGISTRY/api:latest:3000:teur-csp"
-        "dashboard:$REGISTRY/dashboard:latest:80:teur-pap"
-        "iso20022-adapter:$REGISTRY/iso20022-adapter:latest:4000:teur-csp"
+        "besu-ecb-core:hyperledger/besu:24.1.0:8545:centralbank-csp"
+        "api:$REGISTRY/api:latest:3000:centralbank-csp"
+        "dashboard:$REGISTRY/dashboard:latest:80:centralbank-pap"
+        "iso20022-adapter:$REGISTRY/iso20022-adapter:latest:4000:centralbank-csp"
     )
 
     for service_spec in "${services[@]}"; do
@@ -333,7 +333,7 @@ show_status() {
 }
 
 main() {
-    echo -e "${MAGENTA}tEUR Kind Deployment Script${NC}"
+    echo -e "${MAGENTA}CBDT Kind Deployment Script${NC}"
     echo -e "${MAGENTA}==========================${NC}"
 
     check_prerequisites
@@ -358,7 +358,7 @@ main() {
     wait_for_services
     show_status
 
-    echo -e "\n${GREEN}🎉 tEUR deployment completed successfully!${NC}"
+    echo -e "\n${GREEN}🎉 CBDT deployment completed successfully!${NC}"
     echo -e "${CYAN}Use 'kubectl get pods --all-namespaces' to check status.${NC}"
 }
 

@@ -49,9 +49,9 @@ X-Correlation-Id: 550e8400-e29b-41d4-a716-446655440000
 
 ---
 
-## 3. Flux 2 : Émission de tEUR (Émission souveraine)
+## 3. Flux 2 : Émission de CBDT (Émission souveraine)
 
-**Objectif** : Émettre de nouveaux jetons tEUR dans le schéma.
+**Objectif** : Émettre de nouveaux jetons CBDT dans le schéma.
 
 ### Séquence
 
@@ -84,9 +84,9 @@ X-Correlation-Id: 550e8400-e29b-41d4-a716-446655440000
 
 ---
 
-## 4. Flux 3 : Destruction de tEUR (Rachat souverain)
+## 4. Flux 3 : Destruction de CBDT (Rachat souverain)
 
-**Objectif** : Retirer des jetons tEUR de la circulation.
+**Objectif** : Retirer des jetons CBDT de la circulation.
 
 ### Séquence
 

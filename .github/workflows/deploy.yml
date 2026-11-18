@@ -1,4 +1,4 @@
-name: Deploy tEUR
+name: Deploy CBDT
 
 on:
   workflow_dispatch:
@@ -76,10 +76,10 @@ jobs:
 
       - name: Inject secrets
         run: |
-          echo "TEUR_ROOT_CA_KEY=${{ secrets.TEUR_ROOT_CA_KEY }}" >> $GITHUB_ENV
-          echo "TEUR_ISSUER_KEY=${{ secrets.TEUR_ISSUER_KEY }}" >> $GITHUB_ENV
-          echo "TEUR_ACQUIRER_KEY=${{ secrets.TEUR_ACQUIRER_KEY }}" >> $GITHUB_ENV
-          echo "TEUR_PSP_KEY=${{ secrets.TEUR_PSP_KEY }}" >> $GITHUB_ENV
+          echo "CENTRALBANK_ROOT_CA_KEY=${{ secrets.CENTRALBANK_ROOT_CA_KEY }}" >> $GITHUB_ENV
+          echo "CENTRALBANK_ISSUER_KEY=${{ secrets.CENTRALBANK_ISSUER_KEY }}" >> $GITHUB_ENV
+          echo "CENTRALBANK_ACQUIRER_KEY=${{ secrets.CENTRALBANK_ACQUIRER_KEY }}" >> $GITHUB_ENV
+          echo "CENTRALBANK_PSP_KEY=${{ secrets.CENTRALBANK_PSP_KEY }}" >> $GITHUB_ENV
 
       - name: Run deployment
         run: |
