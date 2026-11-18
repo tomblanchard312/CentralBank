@@ -12,6 +12,16 @@ Scripts for the CentralBank Digital Token Protocol local lab and Kind deployment
 
 Deploys the v1 lab stack and writes `api/.env.lab`. Then `cd api && cp .env.lab .env && npm run dev`.
 
+Walk the reference MVP demo checklist against a running API:
+
+```bash
+./scripts/lab-mvp-demo-checklist.sh
+# Windows:
+./scripts/lab-mvp-demo-checklist.ps1
+```
+
+CI runs smoke + checklist in `.github/workflows/lab-mvp-ci.yml`.
+
 ## Protocol v2 API cutover smoke
 
 ```bash

@@ -184,6 +184,8 @@ export function institutionalMtlsGate(req: Request, res: Response, next: NextFun
     if (error) return next(error);
     authenticate(req, res, authError => {
       if (authError) return next(authError);
+      // Lab/dev can run with MTLS_ENABLED=false; only bind identities when mTLS is on.
+      if (!config.mtls.enabled) return next();
       bindMtlsToApplicationIdentity(req, res, next);
     });
   });

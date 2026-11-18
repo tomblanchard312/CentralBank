@@ -9,7 +9,8 @@ ANVIL_PID=""
 STARTED_ANVIL=0
 
 cleanup() {
-  if [[ "$STARTED_ANVIL" -eq 1 && -n "$ANVIL_PID" ]]; then
+  # KEEP_ANVIL=1 leaves the chain up for demo-checklist / API follow-on steps.
+  if [[ "$STARTED_ANVIL" -eq 1 && "${KEEP_ANVIL:-0}" != "1" && -n "$ANVIL_PID" ]]; then
     kill "$ANVIL_PID" 2>/dev/null || true
   fi
 }
@@ -31,7 +32,7 @@ if ! curl -sf -X POST "$RPC_URL" \
   --data '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}' >/dev/null; then
   need_cmd anvil
   echo "Starting Anvil on $RPC_URL ..."
-  anvil --host 127.0.0.1 --port 8545 --chain-id 31337 >/tmp/centralbank-anvil.log 2>&1 &
+  nohup anvil --host 0.0.0.0 --port 8545 --chain-id 31337 >/tmp/centralbank-anvil.log 2>&1 &
   ANVIL_PID=$!
   STARTED_ANVIL=1
   for _ in $(seq 1 30); do
@@ -42,6 +43,9 @@ if ! curl -sf -X POST "$RPC_URL" \
     fi
     sleep 0.5
   done
+  if [[ "${KEEP_ANVIL:-0}" == "1" ]]; then
+    disown "$ANVIL_PID" 2>/dev/null || true
+  fi
 fi
 
 echo "Deploying v1 lab stack..."
@@ -91,7 +95,7 @@ JWT_EXPIRES_IN=1h
 PARAMETERS_FILE=$ROOT/envs/lab/ecb-core/parameters.json
 PROFILE_FILE=$ROOT/profiles/eurosystem-reference.json
 ENABLE_API_DOCS=true
-ALLOW_DEMO_IDENTITIES=false
+ALLOW_DEMO_IDENTITIES=true
 CORS_ORIGIN=http://localhost:3001
 EOF
 
@@ -100,5 +104,6 @@ echo "Wrote $ENV_FILE"
 echo "Next:"
 echo "  cd api && cp .env.lab .env && npm ci && npm run dev"
 echo "  curl -s http://localhost:3000/api/v1/health/live"
+echo "  ./scripts/lab-mvp-demo-checklist.sh"
 echo ""
 echo "Reference MVP path is v1. Protocol v2 remains: cd contracts && make deploy-local-v2"

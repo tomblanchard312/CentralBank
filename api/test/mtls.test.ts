@@ -41,6 +41,24 @@ function invoke(
 }
 
 describe('institutional mTLS', () => {
+  it('allows protected lab routes when mTLS is disabled', async () => {
+    vi.resetModules();
+    process.env.MTLS_ENABLED = 'false';
+    const { institutionalMtlsGate } = await import('../src/middleware/mtls.js');
+    const req = request({
+      headers: {
+        'x-api-key': 'demo-ecb-key',
+      },
+    });
+
+    const error = await invoke(institutionalMtlsGate, req);
+
+    expect(error).toBeUndefined();
+    expect(req.auth?.institutionId).toBe('ecb-core');
+    expect(req.mtls).toBeUndefined();
+    process.env.MTLS_ENABLED = 'true';
+  });
+
   it('accepts a verified certificate from a trusted ingress when institutions match', async () => {
     vi.resetModules();
     const { institutionalMtlsGate } = await import('../src/middleware/mtls.js');

@@ -1,0 +1,150 @@
+name: lab-mvp-ci
+
+on:
+  pull_request:
+    paths:
+      - 'contracts/**'
+      - 'api/**'
+      - 'scripts/lab-mvp-smoke*'
+      - 'scripts/lab-mvp-demo-checklist*'
+      - 'tools/reconciliation-ref/**'
+      - 'envs/lab/**'
+      - 'profiles/**'
+      - 'docs/mvp-demo-checklist.md'
+      - 'docs/mvp-plan.md'
+      - '.github/workflows/lab-mvp-ci.yml'
+      - '.github/workflows/parameters-and-recon-ci.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'contracts/**'
+      - 'api/**'
+      - 'scripts/lab-mvp-smoke*'
+      - 'scripts/lab-mvp-demo-checklist*'
+      - 'tools/reconciliation-ref/**'
+      - 'envs/lab/**'
+      - 'profiles/**'
+      - 'docs/mvp-demo-checklist.md'
+      - 'docs/mvp-plan.md'
+      - '.github/workflows/lab-mvp-ci.yml'
+      - '.github/workflows/parameters-and-recon-ci.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lab-mvp-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lab-smoke-and-demo:
+    name: Lab smoke + demo checklist
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: v1.7.1
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: api/package-lock.json
+
+      - name: Run lab MVP smoke (Anvil → deploy → api/.env.lab)
+        env:
+          KEEP_ANVIL: '1'
+        run: |
+          chmod +x scripts/lab-mvp-smoke.sh
+          ./scripts/lab-mvp-smoke.sh
+          # Ensure Anvil is still up for API + checklist steps in this job.
+          curl -sf -X POST http://127.0.0.1:8545 \
+            -H 'content-type: application/json' \
+            --data '{"jsonrpc":"2.0","method":"eth_chainId","params":[],"id":1}' >/dev/null
+
+      - name: Assert lab env exports
+        run: |
+          set -euo pipefail
+          test -f api/.env.lab
+          grep -E '^CONTRACT_PERMISSIONING=0x[a-fA-F0-9]{40}$' api/.env.lab
+          grep -E '^CONTRACT_WALLET_REGISTRY=0x[a-fA-F0-9]{40}$' api/.env.lab
+          grep -E '^CONTRACT_DIGITAL_TOKEN=0x[a-fA-F0-9]{40}$' api/.env.lab
+          grep -E '^CONTRACT_CONDITIONAL_PAYMENTS=0x[a-fA-F0-9]{40}$' api/.env.lab
+
+      - name: Install API dependencies
+        working-directory: api
+        run: npm ci --legacy-peer-deps
+
+      - name: Prepare API lab env for demo checklist
+        run: |
+          set -euo pipefail
+          cp api/.env.lab api/.env
+          # Lab demo identities are required for authenticated checklist flows.
+          if grep -q '^ALLOW_DEMO_IDENTITIES=' api/.env; then
+            sed -i 's/^ALLOW_DEMO_IDENTITIES=.*/ALLOW_DEMO_IDENTITIES=true/' api/.env
+          else
+            echo 'ALLOW_DEMO_IDENTITIES=true' >> api/.env
+          fi
+
+      - name: Start API
+        working-directory: api
+        run: |
+          nohup npx tsx src/index.ts > /tmp/centralbank-api.log 2>&1 &
+          echo $! > /tmp/centralbank-api.pid
+
+      - name: Wait for API liveness
+        run: |
+          set -euo pipefail
+          for i in $(seq 1 60); do
+            if curl -sf http://127.0.0.1:3000/api/v1/health/live >/dev/null; then
+              echo "API live"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "API failed to become live" >&2
+          cat /tmp/centralbank-api.log >&2 || true
+          exit 1
+
+      - name: Walk demo checklist
+        run: |
+          chmod +x scripts/lab-mvp-demo-checklist.sh
+          ./scripts/lab-mvp-demo-checklist.sh
+
+      - name: Stop API
+        if: always()
+        run: |
+          if [[ -f /tmp/centralbank-api.pid ]]; then
+            kill "$(cat /tmp/centralbank-api.pid)" 2>/dev/null || true
+          fi
+
+  reconciliation-unit:
+    name: Reconciliation-ref unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use Node 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: tools/reconciliation-ref/package-lock.json
+
+      - name: Install and test reconciliation-ref
+        working-directory: tools/reconciliation-ref
+        env:
+          CENTRALBANK_ENV: test
+        run: |
+          npm ci
+          npm test
