@@ -1,6 +1,6 @@
 # CentralBank Reference MVP Plan
 
-Status: **Reference MVP complete** (lab / CI). Production gates remain open.  
+Status: **CI wired; first green checklist run pending**  
 Scope: lab / institutional **reference MVP** on the v1 API path. Not production sovereign readiness.
 
 ## MVP definition
