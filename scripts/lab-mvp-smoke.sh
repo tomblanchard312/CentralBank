@@ -55,6 +55,7 @@ DEPLOY_LOG="$(mktemp)"
   forge script script/DeployCentralBank.s.sol:DeployLabEnvironment \
     --rpc-url "$RPC_URL" \
     --broadcast \
+    --start-fresh \
     --private-key "${DEPLOYER_PRIVATE_KEY:-0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80}" \
     -vv
 ) | tee "$DEPLOY_LOG"
