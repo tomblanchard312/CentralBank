@@ -71,8 +71,8 @@ The digest is stored in the module executing the operation. Reusing the same cli
 ## Upgrade and deployment model
 
 - Protocol v2 is deployed as new versioned contracts via `DeployCentralBankV2.s.sol` / `DeployLabEnvironmentV2`.
-- Existing v1 contracts are not modified in place; the API integration path still uses the v1 `DigitalToken` stack until cutover.
-- `SanctionsController` and `EmergencyController` remain accepted architecture targets; freeze/pause today are still implemented on the v1 `DigitalToken` path rather than as V2 composite-policy modules.
+- Existing v1 contracts are not modified in place; the API selects stacks with `PROTOCOL_STACK=v1|v2` (default remains v1).
+- Sanctions and emergency are implemented as composable transfer policies (`SanctionsPolicyV2`, `EmergencyPolicyV2`) wired through `CompositeTransferPolicyV2`. The ADR names `SanctionsController` / `EmergencyController` remain the architectural roles; the V2 code uses the policy pattern so the ledger stays free of sovereign branching.
 - Production deployment uses a staged cutover with a rehearsed rollback procedure.
 - No transparent proxy upgrade pattern will be introduced in this version. Contract immutability is preferred over upgradeable storage risk.
 

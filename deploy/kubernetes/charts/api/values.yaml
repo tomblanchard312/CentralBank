@@ -5,19 +5,58 @@ image:
 
 replicaCount: 1
 
+# Lab defaults. Staging/production must override with real values;
+# the API fail-closed loader rejects missing security inputs outside development/test.
 env:
-  CENTRALBANK_ENV: ""
-  CENTRALBANK_ROLE: ""
+  NODE_ENV: "development"
+  PORT: "3000"
+  CENTRALBANK_ENV: "lab"
+  CENTRALBANK_ROLE: "api-gateway"
+  BLOCKCHAIN_RPC_URL: "http://besu-validator-rpc.ledger-ecb-core.svc.cluster.local:8545"
+  BLOCKCHAIN_CHAIN_ID: "31337"
+  BLOCKCHAIN_CONFIRMATIONS: "1"
+  SIGNER_BACKEND: "env"
+  JWT_ISSUER: "centralbank-lab"
+  JWT_AUDIENCE: "centralbank-api"
+  JWT_EXPIRES_IN: "1h"
+  CORS_ORIGIN: "http://localhost:3001"
+  ENABLE_API_DOCS: "true"
+  ALLOW_DEMO_IDENTITIES: "false"
+  PARAMETERS_FILE: "/config/parameters.json"
+  PROFILE_FILE: "/config/eurosystem-reference.json"
+  # Contract addresses are injected after forge deploy (see scripts/lab-mvp-smoke).
+  PROTOCOL_STACK: "v1"
+  CONTRACT_PERMISSIONING: ""
+  CONTRACT_WALLET_REGISTRY: ""
+  CONTRACT_DIGITAL_TOKEN: ""
+  CONTRACT_CONDITIONAL_PAYMENTS: ""
+  # Protocol v2 addresses (required when PROTOCOL_STACK=v2; see scripts/lab-mvp-smoke-v2).
+  CONTRACT_TOKEN_LEDGER_V2: ""
+  CONTRACT_MINT_BURN_CONTROLLER_V2: ""
+  CONTRACT_ESCROW_CONTROLLER_V2: ""
+  CONTRACT_WATERFALL_CONTROLLER_V2: ""
+  CONTRACT_SANCTIONS_POLICY_V2: ""
+  CONTRACT_EMERGENCY_POLICY_V2: ""
+  CONTRACT_HOLDING_LIMIT_POLICY_V2: ""
 
 secrets:
-  rootCaKey: ""
-  issuerKey: ""
-  acquirerKey: ""
-  pspKey: ""
+  # Create secret `centralbank-api-secrets` with these keys before install.
+  name: centralbank-api-secrets
+  jwtSecretKey: JWT_SECRET
+  operatorPrivateKeyKey: BLOCKCHAIN_OPERATOR_PRIVATE_KEY
+  # Optional: set for PROTOCOL_STACK=v2 pause / dual-control unpause.
+  emergencyPrivateKeyKey: BLOCKCHAIN_EMERGENCY_PRIVATE_KEY
+
+configMaps:
+  parameters:
+    name: centralbank-api-parameters
+  profile:
+    name: centralbank-api-profile
 
 service:
   type: ClusterIP
   port: 80
+  targetPort: 3000
 
 resources:
   requests:
@@ -29,3 +68,13 @@ resources:
 
 networkPolicy:
   enabled: true
+
+livenessProbe:
+  path: /api/v1/health/live
+  initialDelaySeconds: 15
+  periodSeconds: 20
+
+readinessProbe:
+  path: /api/v1/health/ready
+  initialDelaySeconds: 10
+  periodSeconds: 10

@@ -24,22 +24,116 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
+            - name: NODE_ENV
+              value: {{ .Values.env.NODE_ENV | quote }}
+            - name: PORT
+              value: {{ .Values.env.PORT | quote }}
             - name: CENTRALBANK_ENV
               value: {{ .Values.env.CENTRALBANK_ENV | quote }}
             - name: CENTRALBANK_ROLE
               value: {{ .Values.env.CENTRALBANK_ROLE | quote }}
-            - name: CENTRALBANK_ROOT_CA_KEY
+            - name: BLOCKCHAIN_RPC_URL
+              value: {{ .Values.env.BLOCKCHAIN_RPC_URL | quote }}
+            - name: BLOCKCHAIN_CHAIN_ID
+              value: {{ .Values.env.BLOCKCHAIN_CHAIN_ID | quote }}
+            - name: BLOCKCHAIN_CONFIRMATIONS
+              value: {{ .Values.env.BLOCKCHAIN_CONFIRMATIONS | quote }}
+            - name: SIGNER_BACKEND
+              value: {{ .Values.env.SIGNER_BACKEND | quote }}
+            - name: JWT_ISSUER
+              value: {{ .Values.env.JWT_ISSUER | quote }}
+            - name: JWT_AUDIENCE
+              value: {{ .Values.env.JWT_AUDIENCE | quote }}
+            - name: JWT_EXPIRES_IN
+              value: {{ .Values.env.JWT_EXPIRES_IN | quote }}
+            - name: CORS_ORIGIN
+              value: {{ .Values.env.CORS_ORIGIN | quote }}
+            - name: ENABLE_API_DOCS
+              value: {{ .Values.env.ENABLE_API_DOCS | quote }}
+            - name: ALLOW_DEMO_IDENTITIES
+              value: {{ .Values.env.ALLOW_DEMO_IDENTITIES | quote }}
+            - name: PARAMETERS_FILE
+              value: {{ .Values.env.PARAMETERS_FILE | quote }}
+            - name: PROFILE_FILE
+              value: {{ .Values.env.PROFILE_FILE | quote }}
+            - name: PROTOCOL_STACK
+              value: {{ .Values.env.PROTOCOL_STACK | default "v1" | quote }}
+            - name: CONTRACT_PERMISSIONING
+              value: {{ required "env.CONTRACT_PERMISSIONING is required (set after forge deploy)" .Values.env.CONTRACT_PERMISSIONING | quote }}
+            - name: CONTRACT_WALLET_REGISTRY
+              value: {{ required "env.CONTRACT_WALLET_REGISTRY is required (set after forge deploy)" .Values.env.CONTRACT_WALLET_REGISTRY | quote }}
+            - name: CONTRACT_DIGITAL_TOKEN
+              value: {{ required "env.CONTRACT_DIGITAL_TOKEN is required (set after forge deploy)" .Values.env.CONTRACT_DIGITAL_TOKEN | quote }}
+            - name: CONTRACT_CONDITIONAL_PAYMENTS
+              value: {{ required "env.CONTRACT_CONDITIONAL_PAYMENTS is required (set after forge deploy)" .Values.env.CONTRACT_CONDITIONAL_PAYMENTS | quote }}
+            {{- if eq (.Values.env.PROTOCOL_STACK | default "v1") "v2" }}
+            - name: CONTRACT_TOKEN_LEDGER_V2
+              value: {{ required "env.CONTRACT_TOKEN_LEDGER_V2 is required when PROTOCOL_STACK=v2" .Values.env.CONTRACT_TOKEN_LEDGER_V2 | quote }}
+            - name: CONTRACT_MINT_BURN_CONTROLLER_V2
+              value: {{ required "env.CONTRACT_MINT_BURN_CONTROLLER_V2 is required when PROTOCOL_STACK=v2" .Values.env.CONTRACT_MINT_BURN_CONTROLLER_V2 | quote }}
+            - name: CONTRACT_ESCROW_CONTROLLER_V2
+              value: {{ required "env.CONTRACT_ESCROW_CONTROLLER_V2 is required when PROTOCOL_STACK=v2" .Values.env.CONTRACT_ESCROW_CONTROLLER_V2 | quote }}
+            - name: CONTRACT_WATERFALL_CONTROLLER_V2
+              value: {{ required "env.CONTRACT_WATERFALL_CONTROLLER_V2 is required when PROTOCOL_STACK=v2" .Values.env.CONTRACT_WATERFALL_CONTROLLER_V2 | quote }}
+            - name: CONTRACT_SANCTIONS_POLICY_V2
+              value: {{ required "env.CONTRACT_SANCTIONS_POLICY_V2 is required when PROTOCOL_STACK=v2" .Values.env.CONTRACT_SANCTIONS_POLICY_V2 | quote }}
+            - name: CONTRACT_EMERGENCY_POLICY_V2
+              value: {{ required "env.CONTRACT_EMERGENCY_POLICY_V2 is required when PROTOCOL_STACK=v2" .Values.env.CONTRACT_EMERGENCY_POLICY_V2 | quote }}
+            - name: CONTRACT_HOLDING_LIMIT_POLICY_V2
+              value: {{ required "env.CONTRACT_HOLDING_LIMIT_POLICY_V2 is required when PROTOCOL_STACK=v2" .Values.env.CONTRACT_HOLDING_LIMIT_POLICY_V2 | quote }}
+            {{- end }}
+            - name: JWT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: centralbank-secrets
-                  key: rootCaKey
-            # Add other secrets
+                  name: {{ .Values.secrets.name }}
+                  key: {{ .Values.secrets.jwtSecretKey }}
+            - name: BLOCKCHAIN_OPERATOR_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: {{ .Values.secrets.operatorPrivateKeyKey }}
+            {{- if eq (.Values.env.PROTOCOL_STACK | default "v1") "v2" }}
+            - name: BLOCKCHAIN_EMERGENCY_PRIVATE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.name }}
+                  key: {{ .Values.secrets.emergencyPrivateKeyKey }}
+                  optional: true
+            {{- end }}
           ports:
             - name: http
               containerPort: 3000
               protocol: TCP
+          volumeMounts:
+            - name: parameters
+              mountPath: /config/parameters.json
+              subPath: parameters.json
+              readOnly: true
+            - name: profile
+              mountPath: /config/eurosystem-reference.json
+              subPath: eurosystem-reference.json
+              readOnly: true
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path }}
+              port: http
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+        - name: parameters
+          configMap:
+            name: {{ .Values.configMaps.parameters.name }}
+        - name: profile
+          configMap:
+            name: {{ .Values.configMaps.profile.name }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

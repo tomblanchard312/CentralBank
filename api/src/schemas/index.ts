@@ -27,12 +27,33 @@ export const transferSchema = z.object({ from: ethereumAddress, to: ethereumAddr
 
 export const freezeAccountSchema = z.object({ account: ethereumAddress, reason: z.string().min(1).max(256) }).strict();
 export const unfreezeAccountSchema = z.object({ account: ethereumAddress }).strict();
-export const escrowFundsSchema = z.object({ account: ethereumAddress, amount, legalBasis: z.string().min(1).max(256), expiry: z.number().int().min(0) }).strict();
-export const releaseEscrowedFundsSchema = z.object({ account: ethereumAddress, to: ethereumAddress }).strict();
-export const burnEscrowedFundsSchema = z.object({ account: ethereumAddress }).strict();
+export const escrowFundsSchema = z.object({
+  account: ethereumAddress,
+  amount,
+  legalBasis: z.string().min(1).max(256),
+  expiry: z.number().int().min(0),
+  beneficiary: ethereumAddress.optional(),
+  documentHash: bytes32.optional(),
+  idempotencyKey: z.string().uuid().optional(),
+}).strict();
+export const releaseEscrowedFundsSchema = z.object({
+  account: ethereumAddress,
+  to: ethereumAddress,
+  escrowId: bytes32.optional(),
+  idempotencyKey: z.string().uuid().optional(),
+}).strict();
+export const burnEscrowedFundsSchema = z.object({
+  account: ethereumAddress,
+  escrowId: bytes32.optional(),
+  idempotencyKey: z.string().uuid().optional(),
+}).strict();
 export const accountParamSchema = z.object({ account: ethereumAddress }).strict();
+export const escrowIdParamSchema = z.object({ escrowId: bytes32 }).strict();
 
-export const executeWaterfallSchema = z.object({ wallet: ethereumAddress }).strict();
+export const executeWaterfallSchema = z.object({
+  wallet: ethereumAddress,
+  idempotencyKey: z.string().uuid().optional(),
+}).strict();
 export const executeReverseWaterfallSchema = z.object({ wallet: ethereumAddress, amount, idempotencyKey: z.string().uuid() }).strict();
 
 export const createConditionalPaymentSchema = z.object({

@@ -123,6 +123,41 @@ contract WaterfallControllerV2 {
         emit ReverseWaterfallExecuted(settlementAccount, wallet, transferredAmount);
     }
 
+    /**
+     * @notice Sweep wallet balance above its holding limit to the linked settlement account.
+     * @dev Preserves the v1 DigitalToken.executeWaterfall(wallet) gateway semantics on Protocol v2.
+     */
+    function executeOverflowSweep(address wallet, bytes32 clientKey)
+        external
+        onlyOperator
+        returns (uint256 sweptAmount)
+    {
+        if (wallet == address(0)) revert ZeroAddress();
+
+        address settlementAccount = linkedSettlementAccount[wallet];
+        if (settlementAccount == address(0)) revert NoSettlementAccount();
+        if (holdingPolicy.exemptAccounts(wallet)) {
+            return 0;
+        }
+
+        uint256 limit = holdingPolicy.holdingLimits(wallet);
+        if (limit == 0) {
+            return 0;
+        }
+
+        uint256 balance = ledger.balanceOf(wallet);
+        if (balance <= limit) {
+            return 0;
+        }
+
+        sweptAmount = balance - limit;
+        bytes32 digest = _operationDigest(keccak256("OVERFLOW_SWEEP"), wallet, settlementAccount, sweptAmount, clientKey);
+        _consumeOperation(digest);
+
+        ledger.controllerMove(wallet, settlementAccount, sweptAmount);
+        emit WaterfallExecuted(wallet, wallet, settlementAccount, limit, sweptAmount);
+    }
+
     function _consumeOperation(bytes32 digest) internal {
         if (usedOperationDigests[digest]) revert OperationAlreadyUsed();
         usedOperationDigests[digest] = true;

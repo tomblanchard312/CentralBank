@@ -1,6 +1,6 @@
 # CentralBank API Gateway
 
-REST API gateway for the CentralBank Digital Token Protocol. The gateway currently integrates institutions with the v1 `DigitalToken` / `WalletRegistry` / `ConditionalPayments` stack. Protocol v2 contracts (`TokenLedgerV2` and controllers) can be deployed separately via `DeployCentralBankV2.s.sol`, but this API is not yet wired to those addresses. Jurisdictional denomination and policy belong to the selected deployment profile (the `eurosystem-reference` JSON is documentation/reference today; runtime parameters still come from environment/config files).
+REST API gateway for the CentralBank Digital Token Protocol. By default the gateway uses the v1 `DigitalToken` / `WalletRegistry` / `ConditionalPayments` stack. Set `PROTOCOL_STACK=v2` and the `CONTRACT_*_V2` addresses (see `scripts/lab-mvp-smoke-v2`) to route mint/burn/freeze/escrow/waterfall/pause through `TokenLedgerV2` and V2 controllers. ConditionalPayments and WalletRegistry stay v1-only. Jurisdictional denomination and policy belong to the selected deployment profile (the `eurosystem-reference` JSON is documentation/reference today; runtime parameters still come from environment/config files).
 
 ## Features
 

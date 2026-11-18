@@ -4,6 +4,7 @@ const originalEnv = { ...process.env };
 
 function clearSecurityConfiguration(): void {
   for (const name of [
+    'PROTOCOL_STACK',
     'BLOCKCHAIN_RPC_URL',
     'BLOCKCHAIN_CHAIN_ID',
     'BLOCKCHAIN_OPERATOR_PRIVATE_KEY',
@@ -11,6 +12,13 @@ function clearSecurityConfiguration(): void {
     'CONTRACT_WALLET_REGISTRY',
     'CONTRACT_DIGITAL_TOKEN',
     'CONTRACT_CONDITIONAL_PAYMENTS',
+    'CONTRACT_TOKEN_LEDGER_V2',
+    'CONTRACT_MINT_BURN_CONTROLLER_V2',
+    'CONTRACT_ESCROW_CONTROLLER_V2',
+    'CONTRACT_WATERFALL_CONTROLLER_V2',
+    'CONTRACT_SANCTIONS_POLICY_V2',
+    'CONTRACT_EMERGENCY_POLICY_V2',
+    'CONTRACT_HOLDING_LIMIT_POLICY_V2',
     'JWT_SECRET',
     'JWT_ISSUER',
     'JWT_AUDIENCE',
@@ -121,5 +129,62 @@ describe('configuration fail-closed behavior', () => {
     process.env.MTLS_INGRESS_TOKEN = 'x'.repeat(32);
 
     await expect(import('../src/config/index.js')).rejects.toThrow('Invalid configuration');
+  });
+
+  it('defaults protocolStack to v1 in test mode', async () => {
+    process.env.NODE_ENV = 'test';
+    const { config } = await import('../src/config/index.js');
+    expect(config.protocolStack).toBe('v1');
+  });
+
+  it('rejects PROTOCOL_STACK=v2 without V2 contract addresses outside local defaults', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.PROTOCOL_STACK = 'v2';
+    process.env.BLOCKCHAIN_RPC_URL = 'https://rpc.example.invalid';
+    process.env.BLOCKCHAIN_CHAIN_ID = '1';
+    process.env.BLOCKCHAIN_OPERATOR_PRIVATE_KEY = `0x${'1'.repeat(64)}`;
+    process.env.CONTRACT_PERMISSIONING = `0x${'1'.repeat(40)}`;
+    process.env.CONTRACT_WALLET_REGISTRY = `0x${'2'.repeat(40)}`;
+    process.env.CONTRACT_DIGITAL_TOKEN = `0x${'3'.repeat(40)}`;
+    process.env.CONTRACT_CONDITIONAL_PAYMENTS = `0x${'4'.repeat(40)}`;
+    process.env.JWT_SECRET = 'production-test-secret-that-is-long-enough';
+    process.env.JWT_ISSUER = 'centralbank-test-issuer';
+    process.env.JWT_AUDIENCE = 'centralbank-test-audience';
+    process.env.CORS_ORIGIN = 'https://dashboard.example.invalid';
+    process.env.MTLS_TRUSTED_INGRESS_CIDRS = '10.0.0.0/8';
+    process.env.MTLS_INGRESS_TOKEN = 'x'.repeat(32);
+    process.env.SIGNER_KMS_KEY_ID = 'arn:aws:kms:eu-central-1:000000000000:key/test';
+
+    await expect(import('../src/config/index.js')).rejects.toThrow('Invalid configuration');
+  });
+
+  it('loads PROTOCOL_STACK=v2 when all V2 addresses are supplied', async () => {
+    process.env.NODE_ENV = 'production';
+    process.env.PROTOCOL_STACK = 'v2';
+    process.env.BLOCKCHAIN_RPC_URL = 'https://rpc.example.invalid';
+    process.env.BLOCKCHAIN_CHAIN_ID = '1';
+    process.env.BLOCKCHAIN_OPERATOR_PRIVATE_KEY = `0x${'1'.repeat(64)}`;
+    process.env.CONTRACT_PERMISSIONING = `0x${'1'.repeat(40)}`;
+    process.env.CONTRACT_WALLET_REGISTRY = `0x${'2'.repeat(40)}`;
+    process.env.CONTRACT_DIGITAL_TOKEN = `0x${'3'.repeat(40)}`;
+    process.env.CONTRACT_CONDITIONAL_PAYMENTS = `0x${'4'.repeat(40)}`;
+    process.env.CONTRACT_TOKEN_LEDGER_V2 = `0x${'5'.repeat(40)}`;
+    process.env.CONTRACT_MINT_BURN_CONTROLLER_V2 = `0x${'6'.repeat(40)}`;
+    process.env.CONTRACT_ESCROW_CONTROLLER_V2 = `0x${'7'.repeat(40)}`;
+    process.env.CONTRACT_WATERFALL_CONTROLLER_V2 = `0x${'8'.repeat(40)}`;
+    process.env.CONTRACT_SANCTIONS_POLICY_V2 = `0x${'9'.repeat(40)}`;
+    process.env.CONTRACT_EMERGENCY_POLICY_V2 = `0x${'a'.repeat(40)}`;
+    process.env.CONTRACT_HOLDING_LIMIT_POLICY_V2 = `0x${'b'.repeat(40)}`;
+    process.env.JWT_SECRET = 'production-test-secret-that-is-long-enough';
+    process.env.JWT_ISSUER = 'centralbank-test-issuer';
+    process.env.JWT_AUDIENCE = 'centralbank-test-audience';
+    process.env.CORS_ORIGIN = 'https://dashboard.example.invalid';
+    process.env.MTLS_TRUSTED_INGRESS_CIDRS = '10.0.0.0/8';
+    process.env.MTLS_INGRESS_TOKEN = 'x'.repeat(32);
+    process.env.SIGNER_KMS_KEY_ID = 'arn:aws:kms:eu-central-1:000000000000:key/test';
+
+    const { config } = await import('../src/config/index.js');
+    expect(config.protocolStack).toBe('v2');
+    expect(config.contractsV2.tokenLedger).toBe(`0x${'5'.repeat(40)}`);
   });
 });

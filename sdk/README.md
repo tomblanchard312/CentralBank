@@ -1,6 +1,6 @@
-# CBDT Bank SDK
+# CentralBank Bank SDK
 
-TypeScript/JavaScript SDK for European banks to integrate with the CBDT (Central Bank Digital Token) Digital Currency.
+TypeScript/JavaScript SDK for institutions integrating with the **CentralBank Digital Token Protocol** (generic token: **CBDT**). For the `eurosystem-reference` profile, amounts use EUR minor units (cents).
 
 ## Installation
 

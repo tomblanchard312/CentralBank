@@ -11,6 +11,13 @@ import {
   DigitalTokenABI,
   ConditionalPaymentsABI,
   PermissioningABI,
+  TokenLedgerV2ABI,
+  MintBurnControllerV2ABI,
+  EscrowControllerV2ABI,
+  WaterfallControllerV2ABI,
+  SanctionsPolicyV2ABI,
+  EmergencyPolicyV2ABI,
+  HoldingLimitPolicyV2ABI,
   WalletType,
   ConditionType,
   PaymentStatus,
@@ -91,6 +98,13 @@ const abis: Array<[string, readonly string[]]> = [
   ['DigitalToken', DigitalTokenABI],
   ['ConditionalPayments', ConditionalPaymentsABI],
   ['Permissioning', PermissioningABI],
+  ['TokenLedgerV2', TokenLedgerV2ABI],
+  ['MintBurnControllerV2', MintBurnControllerV2ABI],
+  ['EscrowControllerV2', EscrowControllerV2ABI],
+  ['WaterfallControllerV2', WaterfallControllerV2ABI],
+  ['SanctionsPolicyV2', SanctionsPolicyV2ABI],
+  ['EmergencyPolicyV2', EmergencyPolicyV2ABI],
+  ['HoldingLimitPolicyV2', HoldingLimitPolicyV2ABI],
 ];
 
 describe('gateway ABI parity with contracts/src', () => {

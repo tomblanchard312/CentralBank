@@ -1,11 +1,23 @@
 import { Interface, JsonRpcProvider, Transaction, getAddress, keccak256, toUtf8Bytes } from 'ethers';
 import { config } from '../config/index.js';
 import { BlockchainError, ValidationError } from '../middleware/errors.js';
-import { ConditionalPaymentsABI, DigitalTokenABI } from './abi.js';
+import { ConditionalPaymentsABI, DigitalTokenABI, TokenLedgerV2ABI } from './abi.js';
 
-const tokenInterface = new Interface(DigitalTokenABI);
+const tokenInterface = new Interface(
+  config.protocolStack === 'v2' ? TokenLedgerV2ABI : DigitalTokenABI,
+);
 const conditionalPaymentsInterface = new Interface(ConditionalPaymentsABI);
 const provider = new JsonRpcProvider(config.blockchain.rpcUrl);
+
+function tokenAddress(): string {
+  if (config.protocolStack === 'v2') {
+    if (!config.contractsV2.tokenLedger) {
+      throw new BlockchainError('CONTRACT_TOKEN_LEDGER_V2 is required when PROTOCOL_STACK=v2');
+    }
+    return config.contractsV2.tokenLedger;
+  }
+  return config.contracts.digitalToken;
+}
 
 function validation(message: string, details: Record<string, unknown> = {}): ValidationError {
   return new ValidationError(message, details);
@@ -95,13 +107,20 @@ async function broadcastValidated(
 }
 
 export async function broadcastSignedTransfer(params: { rawTransaction: string; payer: string; to: string; amount: bigint }) {
-  return broadcastValidated(params.rawTransaction, config.contracts.digitalToken, tokenInterface, 'transfer', [params.to, params.amount], params.payer);
+  return broadcastValidated(params.rawTransaction, tokenAddress(), tokenInterface, 'transfer', [params.to, params.amount], params.payer);
+}
+
+function requireConditionalPaymentsAvailable(): void {
+  if (config.protocolStack === 'v2') {
+    throw new BlockchainError('ConditionalPayments is not available when PROTOCOL_STACK=v2');
+  }
 }
 
 export async function broadcastSignedConditionalPayment(params: {
   rawTransaction: string; payer: string; payee: string; amount: bigint; conditionType: number;
   conditionData: string; expiresAt: number; arbiter: string; idempotencyKey: string;
 }) {
+  requireConditionalPaymentsAvailable();
   const idempotencyBytes32 = /^0x[a-fA-F0-9]{64}$/.test(params.idempotencyKey)
     ? params.idempotencyKey : keccak256(toUtf8Bytes(params.idempotencyKey));
   const result = await broadcastValidated(
@@ -116,17 +135,21 @@ export async function broadcastSignedConditionalPayment(params: {
 }
 
 export async function broadcastSignedDeliveryConfirmation(params: { rawTransaction: string; payer: string; paymentId: string; proof: string }) {
+  requireConditionalPaymentsAvailable();
   return broadcastValidated(params.rawTransaction, config.contracts.conditionalPayments, conditionalPaymentsInterface, 'confirmDelivery', [params.paymentId, params.proof], params.payer);
 }
 
 export async function broadcastSignedPaymentRefund(params: { rawTransaction: string; payer: string; paymentId: string; reason: string }) {
+  requireConditionalPaymentsAvailable();
   return broadcastValidated(params.rawTransaction, config.contracts.conditionalPayments, conditionalPaymentsInterface, 'refundPayment', [params.paymentId, params.reason], params.payer);
 }
 
 export async function broadcastSignedPaymentDispute(params: { rawTransaction: string; actor: string; paymentId: string; reason: string }) {
+  requireConditionalPaymentsAvailable();
   return broadcastValidated(params.rawTransaction, config.contracts.conditionalPayments, conditionalPaymentsInterface, 'disputePayment', [params.paymentId, params.reason], params.actor);
 }
 
 export async function broadcastSignedDisputeResolution(params: { rawTransaction: string; arbiter: string; paymentId: string; releaseToPayee: boolean }) {
+  requireConditionalPaymentsAvailable();
   return broadcastValidated(params.rawTransaction, config.contracts.conditionalPayments, conditionalPaymentsInterface, 'resolveDispute', [params.paymentId, params.releaseToPayee], params.arbiter);
 }

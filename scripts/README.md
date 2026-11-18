@@ -1,8 +1,28 @@
-# CBDT Kind Deployment Scripts
+# CentralBank Lab & Kind Scripts
 
-This directory contains scripts to build and deploy the complete CBDT (Central Bank Digital Token) system to a local Kind cluster.
+Scripts for the CentralBank Digital Token Protocol local lab and Kind deployments.
 
-## Scripts
+## Reference MVP smoke (v1 path)
+
+```bash
+./scripts/lab-mvp-smoke.sh
+# Windows:
+./scripts/lab-mvp-smoke.ps1
+```
+
+Deploys the v1 lab stack and writes `api/.env.lab`. Then `cd api && cp .env.lab .env && npm run dev`.
+
+## Protocol v2 API cutover smoke
+
+```bash
+./scripts/lab-mvp-smoke-v2.sh
+# Windows:
+./scripts/lab-mvp-smoke-v2.ps1
+```
+
+Deploys `DeployLabEnvironmentV2` and writes `api/.env.lab.v2` with `PROTOCOL_STACK=v2`. Then `cd api && cp .env.lab.v2 .env && npm run dev`.
+
+## Kind scripts
 
 - `deploy-kind.ps1` - PowerShell script for Windows
 - `deploy-kind.sh` - Bash script for Linux/macOS

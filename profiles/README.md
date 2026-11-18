@@ -10,9 +10,13 @@ Deployment profiles supply denomination, jurisdictional policy flags, and scheme
 
 ## Status
 
-`eurosystem-reference.json` is the canonical **documentation/reference** description of the initial profile. Protocol v2 deploy scripts currently take equivalent toggles from environment variables (`ENABLE_HOLDING_LIMITS`, `ENABLE_WATERFALL`, mint/burn limits, etc.). The institutional API still reads runtime parameters from environment / `envs/` config rather than loading this JSON file directly.
+`eurosystem-reference.json` is the canonical profile intent for the initial reference deployment.
 
-Wiring profile JSON into deploy and API configuration remains an open production-readiness item.
+- The institutional API loads it via `PROFILE_FILE` (default: repository `profiles/eurosystem-reference.json`) and **fail-closes** when policy flags disagree with `PARAMETERS_FILE` / `envs/lab/ecb-core/parameters.json` (see `api/src/config/profile.ts`).
+- Numeric rulebook values still live in parameters JSON; the profile does not replace that file yet.
+- Protocol v2 deploy scripts still take capability toggles from environment variables (`ENABLE_HOLDING_LIMITS`, `ENABLE_WATERFALL`, mint/burn limits, etc.).
+
+Full profile-driven deploy/API configuration remains a post-MVP production item; the thin coherence bridge is part of the reference MVP.
 
 ## Non-affiliation
 

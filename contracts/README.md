@@ -51,6 +51,8 @@ contracts/
 | `CompositeTransferPolicyV2` | Composable transfer-policy enforcement |
 | `HoldingLimitPolicyV2` | Holding-limit policy module |
 | `MigrationControllerV2` | Optional Merkle snapshot balance migration |
+| `SanctionsPolicyV2` | Freeze-only sanctions with opaque case hashes |
+| `EmergencyPolicyV2` | Global transfer pause with dual-control unpause |
 | `GovernedPermissioning` | Dual-control role administration (optional with `SECOND_ADMIN_ADDRESS`) |
 
 The architectural direction is that the ledger owns balances and controllers receive narrowly scoped capabilities. Controllers should not become independent balance stores.
@@ -134,7 +136,9 @@ Keyed Protocol v2 deployment (`DeployCentralBankV2`) requires `DEPLOYER_PRIVATE_
 
 | Variable | Default | Effect |
 | --- | --- | --- |
-| `ENABLE_HOLDING_LIMITS` | `true` | Deploy holding-limit + composite transfer policy |
+| `ENABLE_HOLDING_LIMITS` | `true` | Deploy holding-limit policy into the composite |
+| `ENABLE_SANCTIONS` | `true` | Deploy `SanctionsPolicyV2` into the composite |
+| `ENABLE_EMERGENCY` | `true` | Deploy `EmergencyPolicyV2` into the composite |
 | `ENABLE_WATERFALL` | `true` | Deploy waterfall controller (requires holding limits) |
 | `DEPLOY_MIGRATION` | `false` | Deploy migration controller when snapshot metadata is set |
 | `SECOND_ADMIN_ADDRESS` | unset | Also deploy `GovernedPermissioning` dual-control admin |

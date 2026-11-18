@@ -33,6 +33,7 @@ router.get(
     res.json({
       success: true,
       data: {
+        protocolStack: blockchainService.isV2() ? 'v2' : 'v1',
         blockchain: {
           blockNumber,
           gasPrice,
@@ -102,6 +103,71 @@ router.post(
 
     logAuditEvent({
       action: 'SYSTEM_UNPAUSED',
+      actor: req.auth!.institutionId,
+      resource: 'system',
+      result: 'success',
+    });
+
+    res.json({
+      success: true,
+      data: {
+        action: 'status' in result && result.status === 'proposed' ? 'unpause_proposed' : 'unpaused',
+        protocolStack: blockchainService.isV2() ? 'v2' : 'v1',
+        ...result,
+      },
+    });
+  })
+);
+
+/**
+ * @openapi
+ * /admin/system/propose-unpause:
+ *   post:
+ *     summary: Propose unpause (Protocol v2 dual-control first step)
+ *     tags: [Admin]
+ */
+router.post(
+  '/system/propose-unpause',
+  requireRole('ECB_ADMIN'),
+  validateKeyRole(KeyRole.ISSUING),
+  strictRateLimiter,
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await blockchainService.proposeUnpause();
+
+    logAuditEvent({
+      action: 'SYSTEM_UNPAUSE_PROPOSED',
+      actor: req.auth!.institutionId,
+      resource: 'system',
+      result: 'success',
+    });
+
+    res.json({
+      success: true,
+      data: {
+        action: 'unpause_proposed',
+        ...result,
+      },
+    });
+  })
+);
+
+/**
+ * @openapi
+ * /admin/system/confirm-unpause:
+ *   post:
+ *     summary: Confirm unpause (Protocol v2 dual-control second step)
+ *     tags: [Admin]
+ */
+router.post(
+  '/system/confirm-unpause',
+  requireRole('ECB_ADMIN'),
+  validateKeyRole(KeyRole.ISSUING),
+  strictRateLimiter,
+  asyncHandler(async (req: Request, res: Response) => {
+    const result = await blockchainService.confirmUnpause();
+
+    logAuditEvent({
+      action: 'SYSTEM_UNPAUSE_CONFIRMED',
       actor: req.auth!.institutionId,
       resource: 'system',
       result: 'success',

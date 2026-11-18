@@ -93,6 +93,29 @@ contract HoldingWaterfallV2Test is Test {
         assertEq(ledger.balanceOf(settlement), 7_000);
     }
 
+    function test_OverflowSweepMovesExcessToSettlement() public {
+        // Mint bypasses transfer policy, so a wallet can be above its holding limit.
+        vm.prank(minter);
+        ledger.controllerMint(wallet, 15_000, keccak256("over-limit-mint"));
+
+        vm.prank(operator);
+        uint256 swept = waterfall.executeOverflowSweep(wallet, keccak256("overflow-sweep-1"));
+
+        assertEq(swept, 5_000);
+        assertEq(ledger.balanceOf(wallet), 10_000);
+        assertEq(ledger.balanceOf(settlement), 5_000);
+    }
+
+    function test_OverflowSweepNoOpWhenUnderLimit() public {
+        vm.prank(minter);
+        ledger.controllerMint(wallet, 4_000, keccak256("under-limit-mint"));
+
+        vm.prank(operator);
+        uint256 swept = waterfall.executeOverflowSweep(wallet, keccak256("overflow-noop"));
+        assertEq(swept, 0);
+        assertEq(ledger.balanceOf(wallet), 4_000);
+    }
+
     function test_OnlyOperatorCanExecuteWaterfall() public {
         vm.prank(outsider);
         vm.expectRevert(WaterfallControllerV2.Unauthorized.selector);

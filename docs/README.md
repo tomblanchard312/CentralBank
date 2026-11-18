@@ -15,6 +15,8 @@ CentralBank separates generic protocol documentation from jurisdiction-specific 
 | Document | Purpose |
 | --- | --- |
 | [`../README.md`](../README.md) | Project overview and current production-readiness status |
+| [`../AGENTS.md`](../AGENTS.md) | Agent-facing repo map, wiring status, and working rules |
+| [`../.github/copilot-instructions.md`](../.github/copilot-instructions.md) | Copilot policy anchors and implementation constraints |
 | [`canonical-naming.md`](canonical-naming.md) | Authoritative CentralBank/CBDT terminology and naming rules |
 | [`smart-contracts-architecture.md`](smart-contracts-architecture.md) | Smart-contract architecture, deploy paths, and remaining V2 gaps |
 | [`architecture/adr-004-centralbank-cbdt-naming.md`](architecture/adr-004-centralbank-cbdt-naming.md) | Decision record for the CentralBank/CBDT refactor |

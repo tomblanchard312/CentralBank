@@ -138,3 +138,82 @@ export enum PaymentStatus {
   EXPIRED = 3,
   DISPUTED = 4,
 }
+
+/** Protocol v2 fragments — must match contracts/src/v2. */
+export const TokenLedgerV2ABI = [
+  'function name() external view returns (string)',
+  'function symbol() external view returns (string)',
+  'function totalSupply() external view returns (uint256)',
+  'function balanceOf(address account) external view returns (uint256)',
+  'function transfer(address to, uint256 amount) external returns (bool)',
+  'function allowance(address owner, address spender) external view returns (uint256)',
+  'function approve(address spender, uint256 amount) external returns (bool)',
+  'function transferFrom(address from, address to, uint256 amount) external returns (bool)',
+  'function controllerMove(address from, address to, uint256 amount) external',
+  'function controllerMint(address to, uint256 amount, bytes32 clientKey) external',
+  'function controllerBurn(address from, uint256 amount, bytes32 clientKey) external',
+  'event Transfer(address indexed from, address indexed to, uint256 value)',
+  'event Approval(address indexed owner, address indexed spender, uint256 value)',
+] as const;
+
+export const MintBurnControllerV2ABI = [
+  'function mint(address beneficiary, uint256 amount, bytes32 referenceHash, bytes32 clientKey) external',
+  'function burn(address account, uint256 amount, bytes32 referenceHash, bytes32 clientKey) external',
+  'function mintingPaused() external view returns (bool)',
+  'function burningPaused() external view returns (bool)',
+  'event MintExecuted(address indexed authority, address indexed beneficiary, uint256 amount, bytes32 indexed operationDigest, bytes32 referenceHash)',
+  'event BurnExecuted(address indexed authority, address indexed account, uint256 amount, bytes32 indexed operationDigest, bytes32 referenceHash)',
+] as const;
+
+export const EscrowControllerV2ABI = [
+  'function createEscrow(address source, address beneficiary, uint256 amount, uint256 expiry, bytes32 caseReferenceHash, bytes32 documentHash, bytes32 clientKey) external returns (bytes32)',
+  'function releaseEscrow(bytes32 escrowId, bytes32 clientKey) external',
+  'function burnEscrow(bytes32 escrowId, bytes32 clientKey) external',
+  'function cancelEscrow(bytes32 escrowId, bytes32 clientKey) external',
+  'function getEscrow(bytes32 escrowId) external view returns (tuple(address source, address beneficiary, uint256 amount, uint256 expiry, bytes32 caseReferenceHash, bytes32 documentHash, uint8 state) escrow)',
+  'function activeEscrowBySource(address source) external view returns (uint256)',
+  'function totalActiveEscrow() external view returns (uint256)',
+  'event EscrowCreated(bytes32 indexed escrowId, address indexed source, address indexed beneficiary, uint256 amount, uint256 expiry, bytes32 caseReferenceHash, bytes32 documentHash)',
+  'event EscrowReleased(bytes32 indexed escrowId, address indexed beneficiary, uint256 amount)',
+  'event EscrowBurned(bytes32 indexed escrowId, uint256 amount)',
+  'event EscrowCancelled(bytes32 indexed escrowId, address indexed source, uint256 amount)',
+] as const;
+
+export const WaterfallControllerV2ABI = [
+  'function linkSettlementAccount(address wallet, address settlementAccount) external',
+  'function linkedSettlementAccount(address wallet) external view returns (address)',
+  'function executeWaterfall(address source, address wallet, uint256 amount, bytes32 clientKey) external returns (uint256, uint256)',
+  'function executeReverseWaterfall(address wallet, uint256 requestedAmount, bytes32 clientKey) external returns (uint256)',
+  'function executeOverflowSweep(address wallet, bytes32 clientKey) external returns (uint256)',
+  'event WaterfallExecuted(address indexed source, address indexed wallet, address indexed settlementAccount, uint256 walletAmount, uint256 sweptAmount)',
+  'event ReverseWaterfallExecuted(address indexed settlementAccount, address indexed wallet, uint256 amount)',
+] as const;
+
+export const SanctionsPolicyV2ABI = [
+  'function freezeAccount(address account, bytes32 caseRefHash) external',
+  'function unfreezeAccount(address account) external',
+  'function frozenAccounts(address account) external view returns (bool)',
+  'function caseReferenceHash(address account) external view returns (bytes32)',
+  'event AccountFrozen(address indexed account, bytes32 indexed caseReferenceHash, address indexed authority)',
+  'event AccountUnfrozen(address indexed account, address indexed authority)',
+] as const;
+
+export const EmergencyPolicyV2ABI = [
+  'function pauseTransfers() external',
+  'function proposeUnpause() external',
+  'function confirmUnpause() external',
+  'function cancelUnpauseProposal() external',
+  'function transfersPaused() external view returns (bool)',
+  'function pendingUnpauseProposer() external view returns (address)',
+  'event TransfersPaused(address indexed authority)',
+  'event UnpauseProposed(address indexed proposer)',
+  'event UnpauseConfirmed(address indexed confirmer)',
+] as const;
+
+export const HoldingLimitPolicyV2ABI = [
+  'function setHoldingLimit(address account, uint256 newLimit) external',
+  'function setExempt(address account, bool exempt) external',
+  'function holdingLimits(address account) external view returns (uint256)',
+  'function exemptAccounts(address account) external view returns (bool)',
+  'function availableCapacity(address account) external view returns (uint256)',
+] as const;

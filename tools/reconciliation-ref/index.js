@@ -1,7 +1,9 @@
 const http = require('http');
-const config = require('./config');
+const { loadRuntimeConfig } = require('./config');
 const { createStorage } = require('./storage');
 const { validateReconciliationBatch } = require('./validation');
+
+const config = loadRuntimeConfig();
 
 let storage;
 let stats = {

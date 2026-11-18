@@ -1,7 +1,7 @@
 {
   "name": "@centralbank/bank-sdk",
   "version": "1.0.0",
-  "description": "TypeScript SDK for European banks to integrate with CBDT Digital Euro",
+  "description": "TypeScript SDK for institutions integrating with the CentralBank Digital Token Protocol (CBDT)",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -25,15 +25,15 @@
   },
   "keywords": [
     "centralbank",
-    "digital-euro",
+    "cbdt",
     "cbdc",
     "blockchain",
     "ethereum",
     "banking",
-    "sepa",
-    "ecb"
+    "institutional-api",
+    "eurosystem-reference"
   ],
-  "author": "CBDT Project",
+  "author": "CentralBank Project",
   "license": "MIT",
   "dependencies": {
     "ethers": "^6.9.2",

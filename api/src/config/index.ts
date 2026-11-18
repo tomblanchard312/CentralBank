@@ -22,12 +22,24 @@ const configSchema = z.object({
     confirmations: z.coerce.number().int().positive().max(64).default(1),
   }),
 
+  protocolStack: z.enum(['v1', 'v2']).default('v1'),
+
   contracts: z.object({
     permissioning: addressSchema,
     walletRegistry: addressSchema,
     digitalToken: addressSchema,
     conditionalPayments: addressSchema,
   }),
+
+  contractsV2: z.object({
+    tokenLedger: addressSchema.optional(),
+    mintBurnController: addressSchema.optional(),
+    escrowController: addressSchema.optional(),
+    waterfallController: addressSchema.optional(),
+    sanctionsPolicy: addressSchema.optional(),
+    emergencyPolicy: addressSchema.optional(),
+    holdingLimitPolicy: addressSchema.optional(),
+  }).default({}),
 
   auth: z.object({
     jwtSecret: z.string().min(32),
@@ -99,6 +111,8 @@ function loadConfig() {
     return undefined;
   };
 
+  const protocolStack = (process.env['PROTOCOL_STACK'] ?? 'v1').toLowerCase();
+
   const result = configSchema.safeParse({
     port: process.env['PORT'],
     nodeEnv,
@@ -106,6 +120,7 @@ function loadConfig() {
     trustProxy: process.env['TRUST_PROXY'] ?? false,
     enableApiDocs: bool(process.env['ENABLE_API_DOCS'], permitsLocalDefaults),
     allowDemoIdentities: bool(process.env['ALLOW_DEMO_IDENTITIES'], nodeEnv === 'test'),
+    protocolStack,
     blockchain: {
       rpcUrl: required('BLOCKCHAIN_RPC_URL', 'http://localhost:8545'),
       chainId: required('BLOCKCHAIN_CHAIN_ID', '31337'),
@@ -119,6 +134,15 @@ function loadConfig() {
       walletRegistry: required('CONTRACT_WALLET_REGISTRY', dummyAddr),
       digitalToken: required('CONTRACT_DIGITAL_TOKEN', dummyAddr),
       conditionalPayments: required('CONTRACT_CONDITIONAL_PAYMENTS', dummyAddr),
+    },
+    contractsV2: {
+      tokenLedger: process.env['CONTRACT_TOKEN_LEDGER_V2'] || (permitsLocalDefaults ? dummyAddr : undefined),
+      mintBurnController: process.env['CONTRACT_MINT_BURN_CONTROLLER_V2'] || (permitsLocalDefaults ? dummyAddr : undefined),
+      escrowController: process.env['CONTRACT_ESCROW_CONTROLLER_V2'] || (permitsLocalDefaults ? dummyAddr : undefined),
+      waterfallController: process.env['CONTRACT_WATERFALL_CONTROLLER_V2'] || (permitsLocalDefaults ? dummyAddr : undefined),
+      sanctionsPolicy: process.env['CONTRACT_SANCTIONS_POLICY_V2'] || (permitsLocalDefaults ? dummyAddr : undefined),
+      emergencyPolicy: process.env['CONTRACT_EMERGENCY_POLICY_V2'] || (permitsLocalDefaults ? dummyAddr : undefined),
+      holdingLimitPolicy: process.env['CONTRACT_HOLDING_LIMIT_POLICY_V2'] || (permitsLocalDefaults ? dummyAddr : undefined),
     },
     auth: {
       jwtSecret: required('JWT_SECRET', developmentJwtSecret),
@@ -144,6 +168,25 @@ function loadConfig() {
   });
 
   if (!result.success) structuredConfigError(result.error.format());
+
+  if (result.data.protocolStack === 'v2') {
+    const missing = Object.entries({
+      tokenLedger: result.data.contractsV2.tokenLedger,
+      mintBurnController: result.data.contractsV2.mintBurnController,
+      escrowController: result.data.contractsV2.escrowController,
+      waterfallController: result.data.contractsV2.waterfallController,
+      sanctionsPolicy: result.data.contractsV2.sanctionsPolicy,
+      emergencyPolicy: result.data.contractsV2.emergencyPolicy,
+      holdingLimitPolicy: result.data.contractsV2.holdingLimitPolicy,
+    })
+      .filter(([, value]) => !value)
+      .map(([key]) => key);
+    if (missing.length > 0) {
+      structuredConfigError({
+        contractsV2: [`PROTOCOL_STACK=v2 requires V2 addresses: ${missing.join(', ')}`],
+      });
+    }
+  }
 
   if (!permitsLocalDefaults && result.data.allowDemoIdentities) {
     structuredConfigError({ allowDemoIdentities: ['Demo identities are forbidden outside development and test'] });
@@ -196,4 +239,4 @@ function loadConfig() {
 export const config = loadConfig();
 export type Config = z.infer<typeof configSchema>;
 
-export { parameters as rulebookParameters } from './parameters';
+export { parameters as rulebookParameters, deploymentProfile } from './parameters';

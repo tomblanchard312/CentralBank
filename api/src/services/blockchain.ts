@@ -9,6 +9,13 @@ import {
   DigitalTokenABI,
   ConditionalPaymentsABI,
   PermissioningABI,
+  TokenLedgerV2ABI,
+  MintBurnControllerV2ABI,
+  EscrowControllerV2ABI,
+  WaterfallControllerV2ABI,
+  SanctionsPolicyV2ABI,
+  EmergencyPolicyV2ABI,
+  HoldingLimitPolicyV2ABI,
   WalletType,
   ConditionType,
   PaymentStatus,
@@ -70,6 +77,7 @@ type PaymentInfo = {
 class BlockchainService {
   private provider: JsonRpcProvider;
   private managedSigner?: ManagedSigner;
+  private emergencySigner?: ManagedSigner;
   private operatorAddress = '';
   private contracts?: {
     walletRegistry: Contract;
@@ -77,10 +85,23 @@ class BlockchainService {
     conditionalPayments: Contract;
     permissioning: Contract;
   };
+  private contractsV2?: {
+    tokenLedger: Contract;
+    mintBurn: Contract;
+    escrow: Contract;
+    waterfall: Contract;
+    sanctions: Contract;
+    emergency: Contract;
+    holdingLimit: Contract;
+  };
   private initialized = false;
 
   constructor() {
     this.provider = new JsonRpcProvider(config.blockchain.rpcUrl);
+  }
+
+  isV2(): boolean {
+    return config.protocolStack === 'v2';
   }
 
   private bound() {
@@ -90,22 +111,52 @@ class BlockchainService {
     return this.contracts;
   }
 
+  private boundV2() {
+    if (!this.contractsV2) {
+      throw new BlockchainError('Protocol v2 contracts have not been initialized');
+    }
+    return this.contractsV2;
+  }
+
   private get _walletRegistry(): Contract { return this.bound().walletRegistry; }
   private get _digitalToken(): Contract { return this.bound().digitalToken; }
   private get _conditionalPayments(): Contract { return this.bound().conditionalPayments; }
   private get _permissioning(): Contract { return this.bound().permissioning; }
+  private get _tokenLedger(): Contract { return this.boundV2().tokenLedger; }
+  private get _mintBurn(): Contract { return this.boundV2().mintBurn; }
+  private get _escrow(): Contract { return this.boundV2().escrow; }
+  private get _waterfall(): Contract { return this.boundV2().waterfall; }
+  private get _sanctions(): Contract { return this.boundV2().sanctions; }
+  private get _emergency(): Contract { return this.boundV2().emergency; }
+  private get _holdingLimit(): Contract { return this.boundV2().holdingLimit; }
+
+  private requireV1(feature: string): void {
+    if (this.isV2()) {
+      throw new BlockchainError(`${feature} is not available when PROTOCOL_STACK=v2`);
+    }
+  }
 
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
     try {
+      const permitsLocalKeys = config.nodeEnv === 'development' || config.nodeEnv === 'test';
       this.managedSigner = await createSigner(this.provider, {
         backend: config.blockchain.signerBackend,
         privateKey: config.blockchain.operatorPrivateKey,
         kmsKeyId: config.blockchain.kmsKeyId,
-        permitsLocalKeys: config.nodeEnv === 'development' || config.nodeEnv === 'test',
+        permitsLocalKeys,
       });
       this.operatorAddress = await this.managedSigner.getAddress();
+
+      const emergencyKey = process.env['BLOCKCHAIN_EMERGENCY_PRIVATE_KEY'];
+      if (emergencyKey && this.isV2()) {
+        this.emergencySigner = await createSigner(this.provider, {
+          backend: 'env',
+          privateKey: emergencyKey,
+          permitsLocalKeys,
+        });
+      }
 
       const signer = this.managedSigner.signer;
       this.contracts = {
@@ -114,6 +165,19 @@ class BlockchainService {
         conditionalPayments: new Contract(config.contracts.conditionalPayments, ConditionalPaymentsABI, signer),
         permissioning: new Contract(config.contracts.permissioning, PermissioningABI, signer),
       };
+
+      if (this.isV2()) {
+        const v2 = config.contractsV2;
+        this.contractsV2 = {
+          tokenLedger: new Contract(v2.tokenLedger!, TokenLedgerV2ABI, signer),
+          mintBurn: new Contract(v2.mintBurnController!, MintBurnControllerV2ABI, signer),
+          escrow: new Contract(v2.escrowController!, EscrowControllerV2ABI, signer),
+          waterfall: new Contract(v2.waterfallController!, WaterfallControllerV2ABI, signer),
+          sanctions: new Contract(v2.sanctionsPolicy!, SanctionsPolicyV2ABI, signer),
+          emergency: new Contract(v2.emergencyPolicy!, EmergencyPolicyV2ABI, signer),
+          holdingLimit: new Contract(v2.holdingLimitPolicy!, HoldingLimitPolicyV2ABI, signer),
+        };
+      }
 
       const network = await this.provider.getNetwork();
       const blockNumber = await this.provider.getBlockNumber();
@@ -128,6 +192,7 @@ class BlockchainService {
         chainId: network.chainId.toString(),
         blockNumber,
         resourceId: this.operatorAddress,
+        protocolStack: config.protocolStack,
       });
 
       this.initialized = true;
@@ -162,20 +227,27 @@ class BlockchainService {
   }
 
   private async _callTokenBalanceOf(address: string): Promise<EBig> {
-    const func = this._digitalToken.getFunction('balanceOf');
+    const token = this.isV2() ? this._tokenLedger : this._digitalToken;
+    const func = token.getFunction('balanceOf');
     if (!func) throw new BlockchainError('Contract method balanceOf not available');
     const bal = await func(address);
     return bal as unknown as EBig;
   }
 
   private async _callTokenTotalSupply(): Promise<EBig> {
-    const func = this._digitalToken.getFunction('totalSupply');
+    const token = this.isV2() ? this._tokenLedger : this._digitalToken;
+    const func = token.getFunction('totalSupply');
     if (!func) throw new BlockchainError('Contract method totalSupply not available');
     const s = await func();
     return s as unknown as EBig;
   }
 
   private async _callTokenPaused(): Promise<boolean> {
+    if (this.isV2()) {
+      const func = this._emergency.getFunction('transfersPaused');
+      if (!func) throw new BlockchainError('Contract method transfersPaused not available');
+      return await func() as boolean;
+    }
     const func = this._digitalToken.getFunction('paused');
     if (!func) throw new BlockchainError('Contract method paused not available');
     return await func() as boolean;
@@ -209,7 +281,13 @@ class BlockchainService {
     contract: Contract,
     method: string,
     args: unknown[],
-    options: { gasLimit?: bigint; correlationId?: string; userId?: string; operation?: string } = {}
+    options: {
+      gasLimit?: bigint;
+      correlationId?: string;
+      userId?: string;
+      operation?: string;
+      signer?: ManagedSigner;
+    } = {}
   ): Promise<{ txHash: string; blockNumber: number; receipt: ethers.TransactionReceipt }> {
     const startTime = Date.now();
     const correlationId = options.correlationId || crypto.randomUUID();
@@ -230,16 +308,17 @@ class BlockchainService {
         result: 'success',
       });
 
-      const func = contract.getFunction(method);
+      const signer = options.signer ?? this.managedSigner;
+      if (!signer) throw new BlockchainError('Blockchain service has not been initialized');
+
+      const connected = contract.connect(signer.signer) as Contract;
+      const func = connected.getFunction(method);
       if (!func) {
         throw new BlockchainError(`Contract method ${method} not found`);
       }
 
       const overrides: { gasLimit?: bigint } = {};
       if (options.gasLimit) overrides.gasLimit = options.gasLimit;
-
-      const signer = this.managedSigner;
-      if (!signer) throw new BlockchainError('Blockchain service has not been initialized');
 
       const receipt = await signer.runExclusive(async () => {
         try {
@@ -344,6 +423,7 @@ class BlockchainService {
     correlationId?: string,
     userId?: string
   ) {
+    this.requireV1('WalletRegistry registration');
     if (walletType !== WalletType.PSP && walletType !== WalletType.BANK) {
       const isIntermediary = await this.isIntermediary(linkedBank);
       if (!isIntermediary) {
@@ -366,6 +446,7 @@ class BlockchainService {
   }
 
   async deactivateWallet(wallet: string, reason: string, correlationId?: string, userId?: string) {
+    this.requireV1('WalletRegistry');
     return this.executeTransaction(
       this._walletRegistry,
       'deactivateWallet',
@@ -379,6 +460,7 @@ class BlockchainService {
   }
 
   async reactivateWallet(wallet: string, correlationId?: string, userId?: string) {
+    this.requireV1('WalletRegistry');
     return this.executeTransaction(
       this._walletRegistry,
       'reactivateWallet',
@@ -392,6 +474,7 @@ class BlockchainService {
   }
 
   async updateLinkedBank(wallet: string, newBank: string, correlationId?: string, userId?: string) {
+    this.requireV1('WalletRegistry');
     return this.executeTransaction(
       this._walletRegistry,
       'updateLinkedBankAccount',
@@ -405,6 +488,7 @@ class BlockchainService {
   }
 
   async getWalletInfo(wallet: string) {
+    this.requireV1('WalletRegistry');
     try {
       const info = await this._callWalletRegistryGetWalletInfo(wallet);
 
@@ -436,6 +520,12 @@ class BlockchainService {
 
   async getHoldingLimit(wallet: string): Promise<string> {
     try {
+      if (this.isV2()) {
+        const func = this._holdingLimit.getFunction('holdingLimits');
+        if (!func) throw new BlockchainError('Contract method holdingLimits not available');
+        const limit = await func(wallet);
+        return (limit as EBig).toString();
+      }
       const limit = await this._callWalletRegistryGetHoldingLimit(wallet);
       return limit.toString();
     } catch (error) {
@@ -465,16 +555,28 @@ class BlockchainService {
       result: 'success',
     });
 
-    const result = await this.executeTransaction(
-      this._digitalToken,
-      'mint',
-      [to, amount, this._toBytes32Key(idempotencyKey)],
-      {
-        ...(correlationId && { correlationId }),
-        ...(userId && { userId }),
-        operation: 'MINT_TOKENS'
-      }
-    );
+    const clientKey = this._toBytes32Key(idempotencyKey);
+    const result = this.isV2()
+      ? await this.executeTransaction(
+          this._mintBurn,
+          'mint',
+          [to, amount, this._toBytes32Key(justification), clientKey],
+          {
+            ...(correlationId && { correlationId }),
+            ...(userId && { userId }),
+            operation: 'MINT_TOKENS'
+          }
+        )
+      : await this.executeTransaction(
+          this._digitalToken,
+          'mint',
+          [to, amount, clientKey],
+          {
+            ...(correlationId && { correlationId }),
+            ...(userId && { userId }),
+            operation: 'MINT_TOKENS'
+          }
+        );
 
     await logAuditEvent({
       action: 'TOKENS_MINTED',
@@ -495,10 +597,23 @@ class BlockchainService {
   }
 
   async burn(from: string, amount: bigint, idempotencyKey: string, correlationId?: string, userId?: string) {
+    const clientKey = this._toBytes32Key(idempotencyKey);
+    if (this.isV2()) {
+      return this.executeTransaction(
+        this._mintBurn,
+        'burn',
+        [from, amount, this._toBytes32Key(`burn:${from}`), clientKey],
+        {
+          ...(correlationId && { correlationId }),
+          ...(userId && { userId }),
+          operation: 'BURN_TOKENS'
+        }
+      );
+    }
     return this.executeTransaction(
       this._digitalToken,
       'burn',
-      [from, amount, this._toBytes32Key(idempotencyKey)],
+      [from, amount, clientKey],
       {
         ...(correlationId && { correlationId }),
         ...(userId && { userId }),
@@ -510,8 +625,9 @@ class BlockchainService {
   async transfer(from: string, to: string, amount: bigint, correlationId?: string, userId?: string) {
     await this.validateHoldingLimit(to, amount);
 
+    const token = this.isV2() ? this._tokenLedger : this._digitalToken;
     return this.executeTransaction(
-      this._digitalToken,
+      token,
       'transferFrom',
       [from, to, amount],
       {
@@ -523,13 +639,26 @@ class BlockchainService {
   }
 
   async allowanceForOperator(owner: string): Promise<bigint> {
-    const func = this._digitalToken.getFunction('allowance');
+    const token = this.isV2() ? this._tokenLedger : this._digitalToken;
+    const func = token.getFunction('allowance');
     if (!func) throw new BlockchainError('Contract method allowance not available');
     const result = await func(owner, this.operatorAddress);
     return BigInt(result.toString());
   }
 
   async freezeAccount(account: string, reason: string, correlationId?: string, userId?: string) {
+    if (this.isV2()) {
+      return this.executeTransaction(
+        this._sanctions,
+        'freezeAccount',
+        [account, this._toBytes32Key(reason)],
+        {
+          ...(correlationId && { correlationId }),
+          ...(userId && { userId }),
+          operation: 'FREEZE_ACCOUNT'
+        }
+      );
+    }
     return this.executeTransaction(
       this._digitalToken,
       'freezeAccount',
@@ -543,6 +672,18 @@ class BlockchainService {
   }
 
   async unfreezeAccount(account: string, correlationId?: string, userId?: string) {
+    if (this.isV2()) {
+      return this.executeTransaction(
+        this._sanctions,
+        'unfreezeAccount',
+        [account],
+        {
+          ...(correlationId && { correlationId }),
+          ...(userId && { userId }),
+          operation: 'UNFREEZE_ACCOUNT'
+        }
+      );
+    }
     return this.executeTransaction(
       this._digitalToken,
       'unfreezeAccount',
@@ -555,7 +696,65 @@ class BlockchainService {
     );
   }
 
-  async escrowFunds(account: string, amount: bigint, legalBasis: string, expiry: bigint, correlationId?: string, userId?: string) {
+  async escrowFunds(
+    account: string,
+    amount: bigint,
+    legalBasis: string,
+    expiry: bigint,
+    correlationId?: string,
+    userId?: string,
+    options?: { beneficiary?: string; documentHash?: string; idempotencyKey?: string }
+  ): Promise<{ txHash: string; blockNumber: number; receipt: ethers.TransactionReceipt; escrowId?: string }> {
+    if (this.isV2()) {
+      const beneficiary = options?.beneficiary;
+      if (!beneficiary) {
+        throw new BlockchainError('Protocol v2 escrow requires beneficiary');
+      }
+      const idempotencyKey = options?.idempotencyKey ?? crypto.randomUUID();
+      const documentHash = options?.documentHash
+        ? this._toBytes32Key(options.documentHash)
+        : ethers.ZeroHash;
+      const { txHash, blockNumber, receipt } = await this.executeTransaction(
+        this._escrow,
+        'createEscrow',
+        [
+          account,
+          beneficiary,
+          amount,
+          expiry,
+          this._toBytes32Key(legalBasis),
+          documentHash,
+          this._toBytes32Key(idempotencyKey),
+        ],
+        {
+          ...(correlationId && { correlationId }),
+          ...(userId && { userId }),
+          operation: 'ESCROW_FUNDS'
+        }
+      );
+
+      const event = receipt.logs
+        .map(log => {
+          try {
+            return this._escrow.interface.parseLog(log);
+          } catch {
+            return null;
+          }
+        })
+        .find(parsed => parsed && parsed.name === 'EscrowCreated');
+
+      if (!event) {
+        throw new BlockchainError('EscrowCreated event not found in transaction receipt');
+      }
+
+      return {
+        txHash,
+        blockNumber,
+        receipt,
+        escrowId: event.args.escrowId as string,
+      };
+    }
+
     return this.executeTransaction(
       this._digitalToken,
       'escrowFunds',
@@ -568,7 +767,29 @@ class BlockchainService {
     );
   }
 
-  async releaseEscrowedFunds(account: string, to: string, correlationId?: string, userId?: string) {
+  async releaseEscrowedFunds(
+    account: string,
+    to: string,
+    correlationId?: string,
+    userId?: string,
+    options?: { escrowId?: string; idempotencyKey?: string }
+  ) {
+    if (this.isV2()) {
+      if (!options?.escrowId) {
+        throw new BlockchainError('Protocol v2 escrow release requires escrowId');
+      }
+      const clientKey = this._toBytes32Key(options.idempotencyKey ?? crypto.randomUUID());
+      return this.executeTransaction(
+        this._escrow,
+        'releaseEscrow',
+        [options.escrowId, clientKey],
+        {
+          ...(correlationId && { correlationId }),
+          ...(userId && { userId }),
+          operation: 'RELEASE_ESCROWED_FUNDS'
+        }
+      );
+    }
     return this.executeTransaction(
       this._digitalToken,
       'releaseEscrowedFunds',
@@ -581,7 +802,28 @@ class BlockchainService {
     );
   }
 
-  async burnEscrowedFunds(account: string, correlationId?: string, userId?: string) {
+  async burnEscrowedFunds(
+    account: string,
+    correlationId?: string,
+    userId?: string,
+    options?: { escrowId?: string; idempotencyKey?: string }
+  ) {
+    if (this.isV2()) {
+      if (!options?.escrowId) {
+        throw new BlockchainError('Protocol v2 escrow burn requires escrowId');
+      }
+      const clientKey = this._toBytes32Key(options.idempotencyKey ?? crypto.randomUUID());
+      return this.executeTransaction(
+        this._escrow,
+        'burnEscrow',
+        [options.escrowId, clientKey],
+        {
+          ...(correlationId && { correlationId }),
+          ...(userId && { userId }),
+          operation: 'BURN_ESCROWED_FUNDS'
+        }
+      );
+    }
     return this.executeTransaction(
       this._digitalToken,
       'burnEscrowedFunds',
@@ -595,12 +837,19 @@ class BlockchainService {
   }
 
   async isAccountFrozen(account: string): Promise<boolean> {
-    const func = this._digitalToken.getFunction('frozenAccounts');
+    const contract = this.isV2() ? this._sanctions : this._digitalToken;
+    const func = contract.getFunction('frozenAccounts');
     if (!func) throw new BlockchainError('Contract method frozenAccounts not available');
     return await func(account) as boolean;
   }
 
-  async getEscrowedBalance(account: string): Promise<{ amount: bigint; legalBasis: string; expiry: bigint }> {
+  async getEscrowedBalance(account: string): Promise<{ amount: bigint; legalBasis: string; expiry: bigint; escrowId?: string }> {
+    if (this.isV2()) {
+      const func = this._escrow.getFunction('activeEscrowBySource');
+      if (!func) throw new BlockchainError('Contract method activeEscrowBySource not available');
+      const amount = BigInt((await func(account)).toString());
+      return { amount, legalBasis: '', expiry: 0n };
+    }
     const func = this._digitalToken.getFunction('escrowedBalances');
     if (!func) throw new BlockchainError('Contract method escrowedBalances not available');
     const result = await func(account);
@@ -611,7 +860,30 @@ class BlockchainService {
     };
   }
 
+  async getEscrow(escrowId: string) {
+    if (!this.isV2()) {
+      throw new BlockchainError('getEscrow is only available when PROTOCOL_STACK=v2');
+    }
+    const func = this._escrow.getFunction('getEscrow');
+    if (!func) throw new BlockchainError('Contract method getEscrow not available');
+    const result = await func(escrowId);
+    return {
+      source: result.source as string,
+      beneficiary: result.beneficiary as string,
+      amount: BigInt(result.amount.toString()),
+      expiry: BigInt(result.expiry.toString()),
+      caseReferenceHash: result.caseReferenceHash as string,
+      documentHash: result.documentHash as string,
+      state: Number(result.state),
+    };
+  }
+
   async getEscrowTotal(account: string): Promise<bigint> {
+    if (this.isV2()) {
+      const func = this._escrow.getFunction('activeEscrowBySource');
+      if (!func) throw new BlockchainError('Contract method activeEscrowBySource not available');
+      return BigInt((await func(account)).toString());
+    }
     const func = this._digitalToken.getFunction('escrowTotals');
     if (!func) throw new BlockchainError('Contract method escrowTotals not available');
     const result = await func(account);
@@ -656,6 +928,25 @@ class BlockchainService {
 
   private async validateHoldingLimit(address: string, additionalAmount: bigint): Promise<void> {
     try {
+      if (this.isV2()) {
+        const exemptFn = this._holdingLimit.getFunction('exemptAccounts');
+        const capacityFn = this._holdingLimit.getFunction('availableCapacity');
+        const limitFn = this._holdingLimit.getFunction('holdingLimits');
+        if (!exemptFn || !capacityFn || !limitFn) {
+          throw new BlockchainError('Holding limit policy methods not available');
+        }
+        if (await exemptFn(address)) return;
+        const limit = BigInt((await limitFn(address)).toString());
+        if (limit === 0n) return;
+        const capacity = BigInt((await capacityFn(address)).toString());
+        if (additionalAmount > capacity) {
+          throw new BlockchainError(
+            `Eurosystem reference-profile violation: recipient holding limit exceeded. Limit: ${limit}, Requested: ${additionalAmount}, Capacity: ${capacity}`,
+          );
+        }
+        return;
+      }
+
       const info = await this._callWalletRegistryGetWalletInfo(address);
       const currentBalance = await this._callTokenBalanceOf(address);
       const newBalance = BigInt(currentBalance.toString()) + additionalAmount;
@@ -712,7 +1003,20 @@ class BlockchainService {
     }
   }
 
-  async executeWaterfall(wallet: string, correlationId?: string, userId?: string) {
+  async executeWaterfall(wallet: string, correlationId?: string, userId?: string, idempotencyKey?: string) {
+    if (this.isV2()) {
+      // v1 executeWaterfall sweeps overflow above holding limit; V2 maps to overflow sweep.
+      return this.executeTransaction(
+        this._waterfall,
+        'executeOverflowSweep',
+        [wallet, this._toBytes32Key(idempotencyKey ?? crypto.randomUUID())],
+        {
+          ...(correlationId && { correlationId }),
+          ...(userId && { userId }),
+          operation: 'EXECUTE_WATERFALL'
+        }
+      );
+    }
     return this.executeTransaction(
       this._digitalToken,
       'executeWaterfall',
@@ -726,6 +1030,18 @@ class BlockchainService {
   }
 
   async executeReverseWaterfall(wallet: string, amount: bigint, idempotencyKey: string, correlationId?: string, userId?: string) {
+    if (this.isV2()) {
+      return this.executeTransaction(
+        this._waterfall,
+        'executeReverseWaterfall',
+        [wallet, amount, this._toBytes32Key(idempotencyKey)],
+        {
+          ...(correlationId && { correlationId }),
+          ...(userId && { userId }),
+          operation: 'EXECUTE_REVERSE_WATERFALL'
+        }
+      );
+    }
     return this.executeTransaction(
       this._digitalToken,
       'executeReverseWaterfall',
@@ -747,6 +1063,19 @@ class BlockchainService {
   }
 
   async pause(correlationId?: string, userId?: string) {
+    if (this.isV2()) {
+      if (!this.emergencySigner) {
+        throw new BlockchainError(
+          'Protocol v2 pause requires BLOCKCHAIN_EMERGENCY_PRIVATE_KEY (emergency authority signer)',
+        );
+      }
+      return this.executeTransaction(this._emergency, 'pauseTransfers', [], {
+        ...(correlationId && { correlationId }),
+        ...(userId && { userId }),
+        operation: 'PAUSE_CONTRACT',
+        signer: this.emergencySigner,
+      });
+    }
     return this.executeTransaction(this._digitalToken, 'pause', [], {
       ...(correlationId && { correlationId }),
       ...(userId && { userId }),
@@ -754,7 +1083,50 @@ class BlockchainService {
     });
   }
 
+  async proposeUnpause(correlationId?: string, userId?: string) {
+    if (!this.isV2()) {
+      throw new BlockchainError('proposeUnpause is only available when PROTOCOL_STACK=v2');
+    }
+    return this.executeTransaction(this._emergency, 'proposeUnpause', [], {
+      ...(correlationId && { correlationId }),
+      ...(userId && { userId }),
+      operation: 'PROPOSE_UNPAUSE',
+    });
+  }
+
+  async confirmUnpause(correlationId?: string, userId?: string) {
+    if (!this.isV2()) {
+      throw new BlockchainError('confirmUnpause is only available when PROTOCOL_STACK=v2');
+    }
+    if (!this.emergencySigner) {
+      throw new BlockchainError(
+        'Protocol v2 confirmUnpause requires BLOCKCHAIN_EMERGENCY_PRIVATE_KEY as the second confirmer',
+      );
+    }
+    return this.executeTransaction(this._emergency, 'confirmUnpause', [], {
+      ...(correlationId && { correlationId }),
+      ...(userId && { userId }),
+      operation: 'CONFIRM_UNPAUSE',
+      signer: this.emergencySigner,
+    });
+  }
+
   async unpause(correlationId?: string, userId?: string) {
+    if (this.isV2()) {
+      const pendingFn = this._emergency.getFunction('pendingUnpauseProposer');
+      if (!pendingFn) throw new BlockchainError('Contract method pendingUnpauseProposer not available');
+      const pending = await pendingFn() as string;
+      if (!pending || pending === ethers.ZeroAddress) {
+        const proposal = await this.proposeUnpause(correlationId, userId);
+        if (!this.emergencySigner) {
+          return { ...proposal, status: 'proposed' as const };
+        }
+        const confirmation = await this.confirmUnpause(correlationId, userId);
+        return { ...confirmation, status: 'unpaused' as const };
+      }
+      const confirmation = await this.confirmUnpause(correlationId, userId);
+      return { ...confirmation, status: 'unpaused' as const };
+    }
     return this.executeTransaction(this._digitalToken, 'unpause', [], {
       ...(correlationId && { correlationId }),
       ...(userId && { userId }),
@@ -773,6 +1145,7 @@ class BlockchainService {
     correlationId?: string,
     userId?: string
   ): Promise<{ txHash: string; blockNumber: number; paymentId: string }> {
+    this.requireV1('ConditionalPayments');
     const { txHash, blockNumber, receipt } = await this.executeTransaction(
       this._conditionalPayments,
       'createConditionalPayment',
@@ -808,6 +1181,7 @@ class BlockchainService {
   }
 
   async confirmDelivery(paymentId: string, proof: string, correlationId?: string, userId?: string) {
+    this.requireV1('ConditionalPayments');
     return this.executeTransaction(
       this._conditionalPayments,
       'confirmDelivery',
@@ -821,6 +1195,7 @@ class BlockchainService {
   }
 
   async releasePayment(paymentId: string, proof: string, correlationId?: string, userId?: string) {
+    this.requireV1('ConditionalPayments');
     return this.executeTransaction(
       this._conditionalPayments,
       'releasePayment',
@@ -834,6 +1209,7 @@ class BlockchainService {
   }
 
   async refundPayment(paymentId: string, reason: string, correlationId?: string, userId?: string) {
+    this.requireV1('ConditionalPayments');
     return this.executeTransaction(
       this._conditionalPayments,
       'refundPayment',
@@ -847,6 +1223,7 @@ class BlockchainService {
   }
 
   async claimExpiredPayment(paymentId: string, correlationId?: string, userId?: string) {
+    this.requireV1('ConditionalPayments');
     return this.executeTransaction(
       this._conditionalPayments,
       'claimExpiredPayment',
@@ -860,6 +1237,7 @@ class BlockchainService {
   }
 
   async disputePayment(paymentId: string, reason: string, correlationId?: string, userId?: string) {
+    this.requireV1('ConditionalPayments');
     return this.executeTransaction(
       this._conditionalPayments,
       'disputePayment',
@@ -873,6 +1251,7 @@ class BlockchainService {
   }
 
   async resolveDispute(paymentId: string, releaseToPayee: boolean, correlationId?: string, userId?: string) {
+    this.requireV1('ConditionalPayments');
     return this.executeTransaction(
       this._conditionalPayments,
       'resolveDispute',
@@ -886,6 +1265,7 @@ class BlockchainService {
   }
 
   async getPayment(paymentId: string) {
+    this.requireV1('ConditionalPayments');
     try {
       const payment = await this._callGetPayment(paymentId);
       return {

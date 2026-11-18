@@ -122,9 +122,15 @@ CentralBank is designed around explicit institutional and transaction-level trus
 
 Institutional mTLS is an additional authentication factor, not a replacement for transaction authorization, API credentials, role checks, idempotency, or audit controls.
 
+## MVP vs production
+
+**Reference MVP** = runnable v1 institutional demo path (deploy + API + core flows). Tracked in [`docs/mvp-plan.md`](docs/mvp-plan.md). Lab smoke: `scripts/lab-mvp-smoke.sh` or `scripts/lab-mvp-smoke.ps1`.
+
+**Production / sovereign readiness** is a separate bar. CentralBank remains **pre-MVP** for production financial infrastructure even after the reference MVP checklist is green.
+
 ## Production-readiness status
 
-CentralBank is intentionally marked **pre-MVP**. The repository contains substantial protocol and security engineering, but a successful build does not mean the platform is ready to operate sovereign financial infrastructure.
+The repository contains substantial protocol and security engineering, but a successful build does not mean the platform is ready to operate sovereign financial infrastructure.
 
 Major production blockers still include:
 
@@ -133,9 +139,8 @@ Major production blockers still include:
 - append-only durable audit persistence
 - deny-by-default institutional route classification
 - hardened production deployment manifests
-- complete Protocol v2 API wiring (contracts deploy via `DeployCentralBankV2.s.sol`; gateway still uses the v1 `DigitalToken` path)
-- sanctions/emergency as composable V2 transfer-policy modules
-- runtime loading of deployment profiles into deploy/API configuration
+- ConditionalPayments and WalletRegistry on the V2 ledger (mint/burn/freeze/escrow/waterfall/pause cutover is available via `PROTOCOL_STACK=v2`)
+- deeper runtime loading of deployment profiles into deploy/API configuration
 - non-balance migration and reconciliation
 - full-system end-to-end and invariant validation
 - gas, contract-size, and denial-of-service analysis
@@ -144,14 +149,14 @@ Major production blockers still include:
 
 These items should remain explicit release gates rather than being hidden behind an MVP label.
 
-Protocol v2 contract deployment and capability wiring are available through `contracts/script/DeployCentralBankV2.s.sol` (`make deploy-local-v2`). That closes the earlier “no V2 deploy path” gap; it does not by itself complete API cutover or production readiness.
+Protocol v2 contract deployment is available through `contracts/script/DeployCentralBankV2.s.sol` (`make deploy-local-v2`). Lab API cutover uses `PROTOCOL_STACK=v2` / `scripts/lab-mvp-smoke-v2`; that does not by itself complete production readiness.
 
 ## Repository layout
 
 ```text
 CentralBank
 ├── contracts/          # Ledger, policies, controllers, governance (v1 + v2)
-├── api/                # Institutional gateway and transaction APIs (v1 integration path)
+├── api/                # Institutional gateway (v1 default; PROTOCOL_STACK=v2 cutover)
 ├── profiles/           # Jurisdiction / denomination reference profiles
 ├── tools/              # Reconciliation and integrity tooling
 ├── deploy/             # Deployment and gateway infrastructure
@@ -199,6 +204,8 @@ CentralBank is intended for:
 - teams evaluating sovereign-cloud and institutional settlement architectures
 
 ## Contributing
+
+Agent and Copilot guidance: [`AGENTS.md`](AGENTS.md) and [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
 
 Contributions should preserve the separation between the generic protocol and deployment-specific policy. New jurisdictional or currency-specific behavior should generally be introduced through profiles, policy modules, or clearly scoped adapters rather than hard-coded into `DigitalToken` or the core ledger.
 

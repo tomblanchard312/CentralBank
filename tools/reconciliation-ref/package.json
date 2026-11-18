@@ -1,14 +1,15 @@
 {
   "name": "reconciliation-ref",
   "version": "1.0.0",
-  "description": "Production-grade reconciliation service for CBDT offline transactions",
+  "description": "Reconciliation service for CentralBank / CBDT offline transaction batches",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "node --test test/**/*.test.js"
   },
   "dependencies": {
     "ajv": "^8.18.0",
     "ajv-formats": "^2.1.1"
   },
-  "license": "UNLICENSED"
+  "license": "MIT"
 }

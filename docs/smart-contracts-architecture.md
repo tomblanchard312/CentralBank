@@ -4,7 +4,7 @@
 
 CentralBank separates token accounting, policy enforcement, operational controllers, and institutional governance. The core protocol is currency-agnostic. The generic token is **CBDT (Central Bank Digital Token)** and profile-specific denomination or policy is supplied separately.
 
-The repository contains both the `DigitalToken` implementation used by the current API integration path and the modular Protocol v2 stack (`TokenLedgerV2`, policy modules, and dedicated controllers). Balances stay in the ledger; controllers receive narrowly scoped capabilities. Protocol v2 can be deployed with `DeployCentralBankV2.s.sol`; the API gateway still targets the v1 `DigitalToken` path.
+The repository contains both the `DigitalToken` implementation used by the default API path and the modular Protocol v2 stack (`TokenLedgerV2`, policy modules, and dedicated controllers). Balances stay in the ledger; controllers receive narrowly scoped capabilities. Protocol v2 deploys via `DeployCentralBankV2.s.sol`; the API selects the stack with `PROTOCOL_STACK=v1|v2`.
 
 ```text
                          Permissioning / Governance
@@ -64,9 +64,9 @@ Implemented Protocol v2 modules today:
 TokenLedgerV2
     |
     +--> CompositeTransferPolicyV2
-    |       +--> HoldingLimitPolicyV2   (implemented)
-    |       +--> sanctions policy       (reference design; still V1 freeze on DigitalToken)
-    |       +--> emergency policy       (reference design; still V1 pause on DigitalToken)
+    |       +--> EmergencyPolicyV2      (global transfer pause; dual-control unpause)
+    |       +--> SanctionsPolicyV2      (freeze-only; opaque case hashes)
+    |       +--> HoldingLimitPolicyV2
     |
     +--> MintBurnControllerV2
     +--> EscrowControllerV2
@@ -74,7 +74,7 @@ TokenLedgerV2
     +--> MigrationControllerV2          (balance claims; not full ADR-001 state migration)
 ```
 
-These modules are unit-tested and deployable via `DeployCentralBankV2.s.sol` / `DeployLabEnvironmentV2`.
+These modules are unit-tested and deployable via `DeployCentralBankV2.s.sol` / `DeployLabEnvironmentV2`. With `PROTOCOL_STACK=v2`, the institutional API uses V2 sanctions/emergency/holding/escrow/waterfall controllers.
 
 ### ConditionalPayments
 
@@ -227,9 +227,8 @@ Protocol v2 deploy wiring:
 
 Still open relative to the full README/ADR target:
 
-- sanctions and emergency as composable V2 transfer-policy modules
-- API/ABI wiring onto `TokenLedgerV2` and `EscrowControllerV2`
-- runtime loading of `profiles/eurosystem-reference.json` into deploy/API configuration
+- API/ABI wiring onto `TokenLedgerV2`, policies, and `EscrowControllerV2`
+- deeper runtime profile loading into deploy (beyond API coherence checks)
 - non-balance migration (freeze, escrow cases, roles, optional allowances) per ADR-001
 - ConditionalPayments on the modular V2 ledger/escrow path
 

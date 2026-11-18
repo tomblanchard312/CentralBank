@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import { z } from 'zod';
+import { loadAndValidateProfile, type DeploymentProfile } from './profile';
 
 export const parametersSchema = z.object({
   holding_limit_individual: z.number().nonnegative(),
@@ -28,10 +29,11 @@ export const parametersSchema = z.object({
 
 export type Parameters = z.infer<typeof parametersSchema>;
 
-const defaultPath = path.resolve(process.cwd(), 'envs/lab/ecb-core/parameters.json');
+const defaultPath = path.resolve(__dirname, '../../../envs/lab/ecb-core/parameters.json');
 const filePath = process.env['PARAMETERS_FILE'] || defaultPath;
 
 let cached: Parameters | null = null;
+let cachedProfile: DeploymentProfile | null = null;
 
 export function loadParameters(): Parameters {
   if (cached) return cached;
@@ -42,6 +44,7 @@ export function loadParameters(): Parameters {
     const raw = fs.readFileSync(filePath, 'utf8');
     const parsedRaw = JSON.parse(raw);
     const parsed = parametersSchema.parse(parsedRaw);
+    cachedProfile = loadAndValidateProfile(parsed);
     cached = parsed;
     return parsed;
   } catch (err) {
@@ -54,3 +57,4 @@ export function loadParameters(): Parameters {
 }
 
 export const parameters = loadParameters();
+export const deploymentProfile = cachedProfile!;

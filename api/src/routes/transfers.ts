@@ -97,32 +97,50 @@ router.post('/unfreeze', requirePermission('freeze'), requireRole('ECB_ADMIN'), 
 
 router.post('/escrow', requirePermission('escrow'), requireRole('ECB_ADMIN'), strictRateLimiter, validate(escrowFundsSchema), asyncHandler(async (req: Request, res: Response) => {
   const body = req.body as z.infer<typeof escrowFundsSchema>;
-  const { account, amount, legalBasis, expiry } = body;
+  const { account, amount, legalBasis, expiry, beneficiary, documentHash, idempotencyKey } = body;
   const correlationId = generateCorrelationId('escrow');
   const userId = req.auth!.institutionId;
-  const result = await blockchainService.escrowFunds(account, BigInt(amount), legalBasis, BigInt(expiry), correlationId, userId);
-  logAuditEvent({ action: 'FUNDS_ESCROWED', actor: req.auth!.institutionId, resource: 'account', resourceId: account, details: { amount, amountFormatted: `€${(amount / 100).toFixed(2)}`, legalBasis, expiry }, result: 'success' });
+  const result = await blockchainService.escrowFunds(
+    account,
+    BigInt(amount),
+    legalBasis,
+    BigInt(expiry),
+    correlationId,
+    userId,
+    {
+      ...(beneficiary && { beneficiary }),
+      ...(documentHash && { documentHash }),
+      ...(idempotencyKey && { idempotencyKey }),
+    },
+  );
+  logAuditEvent({ action: 'FUNDS_ESCROWED', actor: req.auth!.institutionId, resource: 'account', resourceId: account, details: { amount, amountFormatted: `€${(amount / 100).toFixed(2)}`, legalBasis, expiry, escrowId: result.escrowId }, result: 'success' });
   res.json({ success: true, data: { account, amount, amountFormatted: `€${(amount / 100).toFixed(2)}`, legalBasis, expiry, ...result } });
 }));
 
 router.post('/release-escrow', requirePermission('escrow'), requireRole('ECB_ADMIN'), strictRateLimiter, validate(releaseEscrowedFundsSchema), asyncHandler(async (req: Request, res: Response) => {
   const body = req.body as z.infer<typeof releaseEscrowedFundsSchema>;
-  const { account, to } = body;
+  const { account, to, escrowId, idempotencyKey } = body;
   const correlationId = generateCorrelationId('release-escrow');
   const userId = req.auth!.institutionId;
-  const result = await blockchainService.releaseEscrowedFunds(account, to, correlationId, userId);
-  logAuditEvent({ action: 'ESCROWED_FUNDS_RELEASED', actor: req.auth!.institutionId, resource: 'account', resourceId: account, details: { to }, result: 'success' });
-  res.json({ success: true, data: { account, to, ...result } });
+  const result = await blockchainService.releaseEscrowedFunds(account, to, correlationId, userId, {
+    ...(escrowId && { escrowId }),
+    ...(idempotencyKey && { idempotencyKey }),
+  });
+  logAuditEvent({ action: 'ESCROWED_FUNDS_RELEASED', actor: req.auth!.institutionId, resource: 'account', resourceId: account, details: { to, escrowId }, result: 'success' });
+  res.json({ success: true, data: { account, to, escrowId, ...result } });
 }));
 
 router.post('/burn-escrow', requirePermission('escrow'), requireRole('ECB_ADMIN'), strictRateLimiter, validate(burnEscrowedFundsSchema), asyncHandler(async (req: Request, res: Response) => {
   const body = req.body as z.infer<typeof burnEscrowedFundsSchema>;
-  const { account } = body;
+  const { account, escrowId, idempotencyKey } = body;
   const correlationId = generateCorrelationId('burn-escrow');
   const userId = req.auth!.institutionId;
-  const result = await blockchainService.burnEscrowedFunds(account, correlationId, userId);
-  logAuditEvent({ action: 'ESCROWED_FUNDS_BURNED', actor: req.auth!.institutionId, resource: 'account', resourceId: account, result: 'success' });
-  res.json({ success: true, data: { account, ...result } });
+  const result = await blockchainService.burnEscrowedFunds(account, correlationId, userId, {
+    ...(escrowId && { escrowId }),
+    ...(idempotencyKey && { idempotencyKey }),
+  });
+  logAuditEvent({ action: 'ESCROWED_FUNDS_BURNED', actor: req.auth!.institutionId, resource: 'account', resourceId: account, details: { escrowId }, result: 'success' });
+  res.json({ success: true, data: { account, escrowId, ...result } });
 }));
 
 router.get('/frozen/:account', requirePermission('read'), asyncHandler(async (req: Request, res: Response) => {
@@ -174,10 +192,10 @@ router.post(
 
 router.post('/waterfall', requirePermission('waterfall'), strictRateLimiter, validate(executeWaterfallSchema), asyncHandler(async (req: Request, res: Response) => {
   const body = req.body as z.infer<typeof executeWaterfallSchema>;
-  const { wallet } = body;
+  const { wallet, idempotencyKey } = body;
   const correlationId = generateCorrelationId('waterfall');
   const userId = req.auth!.institutionId;
-  const result = await blockchainService.executeWaterfall(wallet, correlationId, userId);
+  const result = await blockchainService.executeWaterfall(wallet, correlationId, userId, idempotencyKey);
   logAuditEvent({ action: 'WATERFALL_EXECUTED', actor: req.auth!.institutionId, resource: 'wallet', resourceId: wallet, result: 'success' });
   res.json({ success: true, data: { wallet, operation: 'waterfall', ...result } });
 }));
